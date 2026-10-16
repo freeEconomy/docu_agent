@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"tertiary-fixed-dim":"#4edea3","on-surface-variant":"#434655","outline":"#737686","on-tertiary-container":"#bdffdb","on-error":"#ffffff","on-tertiary-fixed-variant":"#005236","inverse-on-surface":"#eef0ff","tertiary-container":"#007d55","on-primary":"#ffffff","on-surface":"#131b2e","tertiary":"#006242","secondary":"#4b41e1","surface-dim":"#d2d9f4","inverse-surface":"#283044","background":"#faf8ff","surface-container-high":"#e2e7ff","surface-container":"#eaedff","primary-container":"#2563eb","secondary-fixed-dim":"#c3c0ff","surface":"#faf8ff","primary-fixed":"#dbe1ff","outline-variant":"#c3c6d7","secondary-container":"#645efb","on-background":"#131b2e","surface-container-highest":"#dae2fd","error":"#ba1a1a","on-tertiary-fixed":"#002113","surface-bright":"#faf8ff","on-secondary":"#ffffff","on-primary-fixed":"#00174b","surface-container-low":"#f2f3ff","on-primary-fixed-variant":"#003ea8","primary":"#004ac6","on-secondary-fixed-variant":"#3323cc","on-secondary-fixed":"#0f0069","secondary-fixed":"#e2dfff","surface-container-lowest":"#ffffff","on-primary-container":"#eeefff","on-error-container":"#93000a","surface-tint":"#0053db","on-tertiary":"#ffffff","primary-fixed-dim":"#b4c5ff","surface-variant":"#dae2fd","on-secondary-container":"#fffbff","inverse-primary":"#b4c5ff","tertiary-fixed":"#6ffbbe","error-container":"#ffdad6"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"gutter":"1rem","space-xs":"0.25rem","space-xl":"2rem","margin":"1.5rem","margin-mobile":"1rem","gutter-lg":"1.5rem","space-sm":"0.5rem","space-lg":"1.5rem","space-md":"1rem"},"fontFamily":{"label-md":["Inter"],"body-lg":["Inter"],"body-md":["Inter"],"headline-sm":["Inter"],"code-sm":["JetBrains Mono"],"body-sm":["Inter"],"headline-xl":["Inter"],"headline-lg":["Inter"],"headline-md":["Inter"],"label-sm":["Inter"]},"fontSize":{"label-md":["0.875rem",{"lineHeight":"1.25rem","fontWeight":"500"}],"body-lg":["1rem",{"lineHeight":"1.625rem","fontWeight":"400"}],"body-md":["0.875rem",{"lineHeight":"1.45rem","fontWeight":"400"}],"headline-sm":["1.125rem",{"lineHeight":"1.5rem","letterSpacing":"-0.005em","fontWeight":"600"}],"code-sm":["0.8125rem",{"lineHeight":"1.35rem","fontWeight":"400"}],"body-sm":["0.8125rem",{"lineHeight":"1.25rem","fontWeight":"400"}],"headline-xl":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["1.5rem",{"lineHeight":"2rem","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-md":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"-0.01em","fontWeight":"600"}],"label-sm":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.01em","fontWeight":"500"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between select-none"><div class="flex flex-col flex-1 min-h-0"><div class="p-space-md pb-space-sm flex flex-col gap-space-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="DocuMind Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVrhJySIXOKaMIzTsqYoIB3tegl0eB-kbMhIuWbdlOIR4sV1kr1OwlMQ5iKzWs00JSiXbVHpdwjJH3pwA4cHerPkv3vgE5ybZXvAn8cJaiB3emK0IHYwy_Vrjm0uj-LFRAvkAtqv6YkKSQhWRzHkxMy1NFfwNLg8qG9BrtVewVPWpNUiNOLTgBPaVPprw13SKyHU7CyvNpGfizrtmHCcnvbXobwE7lNX5Tq59Aycnnt2Nn86ykze9M"/><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-bold">DocuMind</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded-lg bg-surface-container-high text-primary font-semibold">RAG Pro</span></div><div class="flex items-center justify-between px-space-sm py-1.5 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer"><div class="flex items-center gap-space-xs truncate"><span class="material-symbols-outlined text-[18px] text-primary">domain</span><span class="font-label-md text-label-md text-on-surface font-medium truncate">(주)미래전략연구소 Enterprise</span></div><span class="material-symbols-outlined text-[18px] text-on-surface-variant">unfold_more</span></div></div><div class="px-space-md py-space-xs"><button class="w-full flex items-center justify-between px-space-md py-2.5 bg-primary-container hover:bg-primary text-on-primary rounded-xl font-label-md text-label-md font-medium transition-all shadow-[0_1px_2px_rgba(15,23,42,0.05)]" type="button"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[20px]">add</span><span>새 채팅 시작</span></div><kbd class="px-1.5 py-0.5 rounded-lg bg-on-primary/20 text-on-primary font-code-sm text-code-sm">⌘K</kbd></button></div><div class="flex-1 overflow-y-auto px-space-sm py-space-xs"><div class="px-space-sm py-space-xs font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">워크스페이스 네비게이션</div><nav class="flex flex-col gap-0.5" data-active-classes="bg-primary-fixed text-on-primary-fixed-variant font-semibold rounded-xl"><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="ai-chat" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">chat_bubble</span><span class="font-label-md text-label-md">AI 채팅 (RAG)</span></div><span class="h-2 w-2 rounded-full bg-primary"></span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="knowledge-base" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">folder</span><span class="font-label-md text-label-md">문서 지식 베이스</span></div><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant">28개 등록</span></a><a aria-current="page" class="flex items-center justify-between px-space-sm py-2 transition-colors bg-primary-fixed text-on-primary-fixed-variant font-semibold rounded-xl" data-path="chunk-inspector" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">find_in_page</span><span class="font-label-md text-label-md">문서 상세 및 청크 분석</span></div></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="admin-dashboard" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">bar_chart</span><span class="font-label-md text-label-md">관리자 대시보드</span></div></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="workspace-settings" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-label-md text-label-md">워크스페이스 설정</span></div></a></nav><div class="mt-space-md pt-space-xs"><div class="flex items-center justify-between px-space-sm py-space-xs"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">최근 분석 문서</span><span class="material-symbols-outlined text-[16px] text-outline cursor-pointer hover:text-on-surface">refresh</span></div><div class="flex flex-col gap-0.5 mt-1"><a class="flex items-center gap-space-xs px-space-sm py-1.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors group" href="#"><span class="material-symbols-outlined text-[16px] text-outline group-hover:text-primary">description</span><span class="font-body-sm text-body-sm truncate">2024 사업계획서 v3.4</span></a><a class="flex items-center gap-space-xs px-space-sm py-1.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors group" href="#"><span class="material-symbols-outlined text-[16px] text-outline group-hover:text-primary">lock</span><span class="font-body-sm text-body-sm truncate">사내 정보보안 가이드라인</span></a><a class="flex items-center gap-space-xs px-space-sm py-1.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors group" href="#"><span class="material-symbols-outlined text-[16px] text-outline group-hover:text-primary">code</span><span class="font-body-sm text-body-sm truncate">Core API 기술명세서 rev2</span></a></div></div></div></div><div class="p-space-md bg-surface-container-low"><div class="flex items-center justify-between mb-space-xs"><div class="flex items-center gap-space-sm truncate"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDeRoZQfWBevrgZ-O9jsoe-yGBU9b7AKTed0EXh59bJdV3BYSBQPU6qKKXZ9CHVqDxyjKMj5FNA_G7oeBlx8crhUN-uEmMDDNqNoK7MKHnD3L9AQQfm7GMwG1rG1Df4Cn7HhIQ2LTA-pWxbF4lPJT1GjwbuQRPnxE3Gj4nZ_zieUVdbU-1p7nsRzCm2_wRw3YIkXLJcNGlNBoINQkVAxrX7SiIK7X39-CeyxqJMFi9AxFqggIqcZHk"/><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md text-on-surface font-semibold truncate">이서연 수석연구원</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">AI전략팀</span></div></div><div class="flex items-center gap-1"><button class="p-1 text-on-surface-variant hover:text-error hover:bg-surface-container-high rounded-lg transition-colors" title="로그아웃" type="button"><span class="material-symbols-outlined text-[18px]">logout</span></button></div></div><div class="flex items-center justify-between pt-space-xs"><span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-primary font-medium"><span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span>Enterprise 활성</span><span class="font-code-sm text-code-sm text-outline">v2.8.4</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg select-none"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant"><span class="font-medium text-on-surface">미래전략연구소</span><span class="material-symbols-outlined text-[16px] text-outline">chevron_right</span><span class="text-primary font-medium">지식 검색 에이전트</span></div><div class="h-4 w-[1px] bg-outline-variant"></div><div class="flex items-center gap-space-xs px-2.5 py-1 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group"><span class="material-symbols-outlined text-[18px] text-primary group-hover:scale-105 transition-transform">database</span><span class="font-label-md text-label-md text-on-surface font-medium">선택된 문서: 전체 지식 베이스</span><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded-lg bg-surface-container-lowest text-primary font-semibold">28건 / 4,280 Chunks</span><span class="material-symbols-outlined text-[16px] text-outline-variant group-hover:text-primary transition-colors">tune</span></div></div><div class="flex items-center gap-space-md"><div class="hidden xl:flex items-center gap-space-md"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-surface-container-low"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed-dim opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span></span><span class="font-body-sm text-body-sm text-on-surface-variant">벡터 DB 동기화 완료</span><span class="font-label-sm text-label-sm text-tertiary font-bold">99.9%</span></div><div class="flex items-center gap-1 font-code-sm text-code-sm text-on-surface-variant"><span class="material-symbols-outlined text-[16px] text-outline">speed</span><span>124ms</span></div><div class="h-4 w-[1px] bg-outline-variant"></div></div><div class="flex items-center gap-space-xs"><button class="relative p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" title="알림" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-error ring-2 ring-surface"></span></button><a class="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" href="#" title="도움말 가이드"><span class="material-symbols-outlined text-[20px]">help</span></a><button class="flex items-center gap-1.5 pl-2 pr-1 py-1 rounded-xl hover:bg-surface-container-low transition-colors ml-1" type="button"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDeRoZQfWBevrgZ-O9jsoe-yGBU9b7AKTed0EXh59bJdV3BYSBQPU6qKKXZ9CHVqDxyjKMj5FNA_G7oeBlx8crhUN-uEmMDDNqNoK7MKHnD3L9AQQfm7GMwG1rG1Df4Cn7HhIQ2LTA-pWxbF4lPJT1GjwbuQRPnxE3Gj4nZ_zieUVdbU-1p7nsRzCm2_wRw3YIkXLJcNGlNBoINQkVAxrX7SiIK7X39-CeyxqJMFi9AxFqggIqcZHk"/><span class="material-symbols-outlined text-[18px] text-outline">expand_more</span></button></div></div></header><main class="w-full pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Command & Breadcrumb Ribbon -->
+<section class="bg-surface-container-lowest px-space-lg py-space-md shadow-sm">
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md">
+<!-- Title & Metadata Lineage -->
+<div class="flex flex-col gap-1 min-w-0">
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-outline">
+<a class="hover:text-primary transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[15px]">folder_open</span>문서 지식 베이스
+          </a>
+<span class="material-symbols-outlined text-[13px] text-outline-variant">chevron_right</span>
+<span class="text-on-surface-variant font-medium">경영기획처_보고서</span>
+<span class="material-symbols-outlined text-[13px] text-outline-variant">chevron_right</span>
+<span class="text-primary font-semibold">2024_경영계획서_Q3.pdf</span>
+</div>
+<div class="flex items-center flex-wrap gap-space-sm pt-1">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-lg bg-error-container text-error font-code-sm text-code-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> PDF
+            </span>
+<h1 class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight truncate">
+              2024_경영계획서_Q3.pdf
+            </h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary-container/15 text-tertiary font-label-sm text-label-sm font-semibold">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>인덱싱 완료 (Verified)
+            </span>
+<span class="font-body-sm text-body-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">schedule</span>마지막 동기화: 2024.10.15 14:30
+            </span>
+<span class="px-2 py-0.5 rounded-lg bg-surface-container text-on-surface-variant font-code-sm text-code-sm">
+              SHA-256: 4f9c…b82a
+            </span>
+</div>
+</div>
+</div>
+<!-- Action Group -->
+<div class="flex items-center flex-wrap gap-2">
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px] text-outline">tune</span>
+<span>메타데이터 편집</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px] text-outline">download</span>
+<span>원본 다운로드</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-semibold transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+<span>문서 재분석 (Re-index)</span>
+</button>
+<button class="p-2 rounded-xl bg-surface-container-low hover:bg-error-container hover:text-error text-outline transition-colors" title="문서 삭제" type="button">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Split Screen Two-Column Workspace -->
+<div class="px-space-lg py-space-md grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT COLUMN (48% equiv: 6 cols in 12 grid) - Document Preview High-Fidelity Viewer -->
+<div class="lg:col-span-6 flex flex-col gap-space-sm bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden sticky top-20">
+<!-- Viewer Toolbar -->
+<div class="px-space-md py-2.5 bg-surface-container-low flex items-center justify-between select-none">
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="이전 페이지" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-surface-container-lowest shadow-sm">
+<input class="w-7 text-center font-code-sm text-code-sm font-semibold text-on-surface bg-transparent focus:outline-none" type="text" value="18"/>
+<span class="font-code-sm text-code-sm text-outline">/ 64</span>
+</div>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="다음 페이지" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="축소" type="button">
+<span class="material-symbols-outlined text-[18px]">remove</span>
+</button>
+<span class="font-code-sm text-code-sm text-on-surface font-medium px-2 py-0.5 rounded-lg bg-surface-container-lowest">100%</span>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="확대" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors ml-1" title="시계방향 90도 회전" type="button">
+<span class="material-symbols-outlined text-[18px]">rotate_right</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="화면 너비 맞춤" type="button">
+<span class="material-symbols-outlined text-[18px]">fit_screen</span>
+</button>
+</div>
+<div class="flex items-center gap-1">
+<div class="flex items-center gap-1 px-2 py-1 rounded-lg bg-surface-container-lowest text-on-surface-variant text-body-sm font-body-sm">
+<span class="material-symbols-outlined text-[16px] text-outline">search</span>
+<input class="w-24 text-body-sm font-body-sm bg-transparent focus:outline-none text-on-surface placeholder:text-outline" placeholder="본문 검색..." type="text"/>
+</div>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="전체화면" type="button">
+<span class="material-symbols-outlined text-[18px]">fullscreen</span>
+</button>
+</div>
+</div>
+<!-- PDF Canvas Viewport Container -->
+<div class="relative p-space-lg bg-surface-container-high/40 overflow-y-auto max-h-[calc(100vh-220px)] flex justify-center">
+<!-- Document Sheet Representation -->
+<div class="relative w-full max-w-[560px] bg-surface-container-lowest shadow-md rounded-lg p-space-xl flex flex-col gap-space-md select-text">
+<!-- Anchor Badge Overhanging Top-Right -->
+<div class="absolute -top-3 right-6 flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary text-on-primary shadow-md animate-bounce font-code-sm text-code-sm font-bold">
+<span class="material-symbols-outlined text-[15px]">location_on</span>
+<span>RAG Chunk #42 매칭 • Cosine Sim 0.89</span>
+</div>
+<!-- Document Header -->
+<div class="flex items-center justify-between pb-3 bg-surface-container-low px-3 py-1.5 rounded-lg">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">2024 미래전략 종합계획서</span>
+<span class="font-code-sm text-code-sm text-outline">CONFIDENTIAL • INTERNAL ONLY</span>
+</div>
+<!-- Document Section Title -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-4 bg-primary rounded-full"></span>
+<span class="font-label-sm text-label-sm text-primary font-bold">SECTION 3.2</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">
+              제 3 장: 클라우드 인프라 현대화 및 Q3 예산 집행 계획
+            </h2>
+<span class="font-body-sm text-body-sm text-outline">작성일: 2024년 7월 12일 | 소관부서: 인프라아키텍처팀</span>
+</div>
+<!-- Paragraph 1 (Neutral context) -->
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            당사는 2024년 상반기 추진된 엔터프라이즈 프라이빗 클라우드 안정화 작업을 성공적으로 완료함에 따라, 3분기부터 대규모 하이브리드 워크로드 이관을 본격화한다. 레거시 온프레미스 코어 뱅킹 프레임워크의 MSA(Microservices Architecture) 분할 작업은 목표 일정 대비 104%의 공정률을 기록하고 있다.
+          </p>
+<!-- TARGET PARAGRAPH WITH RAG CHUNK #42 HIGHLIGHT OVERLAY -->
+<div class="relative p-space-md rounded-xl bg-surface-container-low transition-all">
+<!-- Left Citation Anchor Bar -->
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary-container rounded-l-xl"></div>
+<div class="flex items-center justify-between mb-2">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm font-bold text-primary px-2 py-0.5 rounded-md bg-primary-fixed">
+<span class="material-symbols-outlined text-[14px]">psychology</span> 추출 청크 영역 #42
+              </span>
+<span class="font-code-sm text-code-sm text-outline">Offset: Chars 1,280 - 1,766</span>
+</div>
+<!-- Paragraph with Yellow/Warm Citation Marker Highlight -->
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
+              본 계획서 승인 즉시 착수 예정인 
+              <mark class="bg-secondary-fixed text-on-secondary-fixed font-semibold px-1 rounded">3분기 클라우드 네이티브 전환 사업비는 총 1억 2,000만 원으로 책정</mark>되었으며, 
+              세부 항목으로는 쿠버네티스 컨테이너 오케스트레이션 클러스터 라이선스 비용 4,500만 원, 
+              <mark class="bg-secondary-fixed text-on-secondary-fixed font-semibold px-1 rounded">글로벌 멀티리전 DR(재해복구) 스토리지 이중화 구축비 5,200만 원</mark>, 
+              그리고 외부 전문 아키텍트 감리 및 보안 인증 평가비 2,300만 원을 포함한다. 
+              해당 예산은 경영위원회 결의 제 2024-19호에 의거한 예비비 전용 조항을 통해 즉각 집행 가능하다.
+            </p>
+<div class="mt-space-sm pt-2 flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">verified</span> 벡터 인덱싱 완료 (1,536차원)
+              </span>
+<span class="font-code-sm text-code-sm text-outline">신뢰도 가중치: 0.964</span>
+</div>
+</div>
+<!-- Paragraph 3 (Following context) -->
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            인프라 전환 2단계가 완료되는 9월 말 시점에는 전사 트래픽의 약 78%가 신규 컨테이너 클러스터로 무중단 라우팅될 것으로 예상되며, 이를 통해 분기당 클라우드 유지보수 인건비 절감 효과는 약 3,800만 원에 달할 것으로 추산된다.
+          </p>
+<!-- Presentation Table Simulation in Doc -->
+<div class="rounded-xl overflow-hidden bg-surface-container-low p-2">
+<div class="text-label-sm font-label-sm font-bold text-on-surface px-2 py-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">table_chart</span> [표 3-4] Q3 클라우드 투자 소요 명세
+            </div>
+<div class="grid grid-cols-3 gap-1 pt-1 font-label-sm text-label-sm text-on-surface-variant">
+<div class="bg-surface-container-lowest p-2 rounded-lg font-medium">컨테이너 클러스터</div>
+<div class="bg-surface-container-lowest p-2 rounded-lg text-right font-code-sm">45,000,000 원</div>
+<div class="bg-surface-container-lowest p-2 rounded-lg text-center text-tertiary">집행확정</div>
+<div class="bg-surface-container-lowest p-2 rounded-lg font-medium">DR 스토리지 구축</div>
+<div class="bg-surface-container-lowest p-2 rounded-lg text-right font-code-sm">52,000,000 원</div>
+<div class="bg-surface-container-lowest p-2 rounded-lg text-center text-tertiary">집행확정</div>
+<div class="bg-surface-container-lowest p-2 rounded-lg font-medium">보안 인증 평가</div>
+<div class="bg-surface-container-lowest p-2 rounded-lg text-right font-code-sm">23,000,000 원</div>
+<div class="bg-surface-container-lowest p-2 rounded-lg text-center text-on-surface-variant">심의중</div>
+</div>
+</div>
+<!-- Document Sheet Footer -->
+<div class="mt-4 pt-2 flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>미래전략연구소 • 경영기획실</span>
+<span class="font-code-sm font-bold text-on-surface">- 18 -</span>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN (52% equiv: 6 cols in 12 grid) - RAG Chunk & Vector Inspection Tabs -->
+<div class="lg:col-span-6 flex flex-col gap-space-md">
+<!-- Tab Navigation Ribbon -->
+<div class="bg-surface-container-lowest rounded-xl p-1.5 shadow-sm flex items-center justify-between overflow-x-auto select-none">
+<div class="flex items-center gap-1 min-w-max">
+<button class="px-space-md py-2 rounded-xl bg-primary-fixed text-on-primary-fixed-variant font-label-md text-label-md font-bold flex items-center gap-2 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">view_agenda</span>
+<span>벡터 청크 목록</span>
+<span class="px-1.5 py-0.2 rounded-full bg-primary text-on-primary font-code-sm text-code-sm">64</span>
+</button>
+<button class="px-space-md py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low font-label-md text-label-md font-medium transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">subject</span>
+<span>파싱 텍스트 원문</span>
+</button>
+<button class="px-space-md py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low font-label-md text-label-md font-medium transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">history</span>
+<span>처리 이력 및 로그</span>
+</button>
+<button class="px-space-md py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low font-label-md text-label-md font-medium transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span>임베딩 파라미터</span>
+</button>
+</div>
+<div class="hidden xl:flex items-center gap-1 px-2 text-outline font-code-sm text-code-sm">
+<span>HNSW Index</span>
+</div>
+</div>
+<!-- Chunk Filtering & Search Ribbon -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-space-sm">
+<div class="flex-1 relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline text-[18px]">filter_list</span>
+<input class="w-full pl-9 pr-8 py-2 rounded-xl bg-surface-container-low text-body-sm font-body-sm text-on-surface focus:outline-none focus:bg-surface-container-lowest shadow-sm placeholder:text-outline" placeholder="청크 내용 검색 및 키워드 필터..." type="text" value="3분기 클라우드 네이티브 전환 사업비"/>
+<button class="absolute right-2.5 top-2.5 text-outline hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary-fixed/50 text-on-primary-fixed-variant font-label-sm text-label-sm font-semibold whitespace-nowrap">
+<span class="material-symbols-outlined text-[16px]">auto_stories</span>
+<span>페이지 18 필터됨</span>
+<button class="hover:text-error ml-1" type="button"><span class="material-symbols-outlined text-[14px]">cancel</span></button>
+</div>
+<button class="p-2 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface-variant transition-colors" title="정렬 기준: 코사인 유사도 순" type="button">
+<span class="material-symbols-outlined text-[18px]">sort</span>
+</button>
+</div>
+</div>
+<!-- SELECTED CHUNK CARD (Chunk #42 - Expanded Deep-Dive Inspector) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-md p-space-lg flex flex-col gap-space-md">
+<!-- Header & Top Metadata Badges -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="px-2.5 py-1 rounded-xl bg-primary text-on-primary font-code-sm text-code-sm font-bold shadow-sm">
+              Chunk #42
+            </span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">
+              chunk-doc-2024-q3-0042
+            </span>
+<span class="px-2 py-0.5 rounded-lg bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+              Page 18
+            </span>
+<span class="px-2 py-0.5 rounded-lg bg-surface-container text-on-surface-variant font-code-sm text-code-sm">
+              486 Tokens
+            </span>
+</div>
+<div class="flex items-center gap-1">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded-lg bg-surface-container-high text-primary font-semibold">
+              ID: vec_8a9f3b
+            </span>
+</div>
+</div>
+<!-- Similarity Score Gauge & Vector Lineage Matrix -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-sm p-space-md rounded-xl bg-surface-container-low">
+<!-- Metric 1: Match Score -->
+<div class="flex flex-col gap-1 bg-surface-container-lowest p-space-sm rounded-lg shadow-sm">
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>질의 일치도 (Confidence)</span>
+<span class="material-symbols-outlined text-[16px] text-tertiary">check_circle</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-md text-headline-md font-bold text-tertiary">96.4%</span>
+<span class="font-code-sm text-code-sm text-outline">High Match</span>
+</div>
+<!-- Progress sparkline -->
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden mt-1">
+<div class="h-full bg-tertiary rounded-full" style="width: 96.4%;"></div>
+</div>
+</div>
+<!-- Metric 2: Cosine Distance -->
+<div class="flex flex-col gap-1 bg-surface-container-lowest p-space-sm rounded-lg shadow-sm">
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>코사인 거리 (Distance)</span>
+<span class="material-symbols-outlined text-[16px] text-primary">straighten</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">0.1124</span>
+<span class="font-code-sm text-code-sm text-outline">Sim: 0.8876</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden mt-1">
+<div class="h-full bg-primary rounded-full" style="width: 88.8%;"></div>
+</div>
+</div>
+<!-- Metric 3: Retrieval Density -->
+<div class="flex flex-col gap-1 bg-surface-container-lowest p-space-sm rounded-lg shadow-sm">
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>Dense Vector Norm</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">bubble_chart</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">1,536-D</span>
+<span class="font-code-sm text-code-sm text-outline">L2: 1.000</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden mt-1">
+<div class="h-full bg-secondary rounded-full" style="width: 100%;"></div>
+</div>
+</div>
+</div>
+<!-- Extracted Content Box with Token Highlights -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">data_object</span>
+              파싱 및 정규화된 텍스트 본문 (Extracted Tokens)
+            </span>
+<span class="font-code-sm text-code-sm text-outline">486 tokens / 321 chars</span>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-low font-body-sm text-body-sm text-on-surface leading-relaxed select-text space-y-2">
+<p>
+              [SECTION 3.2] 클라우드 인프라 현대화 및 Q3 예산 집행 계획. 
+              본 계획서 승인 즉시 착수 예정인 <span class="bg-secondary-fixed text-on-secondary-fixed font-semibold px-1 rounded">3분기 클라우드 네이티브 전환 사업비는 총 1억 2,000만 원으로 책정</span>되었으며, 
+              세부 항목으로는 쿠버네티스 컨테이너 오케스트레이션 클러스터 라이선스 비용 4,500만 원, 
+              <span class="bg-secondary-fixed text-on-secondary-fixed font-semibold px-1 rounded">글로벌 멀티리전 DR(재해복구) 스토리지 이중화 구축비 5,200만 원</span>, 
+              그리고 외부 전문 아키텍트 감리 및 보안 인증 평가비 2,300만 원을 포함한다.
+            </p>
+<p class="text-outline">
+              해당 예산은 경영위원회 결의 제 2024-19호에 의거한 예비비 전용 조항을 통해 즉각 집행 가능하다.
+            </p>
+</div>
+</div>
+<!-- Collapsible Raw Metadata JSON Section -->
+<div class="rounded-xl bg-surface-container-low p-space-md flex flex-col gap-2">
+<div class="flex items-center justify-between cursor-pointer select-none">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline">terminal</span>
+<span class="font-label-sm text-label-sm font-bold text-on-surface">청크 페이로드 메타데이터 (Metadata Payload)</span>
+</div>
+<span class="font-code-sm text-code-sm text-primary flex items-center gap-1">
+<span>JSON 축소</span>
+<span class="material-symbols-outlined text-[16px]">expand_less</span>
+</span>
+</div>
+<pre class="p-space-md rounded-lg bg-inverse-surface text-inverse-on-surface font-code-sm text-code-sm overflow-x-auto leading-normal"><code>{
+  <span class="text-secondary-fixed-dim">"chunk_id"</span>: <span class="text-tertiary-fixed">"chunk-doc-2024-q3-0042"</span>,
+  <span class="text-secondary-fixed-dim">"page"</span>: <span class="text-primary-fixed">18</span>,
+  <span class="text-secondary-fixed-dim">"section"</span>: <span class="text-tertiary-fixed">"3.2 Cloud Migration Budget"</span>,
+  <span class="text-secondary-fixed-dim">"tokens"</span>: <span class="text-primary-fixed">486</span>,
+  <span class="text-secondary-fixed-dim">"vector_id"</span>: <span class="text-tertiary-fixed">"vec_8a9f3b"</span>,
+  <span class="text-secondary-fixed-dim">"similarity_score"</span>: <span class="text-primary-fixed">0.964</span>,
+  <span class="text-secondary-fixed-dim">"created_at"</span>: <span class="text-tertiary-fixed">"2024-10-15T14:30:00Z"</span>,
+  <span class="text-secondary-fixed-dim">"embedding_model"</span>: <span class="text-tertiary-fixed">"text-embedding-3-large"</span>
+}</code></pre>
+</div>
+<!-- Chunk Operations & Control Action Buttons -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm pt-2">
+<div class="flex items-center gap-2">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-outline">content_copy</span>
+<span>텍스트 복사</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-outline">edit_note</span>
+<span>이 청크 수정</span>
+</button>
+</div>
+<div class="flex items-center gap-2">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-error-container/20 hover:bg-error-container text-error font-label-sm text-label-sm font-semibold transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility_off</span>
+<span>검색 인덱스에서 제외</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Other Neighboring Chunks Stack -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between px-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">인접 컨텍스트 청크 (Neighboring Chunks)</span>
+<span class="font-code-sm text-code-sm text-outline">Window: [-1, +1]</span>
+</div>
+<!-- Neighbor Chunk #41 (Preceding) -->
+<div class="bg-surface-container-lowest hover:bg-surface-container-low rounded-xl p-space-md shadow-sm transition-all cursor-pointer flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-lg bg-surface-container text-on-surface-variant font-code-sm text-code-sm font-bold">
+                Chunk #41
+              </span>
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate max-w-[280px]">
+                인프라 전환 2단계 일정 계획 및 마일스톤
+              </span>
+</div>
+<div class="flex items-center gap-2 font-code-sm text-code-sm text-outline">
+<span>Page 17</span>
+<span>•</span>
+<span>510 tokens</span>
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            당사는 2024년 상반기 추진된 엔터프라이즈 프라이빗 클라우드 안정화 작업을 성공적으로 완료함에 따라, 3분기부터 대규모 하이브리드 워크로드 이관을 본격화한다...
+          </p>
+</div>
+<!-- Neighbor Chunk #43 (Following) -->
+<div class="bg-surface-container-lowest hover:bg-surface-container-low rounded-xl p-space-md shadow-sm transition-all cursor-pointer flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-lg bg-surface-container text-on-surface-variant font-code-sm text-code-sm font-bold">
+                Chunk #43
+              </span>
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate max-w-[280px]">
+                벤더사 계약 및 서드파티 라이선스 비용 내역
+              </span>
+</div>
+<div class="flex items-center gap-2 font-code-sm text-code-sm text-outline">
+<span>Page 19</span>
+<span>•</span>
+<span>420 tokens</span>
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            인프라 전환 2단계가 완료되는 9월 말 시점에는 전사 트래픽의 약 78%가 신규 컨테이너 클러스터로 무중단 라우팅될 것으로 예상되며 지속적 모니터링을 병행한다...
+          </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Info Footer (RAG Pipeline Lineage Transparency) -->
+<footer class="mt-space-lg mx-space-lg mb-space-md p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-space-sm select-none">
+<div class="flex flex-wrap items-center gap-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">account_tree</span>
+<span class="font-label-sm text-label-sm font-bold text-on-surface">RAG 파이프라인 구성 사양</span>
+</div>
+<div class="flex flex-wrap items-center gap-2 font-code-sm text-code-sm">
+<span class="px-2 py-1 rounded-lg bg-surface-container text-on-surface-variant">Parser: LlamaParse High-Res OCR</span>
+<span class="text-outline">→</span>
+<span class="px-2 py-1 rounded-lg bg-surface-container text-on-surface-variant">Chunk Size: 512 / Overlap: 50</span>
+<span class="text-outline">→</span>
+<span class="px-2 py-1 rounded-lg bg-surface-container text-on-surface-variant">Embedding: OpenAI text-embedding-3-large (1536-D)</span>
+<span class="text-outline">→</span>
+<span class="px-2 py-1 rounded-lg bg-surface-container-high text-primary font-semibold">Qdrant Vector DB</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md font-label-sm text-label-sm text-outline">
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>Lineage Synced
+      </span>
+<span>Doc ID: d9910f-2024-q3</span>
+</div>
+</footer>
+</div></main></div></body></html>

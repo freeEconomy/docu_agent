@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-container-lowest":"#ffffff","inverse-surface":"#283044","on-background":"#131b2e","on-secondary-container":"#fffbff","secondary-fixed-dim":"#c3c0ff","background":"#faf8ff","primary":"#004ac6","primary-container":"#2563eb","tertiary-container":"#007d55","on-secondary":"#ffffff","surface-container":"#eaedff","error":"#ba1a1a","surface-dim":"#d2d9f4","surface":"#faf8ff","outline-variant":"#c3c6d7","on-secondary-fixed":"#0f0069","on-secondary-fixed-variant":"#3323cc","tertiary-fixed":"#6ffbbe","on-surface-variant":"#434655","on-primary-container":"#eeefff","surface-bright":"#faf8ff","on-primary-fixed":"#00174b","tertiary-fixed-dim":"#4edea3","on-primary":"#ffffff","inverse-primary":"#b4c5ff","surface-container-high":"#e2e7ff","surface-container-highest":"#dae2fd","primary-fixed-dim":"#b4c5ff","outline":"#737686","surface-variant":"#dae2fd","on-surface":"#131b2e","on-error-container":"#93000a","on-primary-fixed-variant":"#003ea8","secondary-fixed":"#e2dfff","on-tertiary-fixed":"#002113","on-tertiary-fixed-variant":"#005236","primary-fixed":"#dbe1ff","secondary":"#4b41e1","on-error":"#ffffff","error-container":"#ffdad6","tertiary":"#006242","on-tertiary":"#ffffff","inverse-on-surface":"#eef0ff","secondary-container":"#645efb","surface-tint":"#0053db","on-tertiary-container":"#bdffdb","surface-container-low":"#f2f3ff"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"margin-mobile":"1rem","space-xs":"0.25rem","gutter":"1rem","margin":"1.5rem","gutter-lg":"1.5rem","space-md":"1rem","space-sm":"0.5rem","space-xl":"2rem","space-lg":"1.5rem"},"fontFamily":{"headline-lg":["Inter"],"code-sm":["JetBrains Mono"],"headline-xl":["Inter"],"label-sm":["Inter"],"body-lg":["Inter"],"body-sm":["Inter"],"headline-md":["Inter"],"headline-sm":["Inter"],"label-md":["Inter"],"body-md":["Inter"]},"fontSize":{"headline-lg":["1.5rem",{"lineHeight":"2rem","letterSpacing":"-0.015em","fontWeight":"600"}],"code-sm":["0.8125rem",{"lineHeight":"1.35rem","fontWeight":"400"}],"headline-xl":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.02em","fontWeight":"700"}],"label-sm":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.01em","fontWeight":"500"}],"body-lg":["1rem",{"lineHeight":"1.625rem","fontWeight":"400"}],"body-sm":["0.8125rem",{"lineHeight":"1.25rem","fontWeight":"400"}],"headline-md":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-sm":["1.125rem",{"lineHeight":"1.5rem","letterSpacing":"-0.005em","fontWeight":"600"}],"label-md":["0.875rem",{"lineHeight":"1.25rem","fontWeight":"500"}],"body-md":["0.875rem",{"lineHeight":"1.45rem","fontWeight":"400"}]}}}};</script><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/></head><body class="bg-background font-body-md text-on-surface antialiased min-h-screen flex flex-col justify-between"><header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-xl bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[20px]">neurology</span></div><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-bold">DocuMind <span class="text-primary font-normal">Enterprise</span></span></div><nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-primary font-bold"><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="enterprise-login" href="#">로그인</a><a aria-current="page" class="transition-colors text-primary font-bold" data-path="sso-portal" href="#">SSO 연동</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="security-compliance" href="#">보안 인증 센터</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="access-request" href="#">접근 권한 신청</a></nav><div class="flex items-center gap-space-md"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-surface flex-1 flex flex-col"><div class="flex flex-col w-full">
+<!-- Subtle decorative ambient background glows contained in relative canvas -->
+<div class="relative w-full overflow-hidden">
+<div class="absolute -top-32 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute top-1/2 -right-24 w-80 h-80 bg-tertiary-container/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-6 lg:px-12 py-space-xl">
+<!-- Onboarding Step Indicator / Progress Tracker -->
+<section class="mb-space-xl">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md mb-space-lg">
+<div>
+<div class="flex items-center gap-space-xs text-primary font-label-sm text-label-sm uppercase tracking-wider mb-1">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+              Enterprise Workspace Provisioning
+            </div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface">회원가입 및 신규 워크스페이스 개설</h1>
+</div>
+<div class="flex items-center gap-space-sm bg-surface-container-low px-space-md py-space-xs rounded-xl shadow-sm">
+<span class="material-symbols-outlined text-tertiary text-[20px]">shield_lock</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">SOC2 Type II · 전송/저장 암호화 적용 중</span>
+</div>
+</div>
+<!-- Stepper Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Step 1 (Active) -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-center gap-space-md relative overflow-hidden">
+<div class="w-1.5 absolute left-0 top-0 bottom-0 bg-primary"></div>
+<div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0">
+<span class="font-headline-sm text-headline-sm text-on-primary">1</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-md text-label-md text-primary font-semibold">Step 01</span>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-primary/10 text-primary font-medium">진행 중</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-on-surface truncate">계정 정보 입력</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">업무용 계정 및 프로필 검증</p>
+</div>
+</div>
+<!-- Step 2 (Upcoming) -->
+<div class="bg-surface-container-low/70 p-space-md rounded-xl flex items-center gap-space-md opacity-80">
+<div class="w-9 h-9 rounded-xl bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="font-headline-sm text-headline-sm text-outline">2</span>
+</div>
+<div class="min-w-0">
+<span class="font-label-md text-label-md text-outline font-semibold">Step 02</span>
+<p class="font-headline-sm text-headline-sm text-on-surface-variant truncate">기업 워크스페이스 설정</p>
+<p class="font-body-sm text-body-sm text-outline truncate">도메인 식별 및 벡터 DB 클러스터</p>
+</div>
+</div>
+<!-- Step 3 (Upcoming) -->
+<div class="bg-surface-container-low/70 p-space-md rounded-xl flex items-center gap-space-md opacity-80">
+<div class="w-9 h-9 rounded-xl bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="font-headline-sm text-headline-sm text-outline">3</span>
+</div>
+<div class="min-w-0">
+<span class="font-label-md text-label-md text-outline font-semibold">Step 03</span>
+<p class="font-headline-sm text-headline-sm text-on-surface-variant truncate">초기 보안 및 RAG 권한 설정</p>
+<p class="font-body-sm text-body-sm text-outline truncate">문서 파이프라인 & 격리 레벨</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Layout: 2-Column Split Console -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+<!-- Left Column: Form Stage (7 Cols) -->
+<div class="lg:col-span-7 flex flex-col gap-space-lg">
+<div class="bg-surface-container-lowest p-space-xl rounded-xl shadow-md">
+<div class="mb-space-lg">
+<div class="inline-flex items-center gap-space-xs px-2.5 py-1 rounded bg-surface-container text-primary font-label-sm text-label-sm mb-space-xs">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+                30일 무료 엔터프라이즈 체험
+              </div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">기업용 DocuMind 가입 시작</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+                사내 지식 자산을 검색하고 질의응답할 수 있는 전용 RAG 인스턴스를 즉시 프로비저닝합니다.
+              </p>
+</div>
+<!-- SSO Fast Provisioning Row -->
+<div class="flex flex-col gap-space-sm mb-space-lg">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">기업 SSO 계정으로 1초 만에 시작하기</span>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<button class="flex items-center justify-center gap-space-sm h-11 px-4 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-xl transition-all shadow-sm group" type="button">
+<svg class="w-5 h-5 shrink-0" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"></path>
+</svg>
+<span class="font-label-md text-label-md font-medium text-on-surface">Google Workspace SSO</span>
+</button>
+<button class="flex items-center justify-center gap-space-sm h-11 px-4 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-xl transition-all shadow-sm group" type="button">
+<svg class="w-5 h-5 shrink-0" viewbox="0 0 24 24">
+<path d="M1 1h10v10H1z" fill="#F25022"></path>
+<path d="M13 1h10v10H13z" fill="#7FBA00"></path>
+<path d="M1 13h10v10H1z" fill="#00A4EF"></path>
+<path d="M13 13h10v10H13z" fill="#FFB900"></path>
+</svg>
+<span class="font-label-md text-label-md font-medium text-on-surface">Microsoft Entra ID</span>
+</button>
+</div>
+</div>
+<!-- Divider with semantic style -->
+<div class="relative my-space-lg flex items-center justify-center">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full bg-surface-container-high h-[1px]"></div>
+</div>
+<span class="relative px-space-md bg-surface-container-lowest font-body-sm text-body-sm text-outline">또는 업무용 이메일로 직접 계정 생성</span>
+</div>
+<!-- Interactive Form -->
+<form class="space-y-space-md" id="signup-form" onsubmit="event.preventDefault(); handleFormSubmit();">
+<!-- Name & Role -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface font-semibold mb-1" for="user-name">
+                  이름 및 직책 <span class="text-error">*</span>
+</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline text-[20px]">badge</span>
+<input class="w-full h-11 pl-10 pr-4 bg-surface-container-low text-on-surface rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary transition-all placeholder:text-outline" id="user-name" placeholder="홍길동 수석연구원 / 팀장" required="" type="text"/>
+</div>
+</div>
+<!-- Work Email & Domain Validation Warning -->
+<div>
+<div class="flex items-center justify-between mb-1">
+<label class="block font-label-md text-label-md text-on-surface font-semibold" for="work-email">
+                    업무용 이메일 주소 <span class="text-error">*</span>
+</label>
+<span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[16px]">domain_verification</span>
+                    소속 기관 도메인 필수
+                  </span>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline text-[20px]">alternate_email</span>
+<input class="w-full h-11 pl-10 pr-4 bg-surface-container-low text-on-surface rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary transition-all placeholder:text-outline" id="work-email" oninput="validateEmailDomain(this.value)" placeholder="name@company.com" required="" type="email"/>
+</div>
+<!-- Warning badge shown if personal email entered -->
+<div class="mt-2 hidden p-2.5 rounded-xl bg-error-container text-on-error-container flex items-center gap-space-sm font-body-sm text-body-sm" id="domain-alert">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+<span>개인 메일(@gmail, @naver 등)은 제한됩니다. 회사 전용 도메인을 입력해주세요.</span>
+</div>
+</div>
+<!-- Company / Institution Name & Industry -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface font-semibold mb-1" for="company-name">
+                    소속 기업 / 기관명 <span class="text-error">*</span>
+</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline text-[20px]">corporate_fare</span>
+<input class="w-full h-11 pl-10 pr-4 bg-surface-container-low text-on-surface rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary transition-all placeholder:text-outline" id="company-name" placeholder="(주)미래전략연구소" required="" type="text"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface font-semibold mb-1" for="rag-purpose">
+                    RAG 구축 주요 목적 <span class="text-error">*</span>
+</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline text-[20px]">folder_managed</span>
+<select class="w-full h-11 pl-10 pr-8 bg-surface-container-low text-on-surface rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary transition-all appearance-none cursor-pointer" id="rag-purpose" required="">
+<option disabled="" selected="" value="">주요 사용 시나리오 선택</option>
+<option value="internal_qa">사내 규정 및 인사/회계 문서 Q&A</option>
+<option value="rnd_search">연구개발(R&D) 및 특허/기술문서 시맨틱 검색</option>
+<option value="cs_tech">고객사 엔지니어링 기술지원 AI 코파일럿</option>
+<option value="legal_contract">계약서 및 법무 컴플라이언스 검토 지원</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-outline text-[20px] pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Password & Strength Checklist -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface font-semibold mb-1" for="password">
+                    비밀번호 설정 <span class="text-error">*</span>
+</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline text-[20px]">lock</span>
+<input class="w-full h-11 pl-10 pr-10 bg-surface-container-low text-on-surface rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary transition-all placeholder:text-outline" id="password" oninput="checkPasswordStrength(this.value)" placeholder="8자 이상 안전한 조합" required="" type="password"/>
+<button class="absolute right-3 top-3 text-outline hover:text-on-surface" onclick="togglePassVisibility('password', this)" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface font-semibold mb-1" for="password-confirm">
+                    비밀번호 확인 <span class="text-error">*</span>
+</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline text-[20px]">lock_reset</span>
+<input class="w-full h-11 pl-10 pr-10 bg-surface-container-low text-on-surface rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary transition-all placeholder:text-outline" id="password-confirm" oninput="checkPasswordMatch()" placeholder="비밀번호 재입력" required="" type="password"/>
+<button class="absolute right-3 top-3 text-outline hover:text-on-surface" onclick="togglePassVisibility('password-confirm', this)" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Password Security Indicator Module -->
+<div class="bg-surface-container-low p-space-sm rounded-xl">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">보안 강도</span>
+<span class="font-label-sm text-label-sm font-semibold text-outline" id="strength-label">입력 대기</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden flex gap-1 mb-2">
+<div class="h-full flex-1 bg-surface-container-high transition-colors" id="bar-1"></div>
+<div class="h-full flex-1 bg-surface-container-high transition-colors" id="bar-2"></div>
+<div class="h-full flex-1 bg-surface-container-high transition-colors" id="bar-3"></div>
+<div class="h-full flex-1 bg-surface-container-high transition-colors" id="bar-4"></div>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-1 text-[11px] text-outline font-label-sm">
+<span class="flex items-center gap-1" id="rule-len"><span class="material-symbols-outlined text-[14px]">remove</span> 8자 이상</span>
+<span class="flex items-center gap-1" id="rule-case"><span class="material-symbols-outlined text-[14px]">remove</span> 영문 대소문자</span>
+<span class="flex items-center gap-1" id="rule-num"><span class="material-symbols-outlined text-[14px]">remove</span> 숫자 포함</span>
+<span class="flex items-center gap-1" id="rule-special"><span class="material-symbols-outlined text-[14px]">remove</span> 특수문자 조합</span>
+</div>
+</div>
+<!-- Compliance & Terms Checkboxes -->
+<div class="bg-surface-container-low/60 p-space-md rounded-xl space-y-space-sm">
+<label class="flex items-start gap-space-sm cursor-pointer select-none">
+<input class="mt-1 w-4 h-4 rounded text-primary accent-primary" id="terms-all" onchange="toggleAllAgreements(this.checked)" type="checkbox"/>
+<span class="font-label-md text-label-md text-on-surface font-semibold">약관 전체 동의하기</span>
+</label>
+<div class="h-[1px] bg-surface-container-high"></div>
+<label class="flex items-start gap-space-sm cursor-pointer select-none">
+<input class="agreement-item mt-1 w-4 h-4 rounded text-primary accent-primary" name="agreement" required="" type="checkbox"/>
+<div class="font-body-sm text-body-sm text-on-surface">
+<span class="text-primary font-medium">[필수]</span> DocuMind 엔터프라이즈 이용약관 및 서비스 수준 합약(SLA) 동의
+                    <a class="text-outline underline hover:text-primary ml-1" href="#">상세보기</a>
+</div>
+</label>
+<label class="flex items-start gap-space-sm cursor-pointer select-none">
+<input class="agreement-item mt-1 w-4 h-4 rounded text-primary accent-primary" name="agreement" required="" type="checkbox"/>
+<div class="font-body-sm text-body-sm text-on-surface">
+<span class="text-primary font-medium">[필수]</span> 개인정보 수집 및 사내 데이터 보안 서약 동의
+                    <p class="font-label-sm text-label-sm text-tertiary font-medium mt-0.5">
+                      ✓ 귀사의 사내 문서는 격리된 테넌트에서만 보관되며 AI 모델 재학습에 일체 활용되지 않습니다.
+                    </p>
+</div>
+</label>
+<label class="flex items-start gap-space-sm cursor-pointer select-none">
+<input class="agreement-item mt-1 w-4 h-4 rounded text-primary accent-primary" name="agreement" type="checkbox"/>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+<span class="text-outline">[선택]</span> 신규 임베딩 모델 출시, 보안 패치 및 엔터프라이즈 기능 업데이트 안내 수신
+                  </div>
+</label>
+</div>
+<!-- Primary Submit CTA -->
+<div class="pt-space-xs">
+<button class="w-full h-12 bg-primary hover:bg-primary-container active:bg-on-primary-fixed-variant text-on-primary font-label-md text-label-md font-semibold rounded-xl transition-all shadow-md flex items-center justify-center gap-space-sm group" type="submit">
+<span>30일 무료 엔터프라이즈 체험 시작하기</span>
+<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+<div class="text-center mt-space-sm">
+<span class="font-label-sm text-label-sm text-outline">별도의 신용카드 등록 없이 바로 시작할 수 있습니다.</span>
+</div>
+</div>
+</form>
+<!-- Bottom Redirect & Inquiries -->
+<div class="mt-space-lg pt-space-md bg-surface-container-low/40 p-space-md rounded-xl flex flex-col sm:flex-row items-center justify-between gap-space-sm">
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+                이미 DocuMind 계정이 있으신가요?
+                <a class="text-primary font-semibold hover:underline ml-1" href="#">로그인하기</a>
+</div>
+<a class="inline-flex items-center gap-1 font-label-sm text-label-sm text-primary hover:text-on-primary-fixed-variant font-medium" href="#">
+<span>사내 IT 전산팀 온프레미스(Air-gapped) 문의</span>
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Right Column: Security Guarantees & Live Architecture Preview (5 Cols) -->
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<!-- Assurance Overview Card -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-md">
+<div class="flex items-center gap-space-xs text-tertiary font-label-sm text-label-sm font-semibold uppercase mb-1">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+              Enterprise RAG Infrastructure
+            </div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-space-xs">안심할 수 있는 보안 인프라</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-space-md">
+              금융권, 공공기관, 대기업의 엄격한 보안 요건을 통과한 독립형 가상 프라이빗 클라우드(VPC) 전용 RAG 파이프라인을 지원합니다.
+            </p>
+<!-- 3 Core Guarantees -->
+<div class="space-y-space-md">
+<!-- Feature 1: Zero-Data Retention -->
+<div class="p-space-md bg-surface-container-low rounded-xl transition-all hover:bg-surface-container">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">cloud_off</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">제로 데이터 리텐션 (Zero Retention)</h4>
+<span class="px-1.5 py-0.5 rounded text-[10px] bg-tertiary/10 text-tertiary font-bold">100% 보증</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                      고객사 문서 데이터는 임베딩 생성 직후 메모리에서 파기되며, 어떠한 기초 파운데이션 모델(LLM) 재학습에도 사용되지 않습니다.
+                    </p>
+</div>
+</div>
+</div>
+<!-- Feature 2: Granular RBAC -->
+<div class="p-space-md bg-surface-container-low rounded-xl transition-all hover:bg-surface-container">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">admin_panel_settings</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">세분화된 RBAC 권한 제어</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                      부서별(인사/재무/법무), 직급별, 프로젝트별로 벡터 인덱스 접근 권한을 분리하여 권한 밖의 기밀 문서는 AI 답변 생성에서 자동 제외됩니다.
+                    </p>
+</div>
+</div>
+</div>
+<!-- Feature 3: Sub-second Vector Ingestion -->
+<div class="p-space-md bg-surface-container-low rounded-xl transition-all hover:bg-surface-container">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-tertiary-container/10 text-tertiary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">speed</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">초고속 하이브리드 인덱싱 파이프라인</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                      대용량 PDF, DOCX, HWPX 문서를 1초 내에 청크화(Chunking)하고 Sparse + Dense 복합 검색 인덱스로 변환합니다.
+                    </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Live RAG Flow Telemetry Visual (Vector Pipeline Mockup) -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-md">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">account_tree</span>
+                격리 파이프라인 아키텍처
+              </span>
+<span class="inline-flex items-center gap-1 font-code-sm text-code-sm text-tertiary bg-tertiary/10 px-2 py-0.5 rounded">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-ping"></span>
+                ACTIVE VIRTUAL VPC
+              </span>
+</div>
+<!-- Mini Graphic Card: Data Flow Diagram -->
+<div class="bg-surface-container-low p-space-md rounded-xl space-y-space-sm font-code-sm text-code-sm">
+<div class="flex items-center justify-between bg-surface-container-lowest px-3 py-2 rounded-lg shadow-sm">
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-primary text-[18px]">lock</span>
+<span>문서 암호화 (AES-256-GCM)</span>
+</div>
+<span class="text-tertiary font-medium">완료</span>
+</div>
+<div class="flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[16px]">arrow_downward</span>
+</div>
+<div class="flex items-center justify-between bg-surface-container-lowest px-3 py-2 rounded-lg shadow-sm">
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[18px]">hub</span>
+<span>임베딩 벡터화 & 네임스페이스 격리</span>
+</div>
+<span class="text-secondary font-medium">부서 격리</span>
+</div>
+<div class="flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[16px]">arrow_downward</span>
+</div>
+<div class="flex items-center justify-between bg-surface-container-lowest px-3 py-2 rounded-lg shadow-sm">
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-tertiary text-[18px]">fact_check</span>
+<span>정확한 출처 인라인 인용 (Citations)</span>
+</div>
+<span class="text-primary font-medium">100% 검증</span>
+</div>
+</div>
+<!-- Global Security Cert Badges Grid -->
+<div class="mt-space-md pt-space-sm border-t border-surface-container-high/60 grid grid-cols-3 gap-space-xs text-center">
+<div class="p-2 rounded-lg bg-surface-container-low flex flex-col items-center">
+<span class="material-symbols-outlined text-primary text-[22px]">policy</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold mt-1">ISO 27001</span>
+<span class="text-[10px] text-outline">국제 정보보안</span>
+</div>
+<div class="p-2 rounded-lg bg-surface-container-low flex flex-col items-center">
+<span class="material-symbols-outlined text-tertiary text-[22px]">gavel</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold mt-1">SOC 2 Type II</span>
+<span class="text-[10px] text-outline">감사 인증 완료</span>
+</div>
+<div class="p-2 rounded-lg bg-surface-container-low flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary text-[22px]">encrypted</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold mt-1">HIPAA / GDPR</span>
+<span class="text-[10px] text-outline">컴플라이언스 준수</span>
+</div>
+</div>
+</div>
+<!-- Enterprise Testimonial / Assurance Quote -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex items-start gap-space-md">
+<span class="material-symbols-outlined text-primary text-[28px] shrink-0">format_quote</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface italic">
+                “DocuMind RAG 인프라 도입 후 사내 24만 건의 기밀 기술 문서에서 원하는 근거를 3초 안에 찾아내고 있습니다. 강력한 테넌트 격리와 권한 제어로 정보보호 심사를 단번에 통과했습니다.”
+              </p>
+<div class="mt-space-xs flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">CISO · 글로벌 바이오 테크 솔루션즈</span>
+<span class="font-label-sm text-label-sm text-tertiary font-medium">검증된 도입 사례</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function validateEmailDomain(email) {
+    const alertBox = document.getElementById('domain-alert');
+    const personalDomains = ['gmail.com', 'naver.com', 'daum.net', 'hanmail.net', 'kakao.com', 'outlook.com', 'hotmail.com', 'yahoo.com'];
+    if (!email || !email.includes('@')) {
+      alertBox.classList.add('hidden');
+      return;
+    }
+    const domain = email.split('@')[1]?.toLowerCase().trim();
+    if (personalDomains.includes(domain)) {
+      alertBox.classList.remove('hidden');
+    } else {
+      alertBox.classList.add('hidden');
+    }
+  }
+
+  function checkPasswordStrength(val) {
+    const rLen = val.length >= 8;
+    const rCase = /[a-z]/.test(val) && /[A-Z]/.test(val);
+    const rNum = /\d/.test(val);
+    const rSpecial = /[^A-Za-z0-9]/.test(val);
+
+    updateRuleState('rule-len', rLen);
+    updateRuleState('rule-case', rCase);
+    updateRuleState('rule-num', rNum);
+    updateRuleState('rule-special', rSpecial);
+
+    let score = 0;
+    if (rLen) score++;
+    if (rCase) score++;
+    if (rNum) score++;
+    if (rSpecial) score++;
+
+    const bar1 = document.getElementById('bar-1');
+    const bar2 = document.getElementById('bar-2');
+    const bar3 = document.getElementById('bar-3');
+    const bar4 = document.getElementById('bar-4');
+    const label = document.getElementById('strength-label');
+
+    const resetBars = () => {
+      [bar1, bar2, bar3, bar4].forEach(b => {
+        b.className = 'h-full flex-1 bg-surface-container-high transition-colors';
+      });
+    };
+
+    resetBars();
+
+    if (val.length === 0) {
+      label.textContent = '입력 대기';
+      label.className = 'font-label-sm text-label-sm font-semibold text-outline';
+      return;
+    }
+
+    if (score === 1) {
+      bar1.className = 'h-full flex-1 bg-error transition-colors';
+      label.textContent = '매우 취약';
+      label.className = 'font-label-sm text-label-sm font-semibold text-error';
+    } else if (score === 2) {
+      bar1.className = 'h-full flex-1 bg-error transition-colors';
+      bar2.className = 'h-full flex-1 bg-error transition-colors';
+      label.textContent = '보통';
+      label.className = 'font-label-sm text-label-sm font-semibold text-error';
+    } else if (score === 3) {
+      bar1.className = 'h-full flex-1 bg-primary transition-colors';
+      bar2.className = 'h-full flex-1 bg-primary transition-colors';
+      bar3.className = 'h-full flex-1 bg-primary transition-colors';
+      label.textContent = '안전';
+      label.className = 'font-label-sm text-label-sm font-semibold text-primary';
+    } else if (score === 4) {
+      bar1.className = 'h-full flex-1 bg-tertiary transition-colors';
+      bar2.className = 'h-full flex-1 bg-tertiary transition-colors';
+      bar3.className = 'h-full flex-1 bg-tertiary transition-colors';
+      bar4.className = 'h-full flex-1 bg-tertiary transition-colors';
+      label.textContent = '매우 강력';
+      label.className = 'font-label-sm text-label-sm font-semibold text-tertiary';
+    }
+  }
+
+  function updateRuleState(elemId, isValid) {
+    const el = document.getElementById(elemId);
+    if (!el) return;
+    const icon = el.querySelector('span');
+    if (isValid) {
+      el.className = 'flex items-center gap-1 text-tertiary font-semibold';
+      if (icon) icon.textContent = 'check_circle';
+    } else {
+      el.className = 'flex items-center gap-1 text-outline';
+      if (icon) icon.textContent = 'remove';
+    }
+  }
+
+  function checkPasswordMatch() {
+    const pass = document.getElementById('password').value;
+    const confirm = document.getElementById('password-confirm').value;
+    const confirmInput = document.getElementById('password-confirm');
+    if (!confirm) return;
+    if (pass !== confirm) {
+      confirmInput.classList.add('ring-2', 'ring-error');
+    } else {
+      confirmInput.classList.remove('ring-error');
+      confirmInput.classList.add('ring-primary');
+    }
+  }
+
+  function togglePassVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('span');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.textContent = 'visibility_off';
+    } else {
+      input.type = 'password';
+      icon.textContent = 'visibility';
+    }
+  }
+
+  function toggleAllAgreements(checked) {
+    const items = document.querySelectorAll('.agreement-item');
+    items.forEach(box => {
+      box.checked = checked;
+    });
+  }
+
+  function handleFormSubmit() {
+    const email = document.getElementById('work-email').value;
+    const personalDomains = ['gmail.com', 'naver.com', 'daum.net', 'hanmail.net', 'kakao.com'];
+    const domain = email.split('@')[1]?.toLowerCase().trim();
+
+    if (personalDomains.includes(domain)) {
+      alert('기업 업무용 이메일 주소(회사 도메인)를 입력해 주세요.');
+      document.getElementById('work-email').focus();
+      return;
+    }
+
+    const pass = document.getElementById('password').value;
+    const confirm = document.getElementById('password-confirm').value;
+    if (pass !== confirm) {
+      alert('비밀번호가 일치하지 않습니다.');
+      document.getElementById('password-confirm').focus();
+      return;
+    }
+
+    alert('Step 1 계정 정보가 성공적으로 검증되었습니다. Step 2 "기업 워크스페이스 설정" 화면으로 이동합니다.');
+  }
+</script></main><footer class="w-full bg-surface-container-low shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="max-w-7xl mx-auto px-6 lg:px-12 py-space-lg flex flex-col md:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-on-surface-variant"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-tertiary text-[18px]">verified_user</span><span>ISO/IEC 27001 및 SOC2 Type II 인증 엔터프라이즈 RAG 인프라</span></div><div class="flex items-center gap-space-lg"><a class="hover:text-on-surface transition-colors" data-path="security-compliance" href="#">보안 백서</a><a class="hover:text-on-surface transition-colors" data-path="privacy-policy" href="#">개인정보처리방침</a><a class="hover:text-on-surface transition-colors" data-path="enterprise-support" href="#">기술 지원 문의</a><span>© 2025 DocuMind AI Corp. All rights reserved.</span></div></div></footer></body></html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"tertiary-fixed-dim":"#4edea3","on-surface-variant":"#434655","outline":"#737686","on-tertiary-container":"#bdffdb","on-error":"#ffffff","on-tertiary-fixed-variant":"#005236","inverse-on-surface":"#eef0ff","tertiary-container":"#007d55","on-primary":"#ffffff","on-surface":"#131b2e","tertiary":"#006242","secondary":"#4b41e1","surface-dim":"#d2d9f4","inverse-surface":"#283044","background":"#faf8ff","surface-container-high":"#e2e7ff","surface-container":"#eaedff","primary-container":"#2563eb","secondary-fixed-dim":"#c3c0ff","surface":"#faf8ff","primary-fixed":"#dbe1ff","outline-variant":"#c3c6d7","secondary-container":"#645efb","on-background":"#131b2e","surface-container-highest":"#dae2fd","error":"#ba1a1a","on-tertiary-fixed":"#002113","surface-bright":"#faf8ff","on-secondary":"#ffffff","on-primary-fixed":"#00174b","surface-container-low":"#f2f3ff","on-primary-fixed-variant":"#003ea8","primary":"#004ac6","on-secondary-fixed-variant":"#3323cc","on-secondary-fixed":"#0f0069","secondary-fixed":"#e2dfff","surface-container-lowest":"#ffffff","on-primary-container":"#eeefff","on-error-container":"#93000a","surface-tint":"#0053db","on-tertiary":"#ffffff","primary-fixed-dim":"#b4c5ff","surface-variant":"#dae2fd","on-secondary-container":"#fffbff","inverse-primary":"#b4c5ff","tertiary-fixed":"#6ffbbe","error-container":"#ffdad6"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"gutter":"1rem","space-xs":"0.25rem","space-xl":"2rem","margin":"1.5rem","margin-mobile":"1rem","gutter-lg":"1.5rem","space-sm":"0.5rem","space-lg":"1.5rem","space-md":"1rem"},"fontFamily":{"label-md":["Inter"],"body-lg":["Inter"],"body-md":["Inter"],"headline-sm":["Inter"],"code-sm":["JetBrains Mono"],"body-sm":["Inter"],"headline-xl":["Inter"],"headline-lg":["Inter"],"headline-md":["Inter"],"label-sm":["Inter"]},"fontSize":{"label-md":["0.875rem",{"lineHeight":"1.25rem","fontWeight":"500"}],"body-lg":["1rem",{"lineHeight":"1.625rem","fontWeight":"400"}],"body-md":["0.875rem",{"lineHeight":"1.45rem","fontWeight":"400"}],"headline-sm":["1.125rem",{"lineHeight":"1.5rem","letterSpacing":"-0.005em","fontWeight":"600"}],"code-sm":["0.8125rem",{"lineHeight":"1.35rem","fontWeight":"400"}],"body-sm":["0.8125rem",{"lineHeight":"1.25rem","fontWeight":"400"}],"headline-xl":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["1.5rem",{"lineHeight":"2rem","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-md":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"-0.01em","fontWeight":"600"}],"label-sm":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.01em","fontWeight":"500"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between select-none"><div class="flex flex-col flex-1 min-h-0"><div class="p-space-md pb-space-sm flex flex-col gap-space-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="DocuMind Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVrhJySIXOKaMIzTsqYoIB3tegl0eB-kbMhIuWbdlOIR4sV1kr1OwlMQ5iKzWs00JSiXbVHpdwjJH3pwA4cHerPkv3vgE5ybZXvAn8cJaiB3emK0IHYwy_Vrjm0uj-LFRAvkAtqv6YkKSQhWRzHkxMy1NFfwNLg8qG9BrtVewVPWpNUiNOLTgBPaVPprw13SKyHU7CyvNpGfizrtmHCcnvbXobwE7lNX5Tq59Aycnnt2Nn86ykze9M"/><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-bold">DocuMind</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded-lg bg-surface-container-high text-primary font-semibold">RAG Pro</span></div><div class="flex items-center justify-between px-space-sm py-1.5 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer"><div class="flex items-center gap-space-xs truncate"><span class="material-symbols-outlined text-[18px] text-primary">domain</span><span class="font-label-md text-label-md text-on-surface font-medium truncate">(주)미래전략연구소 Enterprise</span></div><span class="material-symbols-outlined text-[18px] text-on-surface-variant">unfold_more</span></div></div><div class="px-space-md py-space-xs"><button class="w-full flex items-center justify-between px-space-md py-2.5 bg-primary-container hover:bg-primary text-on-primary rounded-xl font-label-md text-label-md font-medium transition-all shadow-[0_1px_2px_rgba(15,23,42,0.05)]" type="button"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[20px]">add</span><span>새 채팅 시작</span></div><kbd class="px-1.5 py-0.5 rounded-lg bg-on-primary/20 text-on-primary font-code-sm text-code-sm">⌘K</kbd></button></div><div class="flex-1 overflow-y-auto px-space-sm py-space-xs"><div class="px-space-sm py-space-xs font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">워크스페이스 네비게이션</div><nav class="flex flex-col gap-0.5" data-active-classes="bg-primary-fixed text-on-primary-fixed-variant font-semibold rounded-xl"><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="ai-chat" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">chat_bubble</span><span class="font-label-md text-label-md">AI 채팅 (RAG)</span></div><span class="h-2 w-2 rounded-full bg-primary"></span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="knowledge-base" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">folder</span><span class="font-label-md text-label-md">문서 지식 베이스</span></div><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant">28개 등록</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="chunk-inspector" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">find_in_page</span><span class="font-label-md text-label-md">문서 상세 및 청크 분석</span></div></a><a aria-current="page" class="flex items-center justify-between px-space-sm py-2 transition-colors bg-primary-fixed text-on-primary-fixed-variant font-semibold rounded-xl" data-path="admin-dashboard" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">bar_chart</span><span class="font-label-md text-label-md">관리자 대시보드</span></div></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="workspace-settings" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-label-md text-label-md">워크스페이스 설정</span></div></a></nav><div class="mt-space-md pt-space-xs"><div class="flex items-center justify-between px-space-sm py-space-xs"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">최근 분석 문서</span><span class="material-symbols-outlined text-[16px] text-outline cursor-pointer hover:text-on-surface">refresh</span></div><div class="flex flex-col gap-0.5 mt-1"><a class="flex items-center gap-space-xs px-space-sm py-1.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors group" href="#"><span class="material-symbols-outlined text-[16px] text-outline group-hover:text-primary">description</span><span class="font-body-sm text-body-sm truncate">2024 사업계획서 v3.4</span></a><a class="flex items-center gap-space-xs px-space-sm py-1.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors group" href="#"><span class="material-symbols-outlined text-[16px] text-outline group-hover:text-primary">lock</span><span class="font-body-sm text-body-sm truncate">사내 정보보안 가이드라인</span></a><a class="flex items-center gap-space-xs px-space-sm py-1.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors group" href="#"><span class="material-symbols-outlined text-[16px] text-outline group-hover:text-primary">code</span><span class="font-body-sm text-body-sm truncate">Core API 기술명세서 rev2</span></a></div></div></div></div><div class="p-space-md bg-surface-container-low"><div class="flex items-center justify-between mb-space-xs"><div class="flex items-center gap-space-sm truncate"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDeRoZQfWBevrgZ-O9jsoe-yGBU9b7AKTed0EXh59bJdV3BYSBQPU6qKKXZ9CHVqDxyjKMj5FNA_G7oeBlx8crhUN-uEmMDDNqNoK7MKHnD3L9AQQfm7GMwG1rG1Df4Cn7HhIQ2LTA-pWxbF4lPJT1GjwbuQRPnxE3Gj4nZ_zieUVdbU-1p7nsRzCm2_wRw3YIkXLJcNGlNBoINQkVAxrX7SiIK7X39-CeyxqJMFi9AxFqggIqcZHk"/><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md text-on-surface font-semibold truncate">이서연 수석연구원</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">AI전략팀</span></div></div><div class="flex items-center gap-1"><button class="p-1 text-on-surface-variant hover:text-error hover:bg-surface-container-high rounded-lg transition-colors" title="로그아웃" type="button"><span class="material-symbols-outlined text-[18px]">logout</span></button></div></div><div class="flex items-center justify-between pt-space-xs"><span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-primary font-medium"><span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span>Enterprise 활성</span><span class="font-code-sm text-code-sm text-outline">v2.8.4</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg select-none"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant"><span class="font-medium text-on-surface">미래전략연구소</span><span class="material-symbols-outlined text-[16px] text-outline">chevron_right</span><span class="text-primary font-medium">지식 검색 에이전트</span></div><div class="h-4 w-[1px] bg-outline-variant"></div><div class="flex items-center gap-space-xs px-2.5 py-1 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group"><span class="material-symbols-outlined text-[18px] text-primary group-hover:scale-105 transition-transform">database</span><span class="font-label-md text-label-md text-on-surface font-medium">선택된 문서: 전체 지식 베이스</span><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded-lg bg-surface-container-lowest text-primary font-semibold">28건 / 4,280 Chunks</span><span class="material-symbols-outlined text-[16px] text-outline-variant group-hover:text-primary transition-colors">tune</span></div></div><div class="flex items-center gap-space-md"><div class="hidden xl:flex items-center gap-space-md"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-surface-container-low"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed-dim opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span></span><span class="font-body-sm text-body-sm text-on-surface-variant">벡터 DB 동기화 완료</span><span class="font-label-sm text-label-sm text-tertiary font-bold">99.9%</span></div><div class="flex items-center gap-1 font-code-sm text-code-sm text-on-surface-variant"><span class="material-symbols-outlined text-[16px] text-outline">speed</span><span>124ms</span></div><div class="h-4 w-[1px] bg-outline-variant"></div></div><div class="flex items-center gap-space-xs"><button class="relative p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" title="알림" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-error ring-2 ring-surface"></span></button><a class="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" href="#" title="도움말 가이드"><span class="material-symbols-outlined text-[20px]">help</span></a><button class="flex items-center gap-1.5 pl-2 pr-1 py-1 rounded-xl hover:bg-surface-container-low transition-colors ml-1" type="button"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDeRoZQfWBevrgZ-O9jsoe-yGBU9b7AKTed0EXh59bJdV3BYSBQPU6qKKXZ9CHVqDxyjKMj5FNA_G7oeBlx8crhUN-uEmMDDNqNoK7MKHnD3L9AQQfm7GMwG1rG1Df4Cn7HhIQ2LTA-pWxbF4lPJT1GjwbuQRPnxE3Gj4nZ_zieUVdbU-1p7nsRzCm2_wRw3YIkXLJcNGlNBoINQkVAxrX7SiIK7X39-CeyxqJMFi9AxFqggIqcZHk"/><span class="material-symbols-outlined text-[18px] text-outline">expand_more</span></button></div></div></header><main class="w-full pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<div class="px-space-lg py-space-lg flex flex-col gap-space-lg max-w-[1600px] mx-auto w-full">
+<!-- Header Section -->
+<section class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-primary text-on-primary">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+</span>
+<span class="font-code-sm text-code-sm text-primary font-semibold tracking-wide uppercase">DocuMind Telemetry</span>
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-tertiary-fixed-dim/30 text-tertiary font-medium">실시간 동기화 활성</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">RAG 서비스 운영 관리자 대시보드</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">사내 AI 지식 베이스 검색 현황, 질의 트래픽, 토큰 소모량 및 시스템 성능 지표를 모니터링합니다.</p>
+</div>
+<div class="flex items-center gap-space-sm flex-wrap">
+<div class="flex items-center gap-2 bg-surface-container-lowest px-space-md py-2 rounded-xl shadow-sm text-on-surface">
+<span class="material-symbols-outlined text-[20px] text-primary">calendar_today</span>
+<span class="font-label-md text-label-md font-medium">최근 30일 (2024.09.16 ~ 2024.10.15)</span>
+<span class="material-symbols-outlined text-[18px] text-outline cursor-pointer hover:text-on-surface">arrow_drop_down</span>
+</div>
+<button class="flex items-center gap-1.5 bg-primary-container hover:bg-primary text-on-primary px-space-md py-2 rounded-xl font-label-md text-label-md font-medium shadow-sm transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>리포트 내보내기</span>
+</button>
+</div>
+</section>
+<!-- KPI Metric Cards Grid -->
+<section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- Card 1: Documents & Chunks -->
+<div class="flex flex-col justify-between p-space-md bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-28 h-28 bg-primary/5 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform"></div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">총 등록 문서 수</span>
+<span class="material-symbols-outlined text-[22px] text-primary">library_books</span>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-headline-xl text-headline-xl text-on-surface font-bold">128<span class="font-headline-md text-headline-md text-on-surface-variant font-medium ml-1">건</span></span>
+<span class="inline-flex items-center gap-0.5 font-label-sm text-label-sm text-tertiary font-semibold">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>+12건 이번 달
+            </span>
+</div>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between bg-surface-container-low px-space-sm py-1.5 rounded-lg">
+<span class="font-body-sm text-body-sm text-on-surface-variant">파싱 청크 수</span>
+<span class="font-code-sm text-code-sm text-primary font-bold">18,450 Chunks</span>
+</div>
+</div>
+<!-- Card 2: AI Queries & Traffic -->
+<div class="flex flex-col justify-between p-space-md bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-28 h-28 bg-secondary/5 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform"></div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">AI 질문 및 검색 횟수</span>
+<span class="material-symbols-outlined text-[22px] text-secondary">forum</span>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-headline-xl text-headline-xl text-on-surface font-bold">14,280<span class="font-headline-md text-headline-md text-on-surface-variant font-medium ml-1">건</span></span>
+<span class="inline-flex items-center gap-0.5 font-label-sm text-label-sm text-secondary font-semibold">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>↑18.5% 전월 대비
+            </span>
+</div>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between bg-surface-container-low px-space-sm py-1.5 rounded-lg">
+<span class="font-body-sm text-body-sm text-on-surface-variant">일평균 질의량</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">476건 / 일</span>
+</div>
+</div>
+<!-- Card 3: Grounding Score & Latency -->
+<div class="flex flex-col justify-between p-space-md bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-28 h-28 bg-tertiary/5 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform"></div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">RAG 응답 정확도</span>
+<span class="material-symbols-outlined text-[22px] text-tertiary">verified</span>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-headline-xl text-headline-xl text-tertiary font-bold">96.8%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Grounding Score</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between bg-surface-container-low px-space-sm py-1.5 rounded-lg">
+<span class="font-body-sm text-body-sm text-on-surface-variant">할루시네이션 방지</span>
+<div class="flex items-center gap-2">
+<span class="font-code-sm text-code-sm text-tertiary font-bold">99.2%</span>
+<span class="font-label-sm text-label-sm text-outline">| 1.24s</span>
+</div>
+</div>
+</div>
+<!-- Card 4: Token Consumption -->
+<div class="flex flex-col justify-between p-space-md bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-28 h-28 bg-primary/5 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform"></div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">OpenAI API 토큰 소모량</span>
+<span class="material-symbols-outlined text-[22px] text-primary">toll</span>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-headline-xl text-headline-xl text-on-surface font-bold">8.4M<span class="font-headline-sm text-headline-sm text-outline font-normal"> / 20.0M</span></span>
+</div>
+</div>
+<div class="mt-space-md flex flex-col gap-1.5">
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 42%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">월 한도 대비 <strong class="text-primary font-semibold">42% 소진</strong></span>
+<span class="text-outline font-code-sm font-medium">추정 $420</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Analytics Visualizations Section -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+<!-- Chart Left: Daily Traffic & Grounding Match Trend (8 Cols) -->
+<div class="lg:col-span-8 p-space-md lg:p-space-lg bg-surface-container-lowest rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-md">
+<div class="flex flex-col">
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold">일별 RAG 질의 트래픽 &amp; 검색 성공률 추이</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">최근 30일간의 사용자 질문 발생량과 근거 문서 정합성 지표</p>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-sm bg-primary"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">질문 건수 (Bar)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-4 h-0.5 bg-tertiary rounded-full"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">매칭률 (Line)</span>
+</div>
+</div>
+</div>
+<!-- SVG Combo Bar & Line Chart -->
+<div class="w-full h-64 relative flex items-end">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 740 220">
+<defs>
+<lineargradient id="barGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#2563eb" stop-opacity="0.9"></stop>
+<stop offset="100%" stop-color="#dbe1ff" stop-opacity="0.3"></stop>
+</lineargradient>
+</defs>
+<!-- Horizontal Gridlines -->
+<line stroke="#eaedff" stroke-dasharray="4" stroke-width="1" x1="0" x2="740" y1="20" y2="20"></line>
+<line stroke="#eaedff" stroke-dasharray="4" stroke-width="1" x1="0" x2="740" y1="70" y2="70"></line>
+<line stroke="#eaedff" stroke-dasharray="4" stroke-width="1" x1="0" x2="740" y1="120" y2="120"></line>
+<line stroke="#eaedff" stroke-dasharray="4" stroke-width="1" x1="0" x2="740" y1="170" y2="170"></line>
+<line stroke="#c3c6d7" stroke-width="1" x1="0" x2="740" y1="205" y2="205"></line>
+<!-- 15 Selected Point Bars (sample across 30 days) -->
+<!-- Bar 1 --> <rect fill="url(#barGrad)" height="90" rx="3" width="22" x="25" y="115"></rect>
+<!-- Bar 2 --> <rect fill="url(#barGrad)" height="105" rx="3" width="22" x="75" y="100"></rect>
+<!-- Bar 3 --> <rect fill="url(#barGrad)" height="115" rx="3" width="22" x="125" y="90"></rect>
+<!-- Bar 4 --> <rect fill="url(#barGrad)" height="75" rx="3" width="22" x="175" y="130"></rect>
+<!-- Bar 5 --> <rect fill="url(#barGrad)" height="125" rx="3" width="22" x="225" y="80"></rect>
+<!-- Bar 6 --> <rect fill="url(#barGrad)" height="135" rx="3" width="22" x="275" y="70"></rect>
+<!-- Bar 7 --> <rect fill="url(#barGrad)" height="145" rx="3" width="22" x="325" y="60"></rect>
+<!-- Bar 8 --> <rect fill="url(#barGrad)" height="110" rx="3" width="22" x="375" y="95"></rect>
+<!-- Bar 9 --> <rect fill="url(#barGrad)" height="150" rx="3" width="22" x="425" y="55"></rect>
+<!-- Bar 10 --> <rect fill="url(#barGrad)" height="140" rx="3" width="22" x="475" y="65"></rect>
+<!-- Bar 11 --> <rect fill="url(#barGrad)" height="160" rx="3" width="22" x="525" y="45"></rect>
+<!-- Bar 12 --> <rect fill="url(#barGrad)" height="155" rx="3" width="22" x="575" y="50"></rect>
+<!-- Bar 13 --> <rect fill="url(#barGrad)" height="167" rx="3" width="22" x="625" y="38"></rect>
+<!-- Bar 14 --> <rect fill="url(#barGrad)" height="175" rx="3" width="22" x="675" y="30"></rect>
+<!-- Smooth Trend Line for Grounding Rate (94% - 98%) -->
+<path d="M 36 45 Q 86 42, 136 40 T 236 38 T 336 35 T 436 32 T 536 28 T 636 24 L 686 22" fill="none" stroke="#007d55" stroke-linecap="round" stroke-width="3"></path>
+<!-- Nodes along the line -->
+<circle cx="36" cy="45" fill="#ffffff" r="3.5" stroke="#007d55" stroke-width="2.5"></circle>
+<circle cx="136" cy="40" fill="#ffffff" r="3.5" stroke="#007d55" stroke-width="2.5"></circle>
+<circle cx="236" cy="38" fill="#ffffff" r="3.5" stroke="#007d55" stroke-width="2.5"></circle>
+<circle cx="336" cy="35" fill="#ffffff" r="3.5" stroke="#007d55" stroke-width="2.5"></circle>
+<circle cx="436" cy="32" fill="#ffffff" r="3.5" stroke="#007d55" stroke-width="2.5"></circle>
+<circle cx="536" cy="28" fill="#ffffff" r="3.5" stroke="#007d55" stroke-width="2.5"></circle>
+<circle cx="636" cy="24" fill="#ffffff" r="3.5" stroke="#007d55" stroke-width="2.5"></circle>
+<circle cx="686" cy="22" fill="#007d55" r="4.5" stroke="#ffffff" stroke-width="2"></circle>
+</svg>
+</div>
+<div class="flex items-center justify-between text-outline font-code-sm text-code-sm pt-2">
+<span>09.16</span>
+<span>09.21</span>
+<span>09.26</span>
+<span>10.01</span>
+<span>10.06</span>
+<span>10.11</span>
+<span class="text-primary font-bold">10.15 (오늘)</span>
+</div>
+</div>
+<!-- Chart Right: Document Distribution & Vector Health (4 Cols) -->
+<div class="lg:col-span-4 p-space-md lg:p-space-lg bg-surface-container-lowest rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold">문서 저장 현황 및 벡터 분석</h2>
+<span class="material-symbols-outlined text-[20px] text-outline">pie_chart</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">형식별 인덱싱 비중 및 파이프라인 무결성</p>
+</div>
+<!-- Donut & Breakdown -->
+<div class="flex items-center justify-center gap-space-lg my-space-md">
+<div class="relative w-36 h-36 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<!-- Background Ring -->
+<circle cx="18" cy="18" fill="none" r="15.915" stroke="#eaedff" stroke-width="3.8"></circle>
+<!-- Segment 1: PDF 68% (Primary) -->
+<circle cx="18" cy="18" fill="none" r="15.915" stroke="#004ac6" stroke-dasharray="68 32" stroke-dashoffset="0" stroke-width="3.8"></circle>
+<!-- Segment 2: DOCX 18% (Secondary) -->
+<circle cx="18" cy="18" fill="none" r="15.915" stroke="#645efb" stroke-dasharray="18 82" stroke-dashoffset="-68" stroke-width="3.8"></circle>
+<!-- Segment 3: Markdown/TXT 14% (Tertiary) -->
+<circle cx="18" cy="18" fill="none" r="15.915" stroke="#4edea3" stroke-dasharray="14 86" stroke-dashoffset="-86" stroke-width="3.8"></circle>
+</svg>
+<div class="absolute flex flex-col items-center justify-center text-center">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">128</span>
+<span class="font-label-sm text-label-sm text-outline">Total Docs</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">PDF (87건)</span>
+<span class="font-code-sm text-code-sm text-outline font-semibold">68%</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-container"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">DOCX (23건)</span>
+<span class="font-code-sm text-code-sm text-outline font-semibold">18%</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-fixed-dim"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">MD / TXT (18건)</span>
+<span class="font-code-sm text-code-sm text-outline font-semibold">14%</span>
+</div>
+</div>
+</div>
+<!-- Indexing Health Status List -->
+<div class="flex flex-col gap-2 bg-surface-container-low p-space-sm rounded-xl">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant font-medium">인덱싱 파이프라인 헬스체크</span>
+<span class="text-tertiary font-bold">건전 (Healthy)</span>
+</div>
+<div class="grid grid-cols-3 gap-2 text-center pt-1">
+<div class="flex flex-col bg-surface-container-lowest p-2 rounded-lg">
+<span class="font-code-sm text-code-sm font-bold text-tertiary">124건</span>
+<span class="font-label-sm text-label-sm text-outline">정상 완료</span>
+</div>
+<div class="flex flex-col bg-surface-container-lowest p-2 rounded-lg">
+<span class="font-code-sm text-code-sm font-bold text-secondary">3건</span>
+<span class="font-label-sm text-label-sm text-outline">진행중</span>
+</div>
+<div class="flex flex-col bg-surface-container-lowest p-2 rounded-lg">
+<span class="font-code-sm text-code-sm font-bold text-error">1건</span>
+<span class="font-label-sm text-label-sm text-outline">경고/실패</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Operational Tables & Feeds Section -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+<!-- Left Column: Most Cited Knowledge Documents TOP 5 (7 Cols) -->
+<div class="lg:col-span-7 p-space-md lg:p-space-lg bg-surface-container-lowest rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex flex-col gap-space-xs mb-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[22px] text-primary">auto_stories</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold">가장 많이 인용된 인기 지식 문서 TOP 5</h2>
+</div>
+<a class="font-label-sm text-label-sm text-primary hover:underline font-semibold flex items-center gap-0.5" href="#">
+              전체 보기<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">RAG 에이전트가 답변 생성 시 참조 및 발췌한 빈도가 높은 문서</p>
+</div>
+<div class="flex flex-col gap-2">
+<!-- Rank 1 -->
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-6 h-6 rounded-lg bg-primary-container text-on-primary font-bold font-code-sm text-code-sm flex items-center justify-center shrink-0">1</span>
+<span class="material-symbols-outlined text-[20px] text-error shrink-0">picture_as_pdf</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-medium truncate group-hover:text-primary transition-colors">2024_취업규칙_및_복리후생규정.pdf</span>
+<span class="font-body-sm text-body-sm text-outline">인사총무팀 | 142 Chunks | v2.1</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="font-code-sm text-code-sm font-bold text-primary">1,420회 인용</span>
+<span class="material-symbols-outlined text-[18px] text-outline cursor-pointer hover:text-on-surface">open_in_new</span>
+</div>
+</div>
+<!-- Rank 2 -->
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-6 h-6 rounded-lg bg-surface-container-highest text-on-surface font-bold font-code-sm text-code-sm flex items-center justify-center shrink-0">2</span>
+<span class="material-symbols-outlined text-[20px] text-error shrink-0">picture_as_pdf</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-medium truncate group-hover:text-primary transition-colors">사내_전결규정_2024.pdf</span>
+<span class="font-body-sm text-body-sm text-outline">경영기획팀 | 86 Chunks | v1.4</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="font-code-sm text-code-sm font-bold text-primary">980회 인용</span>
+<span class="material-symbols-outlined text-[18px] text-outline cursor-pointer hover:text-on-surface">open_in_new</span>
+</div>
+</div>
+<!-- Rank 3 -->
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-6 h-6 rounded-lg bg-surface-container-highest text-on-surface font-bold font-code-sm text-code-sm flex items-center justify-center shrink-0">3</span>
+<span class="material-symbols-outlined text-[20px] text-error shrink-0">picture_as_pdf</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-medium truncate group-hover:text-primary transition-colors">2024_경영계획서_Q3.pdf</span>
+<span class="font-body-sm text-body-sm text-outline">미래전략연구소 | 310 Chunks | 보안 등급 A</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="font-code-sm text-code-sm font-bold text-primary">845회 인용</span>
+<span class="material-symbols-outlined text-[18px] text-outline cursor-pointer hover:text-on-surface">open_in_new</span>
+</div>
+</div>
+<!-- Rank 4 -->
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-6 h-6 rounded-lg bg-surface-container-highest text-on-surface font-bold font-code-sm text-code-sm flex items-center justify-center shrink-0">4</span>
+<span class="material-symbols-outlined text-[20px] text-error shrink-0">picture_as_pdf</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-medium truncate group-hover:text-primary transition-colors">신규_입사자_온보딩_가이드.pdf</span>
+<span class="font-body-sm text-body-sm text-outline">피플앤컬처팀 | 54 Chunks | v3.0</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="font-code-sm text-code-sm font-bold text-primary">620회 인용</span>
+<span class="material-symbols-outlined text-[18px] text-outline cursor-pointer hover:text-on-surface">open_in_new</span>
+</div>
+</div>
+<!-- Rank 5 -->
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-3 min-w-0">
+<span class="w-6 h-6 rounded-lg bg-surface-container-highest text-on-surface font-bold font-code-sm text-code-sm flex items-center justify-center shrink-0">5</span>
+<span class="material-symbols-outlined text-[20px] text-error shrink-0">picture_as_pdf</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-medium truncate group-hover:text-primary transition-colors">보안_컴플라이언스_지침서.pdf</span>
+<span class="font-body-sm text-body-sm text-outline">정보보호센터 | 198 Chunks | 법무검토필</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="font-code-sm text-code-sm font-bold text-primary">410회 인용</span>
+<span class="material-symbols-outlined text-[18px] text-outline cursor-pointer hover:text-on-surface">open_in_new</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Real-time Audit Log (5 Cols) -->
+<div class="lg:col-span-5 p-space-md lg:p-space-lg bg-surface-container-lowest rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex flex-col gap-space-xs mb-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[22px] text-primary">history</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold">실시간 시스템 이벤트 및 감사 로그</h2>
+</div>
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed-dim opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">인덱싱 파이프라인 및 RAG 엔진 주요 발생 이벤트</p>
+</div>
+<div class="flex flex-col gap-space-sm relative">
+<!-- Timeline Vertical Bar -->
+<div class="absolute left-3.5 top-3 bottom-3 w-[2px] bg-surface-container-high -z-0"></div>
+<!-- Log 1 -->
+<div class="flex items-start gap-3 relative z-10">
+<span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center shrink-0 shadow-sm ring-4 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+</span>
+<div class="flex flex-col flex-1 min-w-0 bg-surface-container-low p-2.5 rounded-xl">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary font-bold">임베딩 진행</span>
+<span class="font-code-sm text-code-sm text-outline">3분 전</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">
+<strong>이서연 수석</strong>이 <span class="text-primary font-medium">[2024_신임직원_온보딩_가이드.pdf]</span> 임베딩을 시작했습니다.
+              </p>
+</div>
+</div>
+<!-- Log 2 -->
+<div class="flex items-start gap-3 relative z-10">
+<span class="w-7 h-7 rounded-full bg-tertiary-fixed text-tertiary flex items-center justify-center shrink-0 shadow-sm ring-4 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[16px]">task_alt</span>
+</span>
+<div class="flex flex-col flex-1 min-w-0 bg-surface-container-low p-2.5 rounded-xl">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-bold">품질 검증 통과</span>
+<span class="font-code-sm text-code-sm text-outline">7분 전</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">
+                AI 질문 자동 평가: <strong>Grounding Score 98점</strong> 통과 (안전 응답 승인)
+              </p>
+</div>
+</div>
+<!-- Log 3 -->
+<div class="flex items-start gap-3 relative z-10">
+<span class="w-7 h-7 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center shrink-0 shadow-sm ring-4 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[16px]">cloud_done</span>
+</span>
+<div class="flex flex-col flex-1 min-w-0 bg-surface-container-low p-2.5 rounded-xl">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary font-bold">벡터 DB 동기화</span>
+<span class="font-code-sm text-code-sm text-outline">12분 전</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">
+                Pinecone Vector DB 클러스터 동기화 완료 (총 <strong class="font-code-sm">18,450 vectors</strong>)
+              </p>
+</div>
+</div>
+<!-- Log 4 -->
+<div class="flex items-start gap-3 relative z-10">
+<span class="w-7 h-7 rounded-full bg-error-container text-error flex items-center justify-center shrink-0 shadow-sm ring-4 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+</span>
+<div class="flex flex-col flex-1 min-w-0 bg-surface-container-low p-2.5 rounded-xl">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-error font-bold">업로드 차단 / 실패</span>
+<span class="font-code-sm text-code-sm text-outline">45분 전</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">
+<strong>최유리 책임</strong>이 [구형_스캔문서_암호화본.pdf] 업로드 실패 (DRM 암호화 감지)
+              </p>
+</div>
+</div>
+</div>
+<div class="mt-space-sm pt-space-xs flex justify-end">
+<button class="text-on-surface-variant hover:text-primary font-label-sm text-label-sm flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+<span>로그 필터 및 전체 감사 이력 (Audit View)</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Bottom Administrative Notification Banner -->
+<div class="flex flex-col sm:flex-row items-center justify-between p-space-md rounded-xl bg-primary-fixed text-on-primary-fixed-variant shadow-sm gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[24px] text-primary shrink-0">admin_panel_settings</span>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-semibold">정기 벡터 인덱스 최적화 예정 (Re-indexing Notice)</span>
+<span class="font-body-sm text-body-sm">매주 일요일 02:00 KST, HNSW 그래프 압축 및 만료 청크 정리가 자동으로 실행됩니다. 서비스 중단은 없습니다.</span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-lowest hover:bg-surface text-primary font-label-md text-label-md font-semibold shrink-0 transition-colors shadow-sm" type="button">
+        스케줄 관리
+      </button>
+</div>
+</div>
+</div></main></div></body></html>
