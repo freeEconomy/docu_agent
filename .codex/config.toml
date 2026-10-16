@@ -1,0 +1,6 @@
+# Stitch credentials are read from the environment; never put a key in this file.
+[mcp_servers.stitch]
+url = "https://stitch.googleapis.com/mcp"
+env_http_headers = { "X-Goog-Api-Key" = "STITCH_API_KEY" }
+startup_timeout_sec = 30
+tool_timeout_sec = 120

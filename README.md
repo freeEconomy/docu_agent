@@ -95,3 +95,7 @@ Playwright가 프로덕션 서버를 자동 시작합니다. 데스크톱 Chromi
 저장소의 `vercel.json`이 프레임워크를 `nextjs`, 출력 디렉터리를 `.next`로 명시합니다. 프로젝트 설정에 남아 있는 `public` 출력 경로 대신 이 설정을 적용합니다. `public`은 정적 에셋 폴더이며 Next.js 빌드 출력 폴더가 아닙니다. 기존 배포를 다시 실행할 때는 이 설정이 포함된 최신 커밋을 선택하세요.
 
 별도 서버나 Docker 없이 Vercel의 Next.js 기본 빌드로 실행하도록 구성했습니다. Vercel 프로젝트 생성·배포 및 실제 Supabase/RAG 연동은 이 구현에 포함되지 않습니다.
+
+## Stitch 연결
+
+ZIP 없이 디자인을 조회하는 MCP 설정 및 인증 절차는 [Stitch 연결 가이드](docs/stitch-connection.md)를 참고하세요. `.codex/config.toml`은 `STITCH_API_KEY`를 참조하며 실제 키 값은 포함하지 않습니다. 현재 실행 중인 웹 대화의 도구 목록은 이 파일만으로 변경되지 않습니다.
