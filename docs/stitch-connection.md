@@ -37,3 +37,27 @@ bash scripts/codex-stitch.sh           # Stitch MCP 설정으로 새 CLI 세션 
 ## 디자인 변환용 플러그인 (선택)
 
 Google Labs의 [stitch-skills](https://github.com/google-labs-code/stitch-skills)는 MCP를 사용하는 별도 도구 모음입니다. MCP 인증을 완료한 다음, 플러그인을 지원하는 Codex에서 해당 저장소의 설치 가이드에 따라 `stitch-build`를 설치할 수 있습니다. 이 클라우드 대화에 플러그인이 설치된 것으로 간주하지 않습니다.
+
+## ZIP 없이 GitHub로 디자인 가져오기
+
+이 저장소의 `.stitch/project.json`은 실제 조회한 **DocuMind AI Agent Platform** 프로젝트(`7162910529939285378`)의 화면 6개를 기존 `design/` 폴더에 연결합니다.
+
+```bash
+python3 scripts/stitch-check.py       # 인증 및 프로젝트 조회 확인
+python3 scripts/stitch-sync.py --check # 파일 차이 확인만 수행 (차이 있으면 종료 코드 1)
+python3 scripts/stitch-sync.py         # 최신 HTML/PNG 내려받기
+```
+
+동기화 대상은 기존 `ai`, `_1`, `_2`, `_3`, `_4`, `rag` 폴더의 `code.html`, `screen.png`입니다. 모든 파일을 임시 공간에 정상적으로 다운로드하고 형식을 확인한 다음 기존 파일을 갱신합니다. 다운로드 도중 실패하면 기존 파일을 덮어쓰지 않습니다. `.stitch/snapshot.json`에는 화면 ID, 제목, 경로와 SHA-256만 저장하고 API 키나 다운로드 URL은 저장하지 않습니다. 연속 실행 시 내용이 같으면 변경 파일이 생기지 않습니다.
+
+필요한 HTTPS 도메인:
+
+- `stitch.googleapis.com`: 인증, 프로젝트/화면 조회 및 일부 파일 다운로드
+- `contribution.usercontent.google.com`: HTML 내보내기
+- `lh3.googleusercontent.com`: 화면 PNG
+
+API 키는 `stitch.googleapis.com`으로만 전송합니다. HTML/이미지 CDN과 리다이렉트된 다른 호스트에는 키를 전달하지 않습니다. 추가 화면은 `.stitch/project.json`에 화면 ID와 저장 경로를 지정해 연결합니다. 매핑되지 않은 화면을 임의로 가져오거나 기존 화면을 자동 삭제하지 않습니다.
+
+Codex에 **“Stitch 최신 디자인을 가져와서 변경 내용을 확인하고 PR을 만들어줘”**라고 요청하면 이 명령으로 가져온 다음 기존 앱 코드를 업데이트할 수 있습니다. 실행 후에는 `git diff`로 디자인 변경을 검토하고 브랜치에 커밋·푸시하여 PR을 만듭니다. 웹 앱 UI 변환은 별도 코드 수정이며, 내보낸 HTML을 자동으로 앱에 삽입하지 않습니다.
+
+이 연결은 요청할 때 실행하는 단방향 가져오기입니다. Stitch를 수정하는 즉시 GitHub에 자동 푸시하는 스케줄러나 양방향 실시간 동기화는 구성하지 않습니다. GitHub Actions의 `Stitch integration checks`는 실제 키 없이 다운로드 실패 시 보존, 반복 실행, 경로 보호 및 CDN 키 분리 동작을 검사합니다.
