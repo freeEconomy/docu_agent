@@ -3536,3 +3536,200 @@
     }
   }
 }
+
+@layer components {
+  .auth-header nav a:first-child {
+    color: var(--body);
+    font-weight: 400;
+  }
+  .auth-header nav a.active {
+    color: var(--primary);
+    font-weight: 700;
+  }
+  .provider-mark {
+    width: 23px;
+    height: 23px;
+    flex-shrink: 0;
+  }
+  .provider-okta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ink);
+    color: white;
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  .marketing-stat-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: #e6efff;
+    color: var(--primary);
+  }
+  .marketing-stat-icon.indigo {
+    color: var(--secondary, #4b41e1);
+    background: #eeebff;
+  }
+  .compliance .compliance-label {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+    gap: 3px;
+    background: transparent;
+  }
+  .compliance .compliance-label small {
+    font-size: 10px;
+    color: var(--body);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  .signup-sso {
+    margin: 24px 0;
+  }
+  .signup-sso-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .signup-sso-buttons button {
+    justify-content: center;
+    font-size: 12px;
+    gap: 9px;
+    min-height: 46px;
+    padding: 12px 10px;
+  }
+  .signup-sso .divider {
+    margin: 25px 0 0;
+  }
+  .domain-warning {
+    margin-top: 8px;
+    border-radius: 5px;
+    background: #fff6df;
+    color: #956100;
+    padding: 9px 12px;
+    font-size: 11px;
+  }
+  .password-strength {
+    padding: 13px 12px;
+  }
+  .strength-segments {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    height: 6px;
+    margin: 11px 0;
+  }
+  .strength-segments span {
+    border-radius: 3px;
+    background: var(--high);
+  }
+  .strength-segments .filled {
+    background: #ba1a1a;
+  }
+  .strength-3 .filled {
+    background: var(--blue);
+  }
+  .strength-4 .filled {
+    background: #007d55;
+  }
+  .password-rules {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .password-rules li {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--muted);
+    font-size: 10px;
+  }
+  .password-rules li svg {
+    flex-shrink: 0;
+  }
+  .password-rules li.valid {
+    color: #007d55;
+  }
+  .signup-agreements {
+    padding: 16px;
+  }
+  .agreement-all {
+    padding-bottom: 12px;
+    border-bottom: 1px solid #dce2ff;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .agreement-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 12px;
+    font-size: 11px;
+    line-height: 1.8;
+  }
+  .agreement-row label {
+    flex: 1;
+    align-items: flex-start;
+  }
+  .agreement-row input {
+    margin-top: 3px;
+  }
+  .agreement-row button {
+    flex-shrink: 0;
+    color: var(--muted);
+    text-decoration: underline;
+    font-weight: 400;
+    font-size: 10px;
+  }
+  .signup-agreements > p {
+    margin-top: 12px;
+    font-size: 10px;
+    line-height: 1.8;
+  }
+  @media (max-width: 1050px) and (min-width: 761px) {
+    .signup-sso-buttons {
+      grid-template-columns: 1fr;
+    }
+    .password-rules {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 9px;
+    }
+  }
+  @media (max-width: 760px) {
+    .signup-sso-buttons {
+      grid-template-columns: 1fr;
+    }
+    .signup-sso-buttons button {
+      font-size: 12px;
+    }
+    .password-rules {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 9px;
+    }
+    .agreement-row {
+      font-size: 10px;
+    }
+    .signup-agreements {
+      padding: 13px;
+    }
+  }
+}
+
+@layer components {
+  .sso-buttons button .provider-mark {
+    margin-left: 0;
+  }
+  .signup-card .input-with-icon > svg {
+    flex-shrink: 0;
+  }
+}

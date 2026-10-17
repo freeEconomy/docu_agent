@@ -119,11 +119,30 @@ test('signup validates password confirmation and completes demo flow', async ({ 
   await page.goto('/signup');
   await page.getByLabel('이름 및 직책 *', { exact: true }).fill('데모 연구원');
   await page.getByLabel('업무용 이메일 주소 *', { exact: true }).fill('demo@company.test');
+  await page.getByLabel('소속 기업 / 기관명 *', { exact: true }).fill('미래전략연구소');
   await page.getByLabel('비밀번호 설정 *', { exact: true }).fill('Demo1234!');
   await page.getByLabel('비밀번호 확인 *', { exact: true }).fill('Different!');
   await page.getByRole('button', { name: '다음 단계' }).click();
   await expect(page.locator('p[role=alert]')).toContainText('일치하지 않습니다');
   await page.getByLabel('비밀번호 확인 *', { exact: true }).fill('Demo1234!');
+  await expect(
+    page.getByLabel('비밀번호 보안 강도').getByText('매우 강력', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: '다음 단계' }).click();
+  await expect(page.locator('p[role=alert]')).toContainText('필수 약관');
+  await page.getByRole('button', { name: '상세보기', exact: true }).click();
+  await expect(page.getByRole('dialog')).toContainText('실제 계정, 결제, 마케팅 구독은 생성하지');
+  await page.getByRole('dialog').getByRole('button', { name: '확인', exact: true }).click();
+  await page.getByRole('checkbox', { name: '약관 전체 동의하기', exact: true }).check();
+  await page.getByRole('button', { name: '다음 단계' }).click();
+  await expect(page.getByLabel('소속 기업 / 기관명 *', { exact: true })).toHaveValue(
+    '미래전략연구소',
+  );
+  await page.getByRole('button', { name: '이전', exact: true }).click();
+  await expect(page.getByLabel('이름 및 직책 *', { exact: true })).toHaveValue('데모 연구원');
+  await expect(page.getByLabel('업무용 이메일 주소 *', { exact: true })).toHaveValue(
+    'demo@company.test',
+  );
   await page.getByRole('button', { name: '다음 단계' }).click();
   await page.getByLabel('소속 기업 / 기관명 *', { exact: true }).fill('미래전략연구소');
   await page.getByLabel('기업 도메인 *', { exact: true }).fill('company.test');

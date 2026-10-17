@@ -28,7 +28,7 @@ class FakeClient:
         return {"title": "Chat", "htmlCode": {"downloadUrl": "https://stitch.googleapis.com/html"}, "screenshot": {"downloadUrl": "https://lh3.googleusercontent.com/image"}}
 
     def download(self, url):
-        if url.endswith("html"):
+        if url.endswith("html") or url.endswith(":download"):
             return b"<!doctype html><html>new design</html>"
         if self.fail:
             raise StitchError("Download failed")
@@ -56,6 +56,26 @@ class SyncTests(unittest.TestCase):
         manifest = (self.root / ".stitch/snapshot.json").read_text()
         self.assertNotIn("https://", manifest)
         self.assertNotIn("API_KEY", manifest)
+
+    def test_html_only_keeps_existing_screenshot(self):
+        screenshot = self.root / "design/chat/screen.png"
+        screenshot.parent.mkdir(parents=True)
+        screenshot.write_bytes(b"existing screenshot")
+        client = FakeClient()
+        client.fail = True
+        self.assertEqual(sync_module.sync(self.root, client, html_only=True), 0)
+        self.assertEqual(screenshot.read_bytes(), b"existing screenshot")
+        self.assertEqual(sync_module.sync(self.root, client, check=True, html_only=True), 0)
+
+    def test_file_api_wrapped_exports(self):
+        import base64
+        html = json.dumps({"dataString": "<html>한글</html>"}).encode()
+        self.assertEqual(sync_module.decode_export(html, "htmlCode"), "<html>한글</html>".encode())
+        png = b"\x89PNG\r\n\x1a\nimage"
+        image = json.dumps({"dataString": base64.b64encode(png).decode(), "imageMetadata": {"mimeType": "image/png"}}).encode()
+        self.assertEqual(sync_module.decode_export(image, "screenshot"), png)
+        with self.assertRaises(StitchError):
+            sync_module.decode_export(b'{"dataString":"bad","imageMetadata":{"mimeType":"image/jpeg"}}', "screenshot")
 
     def test_failed_download_preserves_existing_export(self):
         target = self.root / "design/chat/code.html"

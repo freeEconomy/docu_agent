@@ -1,0 +1,55 @@
+{
+  "projectId": "7162910529939285378",
+  "title": "DocuMind AI Agent Platform",
+  "exportMode": "html-only",
+  "screens": [
+    {
+      "screenId": "7b40005916804141bbf4fdef86ceb1aa",
+      "title": "AI 채팅 및 근거 문서 인스펙터",
+      "directory": "design/stitch_documind_ai_agent_platform/ai",
+      "sha256": {
+        "code.html": "980cbc5fd0b90b1863d6dbbdf0dfc8006dfbb45f39c2842654102ef9ddd5404e"
+      }
+    },
+    {
+      "screenId": "dabfe7164068461cb01f6a0d9fbac03e",
+      "title": "문서 지식 베이스 관리",
+      "directory": "design/stitch_documind_ai_agent_platform/_1",
+      "sha256": {
+        "code.html": "d54f03e69d2011c236da7654bce905a7236e98e68201ada0791cd0f2a5143b1c"
+      }
+    },
+    {
+      "screenId": "4e83b90890ab477086054743cb923919",
+      "title": "문서 상세 및 청크 인스펙터",
+      "directory": "design/stitch_documind_ai_agent_platform/_2",
+      "sha256": {
+        "code.html": "9011ae917e273b04a6a1317b0a698187b523d730efeaab78a4a07626ea29fb65"
+      }
+    },
+    {
+      "screenId": "1e8b5127dc5a42acac4882a88fd496cf",
+      "title": "회원가입 및 워크스페이스 등록",
+      "directory": "design/stitch_documind_ai_agent_platform/_3",
+      "sha256": {
+        "code.html": "d2a6d069521e86f4671e41dc8bcb19fad6d27a2b3f9298401b31b42a91bb8a95"
+      }
+    },
+    {
+      "screenId": "96619041f0f6477280ba7c72f3e719eb",
+      "title": "엔터프라이즈 로그인 및 보안 인증",
+      "directory": "design/stitch_documind_ai_agent_platform/_4",
+      "sha256": {
+        "code.html": "33df28a5b467d56bedb2dd11143f09e1682e38db78588068322a01d511e75ae5"
+      }
+    },
+    {
+      "screenId": "74f5d6266a8341c6878da2ce8444d8de",
+      "title": "관리자 대시보드 및 RAG 모니터링",
+      "directory": "design/stitch_documind_ai_agent_platform/rag",
+      "sha256": {
+        "code.html": "939b94abe71e3bf28c2b81f363645d167a21de66a41eb67c1336ebda6e2890e7"
+      }
+    }
+  ]
+}

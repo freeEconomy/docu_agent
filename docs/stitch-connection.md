@@ -61,3 +61,12 @@ API 키는 `stitch.googleapis.com`으로만 전송합니다. HTML/이미지 CDN�
 Codex에 **“Stitch 최신 디자인을 가져와서 변경 내용을 확인하고 PR을 만들어줘”**라고 요청하면 이 명령으로 가져온 다음 기존 앱 코드를 업데이트할 수 있습니다. 실행 후에는 `git diff`로 디자인 변경을 검토하고 브랜치에 커밋·푸시하여 PR을 만듭니다. 웹 앱 UI 변환은 별도 코드 수정이며, 내보낸 HTML을 자동으로 앱에 삽입하지 않습니다.
 
 이 연결은 요청할 때 실행하는 단방향 가져오기입니다. Stitch를 수정하는 즉시 GitHub에 자동 푸시하는 스케줄러나 양방향 실시간 동기화는 구성하지 않습니다. GitHub Actions의 `Stitch integration checks`는 실제 키 없이 다운로드 실패 시 보존, 반복 실행, 경로 보호 및 CDN 키 분리 동작을 검사합니다.
+
+### API에서 HTML만 확인하기
+
+```bash
+python3 scripts/stitch-sync.py --html-only
+python3 scripts/stitch-sync.py --html-only --check
+```
+
+HTML은 `stitch.googleapis.com`의 공식 파일 다운로드 API에서 읽습니다. `dataString`으로 감싼 HTML/PNG 내보내기 응답도 처리합니다. `--html-only`에서는 기존 PNG를 변경하지 않고 6개 HTML과 HTML 해시 스냅샷만 갱신합니다. 따라서 CDN 접근이 제한되어도 화면의 최신 코드 변경을 확인할 수 있습니다. 전체 PNG 동기화는 여전히 각 이미지 CDN 접근이 필요합니다. 스냅샷의 `exportMode`로 HTML 검증과 전체 파일 검증을 구분합니다.

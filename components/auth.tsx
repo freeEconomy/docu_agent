@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
   ArrowRight,
@@ -17,18 +17,28 @@ import {
   Network,
   Zap,
   User,
+  IdCard,
+  AtSign,
 } from 'lucide-react';
-import { Brand } from './ui';
+import { Brand, Modal } from './ui';
+import { PasswordStrength, SSOButtons } from './auth-ui';
 import { useWorkspace } from './workspace-provider';
 export function AuthHeader() {
   const { notify } = useWorkspace();
+  const path = usePathname();
   return (
     <header className="auth-header">
       <Link href="/login">
         <Brand enterprise />
       </Link>
       <nav>
-        <Link href="/login">로그인</Link>
+        <Link
+          href="/login"
+          className={path === '/login' ? 'active' : ''}
+          aria-current={path === '/login' ? 'page' : undefined}
+        >
+          로그인
+        </Link>
         <button
           onClick={() =>
             notify('SSO 연동은 다음 단계에서 제공됩니다. 현재 데모 로그인으로 체험할 수 있습니다.')
@@ -43,7 +53,13 @@ export function AuthHeader() {
         >
           보안 인증 센터
         </button>
-        <Link href="/signup">접근 권한 신청</Link>
+        <Link
+          href="/signup"
+          className={path === '/signup' ? 'active' : ''}
+          aria-current={path === '/signup' ? 'page' : undefined}
+        >
+          접근 권한 신청
+        </Link>
       </nav>
       <Link href="/login" className="brand-icon" aria-label="계정 로그인">
         <User size={20} />
@@ -93,7 +109,9 @@ export function Login() {
           <div className="marketing-stats">
             <article className="card">
               <div className="row between">
-                <BadgeCheck size={30} className="text-primary" />
+                <span className="marketing-stat-icon">
+                  <BadgeCheck size={27} />
+                </span>
                 <span className="badge ready">ϟ 0.28s 응답</span>
               </div>
               <strong>99.9%</strong>
@@ -102,7 +120,9 @@ export function Login() {
             </article>
             <article className="card">
               <div className="row between">
-                <ShieldCheck size={30} className="text-indigo-600" />
+                <span className="marketing-stat-icon indigo">
+                  <ShieldCheck size={27} />
+                </span>
                 <span className="tag">AES-256 GCM</span>
               </div>
               <strong>100%</strong>
@@ -133,10 +153,18 @@ export function Login() {
           <div className="compliance">
             <p>엔터프라이즈 보안 및 클라우드 컴플라이언스 디자인 예시</p>
             <div>
-              {['SOC 2 Type II', 'ISO/IEC 27001', 'KISA CSAP', 'VPC & 온프레미스'].map((t) => (
-                <span key={t}>
-                  <ShieldCheck size={22} />
-                  <b>{t}</b>
+              {[
+                ['SOC 2 Type II', 'AICPA 국제인증'],
+                ['ISO/IEC 27001', '정보보호관리체계'],
+                ['KISA CSAP', '공공/금융 보안규격'],
+                ['VPC & 온프레미스', '에어갭 망분리 지원'],
+              ].map(([title, description]) => (
+                <span key={title}>
+                  <ShieldCheck size={23} />
+                  <span className="compliance-label">
+                    <b>{title}</b>
+                    <small>{description}</small>
+                  </span>
                 </span>
               ))}
             </div>
@@ -159,26 +187,7 @@ export function Login() {
                 업무용 계정 로그인
               </button>
             </div>
-            {tab === 'sso' && (
-              <div className="sso-buttons">
-                {[
-                  ['G', 'Google Workspace 계정으로 로그인'],
-                  ['▦', 'Microsoft Azure AD / Entra ID'],
-                  ['ok', 'Okta / SAML 2.0 단일 인증 (SSO)'],
-                ].map(([icon, label]) => (
-                  <button
-                    key={label}
-                    onClick={() =>
-                      notify(`${label}: 실제 SSO는 미연동입니다. 아래 데모 로그인으로 입장하세요.`)
-                    }
-                  >
-                    <span>{icon}</span>
-                    {label}
-                    <ArrowRight size={16} />
-                  </button>
-                ))}
-              </div>
-            )}
+            {tab === 'sso' && <SSOButtons />}
             <div className="divider">또는 업무용 이메일로 로그인</div>
             <form
               onSubmit={(e) => {
@@ -280,6 +289,19 @@ export function Signup() {
   const { notify } = useWorkspace();
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [profile, setProfile] = useState({
+    name: '',
+    email: '',
+    company: '',
+    purpose: '사내 규정 및 인사/회계 문서 Q&A',
+    domain: '',
+  });
+  const [agreements, setAgreements] = useState([false, false, false]);
+  const [terms, setTerms] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const personalEmail = ['gmail.com', 'naver.com', 'daum.net', 'kakao.com', 'outlook.com'].includes(
+    profile.email.split('@')[1]?.toLowerCase(),
+  );
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [visible, setVisible] = useState(false);
@@ -320,6 +342,13 @@ export function Signup() {
             <p className="muted mt-3 mb-6">
               전용 워크스페이스 개설 흐름을 데모로 체험할 수 있습니다.
             </p>
+            {step === 1 && (
+              <div className="signup-sso">
+                <p className="muted text-xs mb-3">기업 SSO 계정으로 시작하기</p>
+                <SSOButtons signup />
+                <div className="divider">또는 업무용 이메일로 직접 계정 생성</div>
+              </div>
+            )}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -327,6 +356,10 @@ export function Signup() {
                 if (step === 1) {
                   if (password !== confirm) {
                     setError('비밀번호가 일치하지 않습니다.');
+                    return;
+                  }
+                  if (!agreements[0] || !agreements[1]) {
+                    setError('필수 약관 두 항목에 동의해 주세요.');
                     return;
                   }
                   setStep(2);
@@ -342,17 +375,63 @@ export function Signup() {
                 <>
                   <label className="field">
                     이름 및 직책 *
-                    <input required placeholder="홍길동 수석연구원 / 팀장" autoComplete="name" />
+                    <div className="input-with-icon">
+                      <IdCard size={19} />
+                      <input
+                        required
+                        placeholder="홍길동 수석연구원 / 팀장"
+                        autoComplete="name"
+                        value={profile.name}
+                        onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
+                      />
+                    </div>
                   </label>
                   <label className="field mt-4">
                     업무용 이메일 주소 *
-                    <input
-                      type="email"
-                      required
-                      placeholder="name@company.com"
-                      autoComplete="email"
-                    />
+                    <div className="input-with-icon">
+                      <AtSign size={19} />
+                      <input
+                        type="email"
+                        required
+                        placeholder="name@company.com"
+                        autoComplete="email"
+                        value={profile.email}
+                        onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
+                      />
+                    </div>
                   </label>
+                  {personalEmail && (
+                    <p className="domain-warning" role="status">
+                      기업 업무용 이메일을 권장합니다. 이 데모에서는 개인 이메일도 사용할 수
+                      있습니다.
+                    </p>
+                  )}
+                  <div className="form-grid mt-4">
+                    <label className="field">
+                      소속 기업 / 기관명 *
+                      <div className="input-with-icon">
+                        <Building2 size={19} />
+                        <input
+                          required
+                          placeholder="(주)미래전략연구소"
+                          value={profile.company}
+                          onChange={(e) => setProfile((p) => ({ ...p, company: e.target.value }))}
+                        />
+                      </div>
+                    </label>
+                    <label className="field">
+                      RAG 구축 주요 목적 *
+                      <select
+                        value={profile.purpose}
+                        onChange={(e) => setProfile((p) => ({ ...p, purpose: e.target.value }))}
+                      >
+                        <option>사내 규정 및 인사/회계 문서 Q&A</option>
+                        <option>연구개발 및 기술문서 검색</option>
+                        <option>고객사 기술지원 AI 코파일럿</option>
+                        <option>계약서 및 법무 검토 지원</option>
+                      </select>
+                    </label>
+                  </div>
                   <div className="form-grid mt-4">
                     <label className="field">
                       비밀번호 설정 *
@@ -378,32 +457,81 @@ export function Signup() {
                     </label>
                     <label className="field">
                       비밀번호 확인 *
-                      <input
-                        required
-                        type="password"
-                        value={confirm}
-                        onChange={(e) => setConfirm(e.target.value)}
-                        autoComplete="new-password"
-                        placeholder="비밀번호 재입력"
-                      />
+                      <div className="input-with-icon">
+                        <input
+                          required
+                          type={confirmVisible ? 'text' : 'password'}
+                          value={confirm}
+                          onChange={(e) => setConfirm(e.target.value)}
+                          autoComplete="new-password"
+                          placeholder="비밀번호 재입력"
+                        />
+                        <button
+                          type="button"
+                          className="icon-button"
+                          aria-label="비밀번호 확인 표시 전환"
+                          onClick={() => setConfirmVisible(!confirmVisible)}
+                        >
+                          {confirmVisible ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
                     </label>
                   </div>
-                  <div className="inset mt-4">
-                    <div className="row between text-xs">
-                      <span>보안 강도</span>
-                      <span>
-                        {password.length >= 8 ? '데모 최소 길이 충족' : '입력 대기 · 8자 이상'}
-                      </span>
-                    </div>
-                    <div className="progress mt-3">
-                      <i style={{ width: `${Math.min(100, (password.length / 12) * 100)}%` }} />
-                    </div>
+                  <PasswordStrength password={password} />
+                  <div className="signup-agreements inset mt-4">
+                    <label className="row agreement-all">
+                      <input
+                        type="checkbox"
+                        checked={agreements.every(Boolean)}
+                        onChange={(e) => setAgreements(agreements.map(() => e.target.checked))}
+                      />
+                      약관 전체 동의하기
+                    </label>
+                    {[
+                      '[필수] DocuMind 엔터프라이즈 이용약관 동의',
+                      '[필수] 개인정보 수집 및 데이터 보안 안내 확인',
+                      '[선택] 기능 업데이트 안내 수신',
+                    ].map((label, i) => (
+                      <div className="agreement-row" key={label}>
+                        <label className="row">
+                          <input
+                            type="checkbox"
+                            aria-required={i < 2}
+                            checked={agreements[i]}
+                            onChange={(e) =>
+                              setAgreements((a) =>
+                                a.map((v, index) => (index === i ? e.target.checked : v)),
+                              )
+                            }
+                          />
+                          {label}
+                        </label>
+                        {i === 0 && (
+                          <button
+                            className="text-button"
+                            type="button"
+                            onClick={() => setTerms(true)}
+                          >
+                            상세보기
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <p className="muted text-xs">
+                      데모 동의 상태만 사용하며 실제 약관 계약이나 마케팅 구독은 생성하지 않습니다.
+                    </p>
                   </div>
                 </>
               ) : step === 2 ? (
                 <>
                   <label className="field">
-                    소속 기업 / 기관명 *<input required placeholder="(주)미래전략연구소" />
+                    소속 기업 / 기관명 *
+                    <input
+                      required
+                      placeholder="(주)미래전략연구소"
+                      value={profile.company}
+                      onChange={(e) => setProfile((p) => ({ ...p, company: e.target.value }))}
+                    />
                   </label>
                   <label className="field mt-4">
                     기업 도메인 *
@@ -411,11 +539,16 @@ export function Signup() {
                       required
                       placeholder="company.com"
                       pattern="[A-Za-z0-9.-]+\.[A-Za-z]{2,}"
+                      value={profile.domain}
+                      onChange={(e) => setProfile((p) => ({ ...p, domain: e.target.value }))}
                     />
                   </label>
                   <label className="field mt-4">
                     RAG 구축 주요 목적
-                    <select>
+                    <select
+                      value={profile.purpose}
+                      onChange={(e) => setProfile((p) => ({ ...p, purpose: e.target.value }))}
+                    >
                       <option>사내 규정 및 인사/회계 문서 Q&A</option>
                       <option>연구개발 및 기술문서 검색</option>
                       <option>계약서 및 법무 검토 지원</option>
@@ -536,6 +669,18 @@ export function Signup() {
           </aside>
         </div>
       </main>
+      {terms && (
+        <Modal title="DocuMind 데모 이용 안내" onClose={() => setTerms(false)}>
+          <p className="muted">
+            이 화면은 Stitch 디자인의 가입 절차를 체험하는 프론트엔드 데모입니다. 실제 계정, 결제,
+            마케팅 구독은 생성하지 않으며 입력한 비밀번호를 저장하거나 외부로 전송하지 않습니다.
+            정식 서비스 이용약관과 개인정보 처리방침은 실제 인증 연동 시 제공됩니다.
+          </p>
+          <button type="button" className="button primary mt-5" onClick={() => setTerms(false)}>
+            확인
+          </button>
+        </Modal>
+      )}
       <AuthFooter />
     </div>
   );

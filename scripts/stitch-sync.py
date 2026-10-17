@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Download configured Stitch HTML/PNG exports for GitHub review, without a ZIP."""
 import argparse
+import base64
 import hashlib
 import json
 from pathlib import Path
@@ -20,7 +21,22 @@ def destination(root, relative):
     return path
 
 
-def sync(root, client, check=False):
+def decode_export(data, field):
+    """Stitch's file API wraps HTML text and base64 PNGs in dataString."""
+    if not data.lstrip().startswith(b"{"):
+        return data
+    payload = json.loads(data)
+    content = payload.get("dataString")
+    if not isinstance(content, str):
+        raise StitchError("The file API response has no exported content.")
+    if field == "htmlCode":
+        return content.encode("utf-8")
+    if payload.get("imageMetadata", {}).get("mimeType") != "image/png":
+        raise StitchError("The file API response is not a PNG export.")
+    return base64.b64decode(content, validate=True)
+
+
+def sync(root, client, check=False, html_only=False):
     config = json.loads((root / ".stitch/project.json").read_text())
     project_id = config["projectId"]
     if not isinstance(project_id, str) or not project_id.isdigit():
@@ -39,7 +55,7 @@ def sync(root, client, check=False):
     project = client.call("get_project", {"name": "projects/" + project_id})
     available = client.call("list_screens", {"projectId": project_id}).get("screens", [])
     names = {screen["name"] for screen in available}
-    manifest = {"projectId": project_id, "title": project.get("title", config.get("title", "")), "screens": []}
+    manifest = {"projectId": project_id, "title": project.get("title", config.get("title", "")), "exportMode": "html-only" if html_only else "full", "screens": []}
     changed = []
     # Prepare every file first. A failed download leaves existing exports untouched.
     with tempfile.TemporaryDirectory(prefix="documind-stitch-") as temp:
@@ -50,11 +66,16 @@ def sync(root, client, check=False):
                 raise StitchError("A configured screen is missing from the Stitch project; no files were changed.")
             screen = client.call("get_screen", {"name": name})
             entry = {"screenId": screen_id, "title": screen.get("title", ""), "directory": relative, "sha256": {}}
-            for field, filename in [("htmlCode", "code.html"), ("screenshot", "screen.png")]:
-                url = screen.get(field, {}).get("downloadUrl")
+            exports = [("htmlCode", "code.html")]
+            if not html_only:
+                exports.append(("screenshot", "screen.png"))
+            for field, filename in exports:
+                # The first-party file endpoint also serves existing screen IDs.
+                # This avoids depending on a signed CDN URL for HTML exports.
+                url = ("https://stitch.googleapis.com/v1/projects/%s/files/%s:download" % (project_id, screen_id)) if field == "htmlCode" else screen.get(field, {}).get("downloadUrl")
                 if not url:
                     raise StitchError("An exported screen has no download URL; no files were changed.")
-                data = client.download(url)
+                data = decode_export(client.download(url), field)
                 if filename.endswith(".png") and not data.startswith(b"\x89PNG\r\n\x1a\n"):
                     raise StitchError("Stitch screenshot is not a valid PNG; no files were changed.")
                 if filename.endswith(".html") and b"<html" not in data.lower():
@@ -90,9 +111,10 @@ def sync(root, client, check=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Report changes without writing files; exit 1 when exports differ.")
+    parser.add_argument("--html-only", action="store_true", help="Sync HTML through the Stitch API; keep existing screenshots untouched.")
     args = parser.parse_args()
     try:
-        return sync(ROOT, StitchClient(), check=args.check)
+        return sync(ROOT, StitchClient(), check=args.check, html_only=args.html_only)
     except (StitchError, OSError, ValueError, KeyError, TypeError) as error:
         # Never print raw server replies, credential values or signed asset URLs.
         message = str(error) if isinstance(error, StitchError) else "Invalid local configuration or export data."
