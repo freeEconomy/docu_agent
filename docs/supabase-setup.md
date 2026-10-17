@@ -94,3 +94,11 @@ where schemaname = 'public'
 클라우드 환경에서 해당 Supabase 도메인 요청은 프록시 CONNECT 403으로 차단되었고, 제공된 publishable key 외에 DB 관리자 인증은 없었습니다. 따라서 이 변경에서 운영 프로젝트 DDL 실행, 실제 가입·업로드, OpenAI 응답은 검증하지 않았습니다.
 
 `npm run test:backend`는 PGlite의 실제 PostgreSQL 엔진에서 동일 마이그레이션과 RLS·RPC를 실행합니다. hosted Auth/Storage의 스키마 계약만 테스트용으로 만들며, 파일 추출은 실제 파서로 검사합니다. Playwright는 외부 Auth/Storage/DB/API 경계 응답을 대체해 UI 흐름을 검사하며 운영 통합 테스트를 의미하지 않습니다.
+
+## Codex 클라우드에서 프록시 403이 발생할 때
+
+`Tunnel connection failed: 403 Forbidden`은 Supabase에 도달하기 전 Codex 네트워크 프록시가 접속을 거절한 결과입니다. 테이블을 다시 만들거나 공개 키를 교체해서 해결할 문제는 아닙니다.
+
+Codex의 해당 환경 설정에서 인터넷 액세스의 허용 도메인에 `uyckuziyzjqterrsgvhg.supabase.co`를 추가하고 저장·게시합니다. 초안에 저장한 값과 실제 실행 환경에 적용된 값은 다릅니다. 실행 중인 작업에 반영되지 않으면 저장한 환경으로 새 작업을 시작하고 `npm run check:supabase`를 실행합니다. 네트워크 시크릿에 API 키를 추가하는 절차와는 별개입니다.
+
+GitHub Actions의 **Supabase connection check → Run workflow**에서도 동일한 읽기 전용 검사를 실행할 수 있습니다. 이 검사는 앱과 동일한 공개 프로젝트 설정을 사용하며 Auth 접근, 테이블·검색 RPC 존재, 비로그인 접근 거부를 확인합니다. 문서나 사용자 계정을 추가하지 않습니다. 로그인한 사용자의 업로드·채팅 검증은 별도로 필요합니다. 테이블 검사에서 예상한 401/403 권한 거부는 사용자별 보안 정책이 적용된 정상 응답입니다.

@@ -10,7 +10,8 @@
     "test": "playwright test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:backend": "tsx --test tests/backend.test.ts"
+    "test:backend": "tsx --test tests/backend.test.ts",
+    "check:supabase": "tsx scripts/supabase-check.ts"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.0",
