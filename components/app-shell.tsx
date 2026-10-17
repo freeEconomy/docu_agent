@@ -24,18 +24,21 @@ import {
 } from 'lucide-react';
 import { Brand } from './ui';
 import { useWorkspace } from './workspace-provider';
+import { getSupabase } from '@/lib/supabase/client';
 const navigation = [
   ['/chat', 'AI 채팅 (RAG)', MessageSquare],
   ['/documents', '문서 지식 베이스', Folder],
-  ['/documents/DOC-8942', '문서 상세 및 청크 분석', FileSearch],
-  ['/admin', '관리자 대시보드', ChartNoAxesColumnIncreasing],
+  ['/admin', '워크스페이스 대시보드', ChartNoAxesColumnIncreasing],
   ['/settings', '워크스페이스 설정', Settings],
 ] as const;
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const { documents, notify } = useWorkspace();
+  const { documents, notify, session, hydrated, connectionError, refresh } = useWorkspace();
+  useEffect(() => {
+    if (hydrated && !session) router.replace('/login');
+  }, [hydrated, session, router]);
   useEffect(() => setOpen(false), [path]);
   useEffect(() => {
     function key(e: KeyboardEvent) {
@@ -47,6 +50,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
   }, [router]);
+  if (!hydrated || !session)
+    return (
+      <div className="empty-state" role="status">
+        로그인 확인 중…
+      </div>
+    );
   return (
     <div className="app-shell">
       <a href="#main" className="skip-link">
@@ -69,7 +78,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
           <div className="workspace-name">
             <Building2 size={17} />
-            <span>(주)미래전략연구소 Enterprise</span>
+            <span>{session.user.user_metadata.company || '내 워크스페이스'}</span>
           </div>
           <Link
             className="button primary new-chat"
@@ -97,42 +106,39 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
           <div className="nav-label mt-8">최근 분석 문서</div>
-          {[
-            ['2024 사업계획서 v3.4', FileText, 'DOC-8942'],
-            ['사내 정보보안 가이드라인', Lock, 'DOC-3810'],
-            ['Core API 기술명세서 rev2', Code, 'DOC-3811'],
-          ].map(([label, Icon, id]) => {
-            const I = Icon as typeof FileText;
-            return (
-              <Link href={`/documents/${id}`} key={String(id)} className="recent">
-                <I size={15} />
-                {String(label)}
-              </Link>
-            );
-          })}
+          {documents.slice(0, 3).map((doc) => (
+            <Link href={`/documents/${doc.id}`} key={doc.id} className="recent">
+              <FileText size={15} />
+              {doc.name}
+            </Link>
+          ))}
+          {!documents.length && <p className="muted text-xs px-4">아직 등록한 문서가 없습니다.</p>}
         </nav>
         <div className="profile">
           <div className="row">
-            <span className="avatar">SY</span>
+            <span className="avatar">나</span>
             <div className="grow">
-              <strong>이서연 수석연구원</strong>
-              <small>AI전략팀 · 데모 계정</small>
+              <strong>{session.user.user_metadata.name || session.user.email}</strong>
+              <small>Supabase 계정</small>
             </div>
             <button
               aria-label="로그아웃"
               className="icon-button"
               onClick={() => {
-                sessionStorage.removeItem('documind-demo-session');
-                localStorage.removeItem('documind-demo-session');
-                router.push('/login');
+                void getSupabase()
+                  .auth.signOut()
+                  .then(({ error }) => {
+                    if (error) notify(error.message);
+                    else router.replace('/login');
+                  });
               }}
             >
               <LogOut size={18} />
             </button>
           </div>
           <div className="row between mt-3">
-            <small className="text-primary">● Enterprise 체험</small>
-            <small className="muted">v0.1 Mock</small>
+            <small className="text-primary">● 개인 지식 베이스</small>
+            <small className="muted">v0.2</small>
           </div>
         </div>
       </aside>
@@ -146,7 +152,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Menu size={22} />
           </button>
           <div className="breadcrumb">
-            미래전략연구소 <ChevronRight size={16} />
+            DocuMind <ChevronRight size={16} />
             <span>지식 검색 에이전트</span>
           </div>
           <Link href="/documents" className="context-summary">
@@ -159,15 +165,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           <span className="sync-state">
             <span className="status-dot" />
-            Mock 워크스페이스
+            Supabase 워크스페이스
           </span>
           <button
             className="icon-button notification"
             aria-label="알림"
             onClick={() =>
-              notify(
-                '현재 화면은 Mock 데이터 데모입니다. 실제 서비스 연결은 다음 단계에서 제공됩니다.',
-              )
+              notify('문서 등록과 처리 상태는 문서 지식 베이스에서 확인할 수 있습니다.')
             }
           >
             <Bell size={19} />
@@ -184,13 +188,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             <CircleHelp size={19} />
           </button>
-          <span className="avatar small">SY</span>
+          <span className="avatar small">나</span>
         </header>
         <div className="demo-strip">
-          <Sparkles size={13} />
-          프론트엔드 데모 · AI 응답, 인덱싱, 로그인 및 운영 지표는 Mock 데이터입니다.
+          <Sparkles size={13} />내 문서에서 근거를 검색합니다 · AI 키 미설정 시 원문 발췌 모드
         </div>
-        <main id="main">{children}</main>
+        <main id="main">
+          {connectionError && (
+            <div className="backend-notice" role="alert">
+              <strong>{connectionError}</strong>
+              <div className="row mt-3">
+                <Link href="/settings" className="text-button">
+                  설치 안내
+                </Link>
+                <button className="text-button" onClick={() => void refresh()}>
+                  다시 연결
+                </button>
+              </div>
+            </div>
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );

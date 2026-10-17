@@ -23,6 +23,8 @@ import {
 import { Brand, Modal } from './ui';
 import { PasswordStrength, SSOButtons } from './auth-ui';
 import { useWorkspace } from './workspace-provider';
+import { getSupabase } from '@/lib/supabase/client';
+import { readableError } from '@/lib/documents';
 export function AuthHeader() {
   const { notify } = useWorkspace();
   const path = usePathname();
@@ -41,15 +43,13 @@ export function AuthHeader() {
         </Link>
         <button
           onClick={() =>
-            notify('SSO 연동은 다음 단계에서 제공됩니다. 현재 데모 로그인으로 체험할 수 있습니다.')
+            notify('현재 이메일·비밀번호 로그인을 지원합니다. SSO는 별도 설정이 필요합니다.')
           }
         >
           SSO 연동
         </button>
         <button
-          onClick={() =>
-            notify('이 프론트엔드 데모는 실제 보안 인증 또는 암호화 인프라를 제공하지 않습니다.')
-          }
+          onClick={() => notify('Supabase Auth, 비공개 Storage, 사용자별 RLS 정책을 사용합니다.')}
         >
           보안 인증 센터
         </button>
@@ -72,160 +72,100 @@ export function AuthFooter() {
     <footer className="auth-footer">
       <span className="row">
         <ShieldCheck size={18} />
-        DocuMind Enterprise RAG · 프론트엔드 데모
+        DocuMind · 문서 기반 지식 검색
       </span>
-      <span>© 2026 DocuMind · 인증 및 인프라 기능은 연동 예정</span>
+      <span>© 2026 DocuMind</span>
     </footer>
   );
 }
 export function Login() {
   const router = useRouter();
   const { notify } = useWorkspace();
-  const [tab, setTab] = useState('sso');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
-  const [remember, setRemember] = useState(false);
-  function login() {
-    const storage = remember ? localStorage : sessionStorage;
-    storage.setItem('documind-demo-session', 'demo');
-    notify('데모 워크스페이스에 입장했습니다. 실제 인증은 수행하지 않습니다.');
-    router.push('/chat');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  async function login(event: React.FormEvent) {
+    event.preventDefault();
+    setError('');
+    setBusy(true);
+    try {
+      const { error } = await getSupabase().auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      router.replace('/chat');
+    } catch (error) {
+      setError(readableError(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function reset() {
+    if (!email.trim()) {
+      setError('비밀번호를 재설정할 이메일을 입력하세요.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const { error } = await getSupabase().auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/reset-password',
+      });
+      if (error) throw error;
+      notify('등록된 계정이면 비밀번호 재설정 이메일을 발송합니다. 이메일을 확인하세요.');
+    } catch (error) {
+      setError(readableError(error));
+    } finally {
+      setBusy(false);
+    }
   }
   return (
     <div className="auth-page">
       <AuthHeader />
       <main className="login-layout">
         <section className="login-marketing">
-          <div className="pill">● RAG Pro Enterprise v4.8</div>
+          <div className="pill">DocuMind · Document RAG</div>
           <h1>
-            지능형 RAG 기반
+            내 문서에서 찾는
             <br />
-            <span>사내 지식 검색 & AI 에이전트</span>
+            <span>근거 있는 답변</span>
           </h1>
           <p className="marketing-description">
-            할루시네이션 없는 근거 중심의 지능형 문서 벡터화 및 검색 증강 생성(RAG) 플랫폼입니다. 단
-            한 번의 질의로 방대한 전사 지식 베이스에서 즉각 검증 가능한 답변과 원본 출처를
-            도출하세요.
+            문서를 업로드하고 필요한 내용을 질문하세요. 검색된 원문과 출처를 함께 확인할 수
+            있습니다.
           </p>
           <div className="marketing-stats">
             <article className="card">
-              <div className="row between">
-                <span className="marketing-stat-icon">
-                  <BadgeCheck size={27} />
-                </span>
-                <span className="badge ready">ϟ 0.28s 응답</span>
-              </div>
-              <strong>99.9%</strong>
-              <h3>실시간 벡터 검색 정확도</h3>
-              <p>하이브리드 BM25 & Dense Vector 랭킹 모델을 통한 정확한 단락 추출</p>
+              <ShieldCheck size={32} />
+              <h3 className="mt-4">나만의 지식 베이스</h3>
+              <p>Supabase 인증과 사용자별 데이터 접근 정책을 적용합니다.</p>
             </article>
             <article className="card">
-              <div className="row between">
-                <span className="marketing-stat-icon indigo">
-                  <ShieldCheck size={27} />
-                </span>
-                <span className="tag">AES-256 GCM</span>
-              </div>
-              <strong>100%</strong>
-              <h3>사내 문서 암호화 파이프라인</h3>
-              <p>전송 중 및 저장 데이터 암호화, 고객사 전용 키(BYOK) 지원 예정</p>
+              <BrainCircuit size={32} />
+              <h3 className="mt-4">문서 기반 검색</h3>
+              <p>처음에는 비어 있습니다. 직접 업로드한 문서만 답변의 근거로 사용합니다.</p>
             </article>
           </div>
-          <article className="card retrieval-monitor">
-            <div className="row between inset">
-              <strong className="row">
-                <BrainCircuit size={20} className="text-primary" />
-                DocuMind Semantic Retrieval Monitor
-              </strong>
-              <small className="text-green-800">● 인덱싱 파이프라인 예시</small>
-            </div>
-            <div className="inset mt-4">
-              <div className="row between">
-                <b>Q. &quot;2025 상반기 해외 법인 라이선스 규약 조항 변경 내역&quot;</b>
-                <span className="tag">유사도 94.8%</span>
-              </div>
-              <blockquote>
-                &quot;...계약서 제14조 2항에 의거, 2025년 3월 1일부로 EU 및 APAC 리전 라이선스
-                사용권은 본사 데이터 거버넌스 승인 절차를 거쳐 자동 갱신된다...&quot;
-                <div className="tag mt-3">2025_글로벌_법률컴플라이언스_개정안.pdf (p.14)</div>
-              </blockquote>
-            </div>
-          </article>
-          <div className="compliance">
-            <p>엔터프라이즈 보안 및 클라우드 컴플라이언스 디자인 예시</p>
-            <div>
-              {[
-                ['SOC 2 Type II', 'AICPA 국제인증'],
-                ['ISO/IEC 27001', '정보보호관리체계'],
-                ['KISA CSAP', '공공/금융 보안규격'],
-                ['VPC & 온프레미스', '에어갭 망분리 지원'],
-              ].map(([title, description]) => (
-                <span key={title}>
-                  <ShieldCheck size={23} />
-                  <span className="compliance-label">
-                    <b>{title}</b>
-                    <small>{description}</small>
-                  </span>
-                </span>
-              ))}
-            </div>
-          </div>
         </section>
-        <section className="login-side">
-          <div className="login-card">
-            <div className="row between">
-              <h2>엔터프라이즈 로그인</h2>
-              <span className="pill text-xs">● SSO 2.0 지원 예정</span>
-            </div>
-            <p className="muted mt-3 mb-6">
-              사내 인증 포털 계정 또는 지정된 업무용 이메일로 접속하세요.
-            </p>
-            <div className="segmented auth-tabs">
-              <button className={tab === 'sso' ? 'active' : ''} onClick={() => setTab('sso')}>
-                기업 SSO 간편인증
-              </button>
-              <button className={tab === 'email' ? 'active' : ''} onClick={() => setTab('email')}>
-                업무용 계정 로그인
-              </button>
-            </div>
-            {tab === 'sso' && <SSOButtons />}
-            <div className="divider">또는 업무용 이메일로 로그인</div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                login();
-              }}
-            >
+        <section className="login-form-section">
+          <div className="card login-card">
+            <h2>워크스페이스 로그인</h2>
+            <p className="muted mt-3 mb-6">가입한 이메일과 비밀번호로 접속하세요.</p>
+            <form onSubmit={login}>
               <label className="field">
-                업무용 이메일 주소
-                <div className="input-with-icon">
-                  <Mail size={20} />
-                  <input
-                    type="email"
-                    name="email"
-                    autoComplete="username"
-                    required
-                    placeholder="name@company.com"
-                  />
-                </div>
+                이메일
+                <input
+                  type="email"
+                  name="email"
+                  autoComplete="username"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@company.com"
+                />
               </label>
-              <small className="muted block mt-2 mb-5">
-                데모용 이메일을 입력하세요. 실제 계정과 비밀번호는 사용하지 마세요.
-              </small>
-              <label className="field">
-                <span className="row between">
-                  비밀번호
-                  <button
-                    type="button"
-                    className="text-button text-xs"
-                    onClick={() =>
-                      notify(
-                        '데모에서는 비밀번호 재설정 메일을 발송하지 않습니다. 임의의 8자 이상 비밀번호로 로그인하세요.',
-                      )
-                    }
-                  >
-                    비밀번호를 잊으셨나요?
-                  </button>
-                </span>
+              <label className="field mt-5">
+                비밀번호
                 <div className="input-with-icon">
                   <LockKeyhole size={20} />
                   <input
@@ -234,7 +174,8 @@ export function Login() {
                     autoComplete="current-password"
                     required
                     minLength={8}
-                    placeholder="데모용 비밀번호 8자 이상"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                   <button
                     type="button"
@@ -242,43 +183,35 @@ export function Login() {
                     aria-label={visible ? '비밀번호 숨기기' : '비밀번호 표시'}
                     onClick={() => setVisible(!visible)}
                   >
-                    {visible ? <Eye size={19} /> : <EyeOff size={19} />}
+                    {visible ? <EyeOff size={19} /> : <Eye size={19} />}
                   </button>
                 </div>
               </label>
-              <div className="row between mt-5 mb-5 text-sm">
-                <label className="row">
-                  <input
-                    type="checkbox"
-                    checked={remember}
-                    onChange={(e) => setRemember(e.target.checked)}
-                  />
-                  로그인 상태 유지 (데모)
-                </label>
-                <span className="muted text-xs">⚿ OTP / MFA 연동 예정</span>
-              </div>
-              <button className="button primary login-submit" type="submit">
-                워크스페이스 로그인
-                <ArrowRight size={22} />
+              <button
+                type="button"
+                className="text-button mt-4"
+                disabled={busy}
+                onClick={() => void reset()}
+              >
+                비밀번호를 잊으셨나요?
+              </button>
+              {error && (
+                <p role="alert" className="error-box mt-4">
+                  {error}
+                </p>
+              )}
+              <button className="button primary login-submit mt-6" type="submit" disabled={busy}>
+                {busy ? '연결 중…' : '워크스페이스 로그인'}
+                <ArrowRight size={20} />
               </button>
             </form>
-            <button className="text-button demo-entry" onClick={login}>
-              입력 없이 데모 바로 체험하기 →
-            </button>
-            <div className="inset text-sm muted mt-5">
-              이 화면은 Mock 로그인입니다. 실제 인증, SSO, 접근 제어는 Supabase 연동 단계에서
-              제공됩니다. 비밀번호는 저장하지 않습니다.
-            </div>
-            <div className="login-card-footer">
-              <Link href="/signup">사내 권한 승인 신청</Link>
-              <span>·</span>
-              <Link href="/signup">신규 테넌트 개설</Link>
-              <span className="muted">IT Helpdesk 24/7</span>
+            <div className="inset mt-6">
+              아직 계정이 없나요?{' '}
+              <Link className="text-primary" href="/signup">
+                회원가입
+              </Link>
             </div>
           </div>
-          <p className="text-xs muted text-center mt-4">
-            Stitch 디자인 기반 · 실제 인증 및 보안 인증을 의미하지 않습니다.
-          </p>
         </section>
       </main>
       <AuthFooter />
@@ -289,6 +222,8 @@ export function Signup() {
   const { notify } = useWorkspace();
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [busy, setBusy] = useState(false);
+  const [confirmation, setConfirmation] = useState(false);
   const [profile, setProfile] = useState({
     name: '',
     email: '',
@@ -324,8 +259,8 @@ export function Signup() {
                   <small className="muted">
                     {
                       [
-                        '업무용 계정 및 프로필 검증',
-                        '도메인 식별 및 벡터 DB 클러스터',
+                        '업무용 계정 및 프로필 입력',
+                        '소속 정보와 사용 목적',
                         '문서 파이프라인 & 격리 레벨',
                       ][i]
                     }
@@ -337,10 +272,10 @@ export function Signup() {
         </div>
         <div className="signup-grid">
           <section className="card signup-card">
-            <span className="pill">30일 무료 엔터프라이즈 체험 디자인</span>
+            <span className="pill">Supabase 계정 생성</span>
             <h2 className="mt-3">기업용 DocuMind 가입 시작</h2>
             <p className="muted mt-3 mb-6">
-              전용 워크스페이스 개설 흐름을 데모로 체험할 수 있습니다.
+              가입하면 비어 있는 개인 문서 지식 베이스를 사용할 수 있습니다.
             </p>
             {step === 1 && (
               <div className="signup-sso">
@@ -350,8 +285,9 @@ export function Signup() {
               </div>
             )}
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
+                if (busy) return;
                 setError('');
                 if (step === 1) {
                   if (password !== confirm) {
@@ -365,9 +301,33 @@ export function Signup() {
                   setStep(2);
                 } else if (step === 2) setStep(3);
                 else {
-                  sessionStorage.setItem('documind-demo-session', 'demo');
-                  notify('데모 워크스페이스가 준비되었습니다. 실제 계정은 생성되지 않았습니다.');
-                  router.push('/chat');
+                  setBusy(true);
+                  try {
+                    const { data, error } = await getSupabase().auth.signUp({
+                      email: profile.email,
+                      password,
+                      options: {
+                        emailRedirectTo: window.location.origin + '/chat',
+                        data: {
+                          name: profile.name,
+                          company: profile.company,
+                          purpose: profile.purpose,
+                          domain: profile.domain,
+                          usage_notice_acknowledged: true,
+                        },
+                      },
+                    });
+                    if (error) throw error;
+                    if (data.session) router.replace('/chat');
+                    else {
+                      setConfirmation(true);
+                      notify('가입 확인 이메일을 확인해 주세요.');
+                    }
+                  } catch (error) {
+                    setError(readableError(error));
+                  } finally {
+                    setBusy(false);
+                  }
                 }
               }}
             >
@@ -402,8 +362,7 @@ export function Signup() {
                   </label>
                   {personalEmail && (
                     <p className="domain-warning" role="status">
-                      기업 업무용 이메일을 권장합니다. 이 데모에서는 개인 이메일도 사용할 수
-                      있습니다.
+                      기업 업무용 이메일을 권장합니다. 개인 이메일도 사용할 수 있습니다.
                     </p>
                   )}
                   <div className="form-grid mt-4">
@@ -443,7 +402,7 @@ export function Signup() {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           autoComplete="new-password"
-                          placeholder="데모용 8자 이상"
+                          placeholder="8자 이상"
                         />
                         <button
                           type="button"
@@ -488,9 +447,9 @@ export function Signup() {
                       약관 전체 동의하기
                     </label>
                     {[
-                      '[필수] DocuMind 엔터프라이즈 이용약관 동의',
+                      '[필수] 문서 서비스 이용 안내 확인',
                       '[필수] 개인정보 수집 및 데이터 보안 안내 확인',
-                      '[선택] 기능 업데이트 안내 수신',
+                      '[선택] 사용 안내 확인',
                     ].map((label, i) => (
                       <div className="agreement-row" key={label}>
                         <label className="row">
@@ -518,7 +477,8 @@ export function Signup() {
                       </div>
                     ))}
                     <p className="muted text-xs">
-                      데모 동의 상태만 사용하며 실제 약관 계약이나 마케팅 구독은 생성하지 않습니다.
+                      계정과 업로드 문서는 Supabase 프로젝트에 저장됩니다. 마케팅 이메일은 발송하지
+                      않습니다.
                     </p>
                   </div>
                 </>
@@ -560,9 +520,8 @@ export function Signup() {
                   <h3>초기 RAG 권한 설정</h3>
                   <label className="field mt-4">
                     문서 기본 접근 범위
-                    <select>
-                      <option>워크스페이스 멤버</option>
-                      <option>관리자 전용</option>
+                    <select disabled>
+                      <option>본인만 접근 가능 (사용자별 격리)</option>
                     </select>
                   </label>
                   <div className="inset mt-5">
@@ -573,14 +532,19 @@ export function Signup() {
                         checked={agreed}
                         onChange={(e) => setAgreed(e.target.checked)}
                       />
-                      데모 환경 안내 및 개인정보 처리 안내를 확인했습니다.
+                      계정 및 문서 저장 안내를 확인했습니다.
                     </label>
                     <p className="text-xs muted mt-3">
-                      실제 계정 생성이나 보안 정책 적용은 수행하지 않습니다. 입력 정보와 비밀번호는
-                      저장되지 않습니다.
+                      이메일과 비밀번호는 Supabase Auth에서 처리합니다. 문서와 대화는 본인 계정에
+                      저장되며, 같은 회사 이름으로 가입해도 공유되지 않습니다.
                     </p>
                   </div>
                 </>
+              )}
+              {confirmation && (
+                <p className="inset mt-4" role="status">
+                  확인 이메일을 보냈습니다. 이메일의 링크를 누른 뒤 로그인하세요.
+                </p>
               )}
               {error && (
                 <p className="error-box mt-4" role="alert">
@@ -597,8 +561,18 @@ export function Signup() {
                     이전
                   </button>
                 )}
-                <button className="button primary grow" type="submit">
-                  {step === 3 ? '데모 워크스페이스 시작하기' : '다음 단계'}
+                <button
+                  className="button primary grow"
+                  type="submit"
+                  disabled={busy || confirmation}
+                >
+                  {busy
+                    ? '계정 생성 중…'
+                    : confirmation
+                      ? '이메일 확인 대기 중'
+                      : step === 3
+                        ? '계정 만들기'
+                        : '다음 단계'}
                   <ArrowRight size={18} />
                 </button>
               </div>
@@ -617,24 +591,21 @@ export function Signup() {
                 Enterprise RAG Infrastructure
               </div>
               <h2>안심할 수 있는 보안 인프라</h2>
-              <p className="muted mt-3 mb-5">
-                Stitch 디자인에 포함된 제품 비전입니다. 아래 기능은 실제 서비스 연동 시 구현할
-                예정입니다.
-              </p>
+              <p className="muted mt-3 mb-5">내 계정에 연결된 문서와 대화만 사용합니다.</p>
               {[
                 [
                   CloudOff,
-                  '제로 데이터 리텐션 (Zero Retention)',
-                  '사내 문서가 모델 재학습에 활용되지 않도록 설계합니다.',
+                  '비공개 파일 저장소',
+                  '원본은 비공개 Storage에 보관하고 만료 시간이 있는 링크로 확인합니다.',
                 ],
                 [
                   ShieldCheck,
-                  '세분화된 RBAC 권한 제어',
-                  '부서별, 직급별, 프로젝트별 문서 접근 권한을 분리합니다.',
+                  '사용자별 접근 제어',
+                  '다른 사용자의 문서와 대화는 RLS 정책으로 분리합니다.',
                 ],
                 [
                   Zap,
-                  '초고속 하이브리드 인덱싱 파이프라인',
+                  '텍스트 추출 및 청크 검색',
                   '다양한 문서를 청크화하고 복합 검색 인덱스로 변환합니다.',
                 ],
               ].map(([Icon, title, text]) => {
@@ -656,8 +627,8 @@ export function Signup() {
                 격리 파이프라인 아키텍처
               </h3>
               {[
-                '문서 암호화 (AES-256-GCM)',
-                '임베딩 벡터화 & 네임스페이스 격리',
+                '인증된 사용자만 원본 열람',
+                '문서 청크화 및 키워드 검색',
                 '정확한 출처 인라인 인용 (Citations)',
               ].map((t) => (
                 <div className="inset mt-4 row" key={t}>
@@ -670,11 +641,12 @@ export function Signup() {
         </div>
       </main>
       {terms && (
-        <Modal title="DocuMind 데모 이용 안내" onClose={() => setTerms(false)}>
+        <Modal title="DocuMind 이용 안내" onClose={() => setTerms(false)}>
           <p className="muted">
-            이 화면은 Stitch 디자인의 가입 절차를 체험하는 프론트엔드 데모입니다. 실제 계정, 결제,
-            마케팅 구독은 생성하지 않으며 입력한 비밀번호를 저장하거나 외부로 전송하지 않습니다.
-            정식 서비스 이용약관과 개인정보 처리방침은 실제 인증 연동 시 제공됩니다.
+            계정 정보는 Supabase Auth에서 처리하며, 업로드 문서와 대화 내역은 해당 Supabase
+            프로젝트에 저장합니다. 문서는 로그인한 본인만 접근할 수 있습니다. AI 생성 모드를
+            활성화하면 질문과 검색된 문서 발췌가 AI 제공자에게 전달됩니다. 결제와 마케팅 구독은
+            생성하지 않습니다.
           </p>
           <button type="button" className="button primary mt-5" onClick={() => setTerms(false)}>
             확인

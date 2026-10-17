@@ -1,180 +1,355 @@
-import { expect, test } from '@playwright/test';
-test('chat sends mock answer, opens source, and starts a new conversation', async ({
-  page,
-  isMobile,
-}) => {
-  const errors: string[] = [];
-  page.on('pageerror', (error) => errors.push(error.message));
-  page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text());
+import { test, expect, type Page } from '@playwright/test';
+const project = 'https://uyckuziyzjqterrsgvhg.supabase.co';
+const userId = '11111111-1111-4111-8111-111111111111';
+const docId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const conversationId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+const token = [
+  { alg: 'HS256', typ: 'JWT' },
+  {
+    sub: userId,
+    aud: 'authenticated',
+    role: 'authenticated',
+    exp: Math.floor(Date.now() / 1000) + 3600,
+  },
+  'test-signature',
+]
+  .map((v) => (typeof v === 'string' ? v : Buffer.from(JSON.stringify(v)).toString('base64url')))
+  .join('.');
+const session = {
+  access_token: token,
+  refresh_token: 'test-refresh',
+  token_type: 'bearer',
+  expires_in: 3600,
+  expires_at: Math.floor(Date.now() / 1000) + 3600,
+  user: {
+    id: userId,
+    email: 'member@example.com',
+    aud: 'authenticated',
+    role: 'authenticated',
+    app_metadata: { provider: 'email', providers: ['email'] },
+    user_metadata: { name: '테스트 사용자' },
+    created_at: '2026-10-17T00:00:00Z',
+  },
+};
+type Doc = {
+  id: string;
+  name: string;
+  file_type: string;
+  size_bytes: number;
+  storage_path: string;
+  status: string;
+  chunk_count: number;
+  page_count: number;
+  category: string;
+  created_at: string;
+  error_message: null;
+};
+async function backend(page: Page, authenticated = true) {
+  let docs: Doc[] = [];
+  let conversation = false;
+  const calls: { uploads: number; deletions: number; tokens: number } = {
+    uploads: 0,
+    deletions: 0,
+    tokens: 0,
+  };
+  const contents = '정보보안 규정: 외부 협력사 계정은 프로젝트 종료 시 즉시 회수합니다.';
+  const citation = {
+    document_id: docId,
+    document_name: '보안.txt',
+    chunk_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    position: 0,
+    content: contents,
+  };
+  if (authenticated)
+    await page.addInitScript(
+      ({ session }) => {
+        localStorage.setItem('sb-uyckuziyzjqterrsgvhg-auth-token', JSON.stringify(session));
+      },
+      { session },
+    );
+  await page.route(project + '/**', async (route) => {
+    const req = route.request();
+    const url = new URL(req.url());
+    let data: unknown = [];
+    let headers: Record<string, string> = {
+      'access-control-allow-origin': '*',
+      'access-control-allow-headers': '*',
+      'content-range': '0-0/0',
+    };
+    if (req.method() === 'OPTIONS') {
+      await route.fulfill({ status: 200, headers });
+      return;
+    }
+    if (url.pathname.endsWith('/auth/v1/token')) {
+      calls.tokens++;
+      data = session;
+    } else if (url.pathname.endsWith('/auth/v1/user')) data = session.user;
+    else if (url.pathname.includes('/auth/v1/logout')) data = {};
+    else if (url.pathname.includes('/rest/v1/documents')) {
+      if (req.method() === 'POST') {
+        const row = req.postDataJSON();
+        docs = [
+          {
+            ...row,
+            status: 'processing',
+            chunk_count: 0,
+            page_count: 0,
+            category: '미분류',
+            created_at: '2026-10-17T00:00:00Z',
+            error_message: null,
+          },
+          ...docs,
+        ];
+        data = null;
+      } else if (req.method() === 'PATCH') {
+        docs = docs.map((d) => ({ ...d, ...req.postDataJSON() }));
+        data = { id: docs[0]?.id };
+      } else if (req.method() === 'DELETE') {
+        docs = [];
+        calls.deletions++;
+      } else if (url.searchParams.get('select') === 'extracted_text')
+        data = { extracted_text: contents };
+      else data = docs;
+    } else if (url.pathname.includes('/rest/v1/document_chunks'))
+      data = docs.length
+        ? [{ id: citation.chunk_id, document_id: docs[0].id, position: 0, content: contents }]
+        : [];
+    else if (url.pathname.includes('/rest/v1/conversations'))
+      data = conversation ? [{ id: conversationId, title: '보안 규정은?' }] : [];
+    else if (url.pathname.includes('/rest/v1/chat_turns')) {
+      data = conversation
+        ? [
+            {
+              id: 'turn-1',
+              question: '보안 규정은?',
+              answer: contents,
+              citations: [{ ...citation, document_id: docs[0]?.id || docId }],
+              mode: 'extractive',
+              created_at: '2026-10-17T00:00:00Z',
+            },
+          ]
+        : [];
+      headers['content-range'] = conversation ? '0-0/1' : '*/0';
+    } else if (url.pathname.includes('/storage/v1/object/sign/'))
+      data = { signedURL: '/object/sign/documents/test?token=test' };
+    else if (url.pathname.includes('/storage/v1/object/')) {
+      calls.uploads++;
+      data = { Key: 'documents/test', Id: 'object-id' };
+    }
+    await route.fulfill({
+      status: 200,
+      headers,
+      contentType: 'application/json',
+      body: JSON.stringify(data),
+    });
   });
+  await page.route('**/api/documents/*/process', async (route) => {
+    docs = docs.map((d) => ({ ...d, status: 'ready', chunk_count: 1 }));
+    await route.fulfill({ json: { chunks: 1, pages: 0 } });
+  });
+  await page.route('**/api/chat', async (route) => {
+    const payload = route.request().postDataJSON();
+    expect(payload.question).toBeTruthy();
+    conversation = true;
+    await route.fulfill({
+      json: {
+        id: 'turn-1',
+        conversationId,
+        question: payload.question,
+        answer: contents,
+        citations: [{ ...citation, document_id: docs[0]?.id || docId }],
+        mode: 'extractive',
+      },
+    });
+  });
+  return { calls };
+}
+
+test('anonymous users must log in and public server APIs reject unauthenticated requests', async ({
+  page,
+  request,
+}) => {
   await page.goto('/chat');
-  if (isMobile) await expect(page.getByRole('button', { name: '근거 패널 닫기' })).toBeHidden();
-  await expect(page.getByRole('heading', { name: 'DocuMind Intelligence' })).toBeVisible();
-  await page.getByLabel('질문 입력').fill('3분기 예산은 얼마인가요?');
-  await page.getByRole('button', { name: '질문하기' }).click();
+  await expect(page).toHaveURL(/\/login$/);
   await expect(
-    page.getByText('“3분기 예산은 얼마인가요?”에 대한 데모 답변입니다.', { exact: false }),
+    page.getByRole('button', { name: '워크스페이스 로그인', exact: true }),
   ).toBeVisible();
-  await page.getByRole('link', { name: '출처: 2024_경영계획서_Q3.pdf', exact: true }).click();
-  await expect(
-    page.getByRole('heading', { name: '2024_경영계획서_Q3.pdf', exact: true }),
-  ).toBeVisible();
-  if (isMobile) await page.getByRole('button', { name: '청크 분석', exact: true }).click();
-  await expect(page.getByText('Chunk #42', { exact: true })).toBeVisible();
-  await expect(page.locator('body')).toHaveJSProperty(
-    'scrollWidth',
-    await page.evaluate(() => window.innerWidth),
-  );
-  await page.goto('/chat?new=1');
-  if (isMobile) await expect(page.getByRole('button', { name: '근거 패널 닫기' })).toBeHidden();
-  await expect(page.getByRole('heading', { name: '사내 지식에서 답을 찾아보세요' })).toBeVisible();
-  expect(errors).toEqual([]);
+  await expect(page.getByText('입력 없이 데모 바로 체험하기')).toHaveCount(0);
+  for (const url of ['/api/chat', `/api/documents/${docId}/process`]) {
+    const response = await request.post(url, { data: { question: '보안' } });
+    expect(response.status()).toBe(401);
+    expect((await response.json()).error).toContain('로그인');
+  }
 });
-test('upload, processing, search, preview, persistence, metadata edit, and deletion', async ({
+
+test('email login calls Supabase Auth and opens a genuinely empty workspace', async ({ page }) => {
+  const { calls } = await backend(page, false);
+  await page.goto('/login');
+  await page.getByRole('textbox', { name: '이메일', exact: true }).fill('member@example.com');
+  await page.getByLabel('비밀번호', { exact: true }).fill('Password123!');
+  await page.getByRole('button', { name: '워크스페이스 로그인', exact: true }).click();
+  await expect(page).toHaveURL(/\/chat$/);
+  await expect(page.getByRole('heading', { name: '먼저 문서를 업로드하세요' })).toBeVisible();
+  expect(calls.tokens).toBe(1);
+  await expect(page.getByRole('button', { name: '질문하기', exact: true })).toBeDisabled();
+});
+
+test('empty account has zero documents, zero dashboard usage and no sample documents', async ({
   page,
-  isMobile,
 }) => {
+  await backend(page);
+  await page.goto('/documents');
+  await expect(page.getByRole('heading', { name: '아직 등록한 문서가 없습니다' })).toBeVisible();
+  await expect(page.getByText('2024_경영계획서_Q3.pdf')).toHaveCount(0);
+  await page.goto('/admin');
+  await expect(page.getByText('아직 질문 내역이 없습니다.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: '지식 베이스 대시보드' })).toBeVisible();
+});
+
+test('upload persists through reload, renders extracted chunks, stores cited conversation and deletes document', async ({
+  page,
+}) => {
+  const { calls } = await backend(page);
   await page.goto('/documents');
   await page.getByLabel('문서 파일 선택').setInputFiles({
-    name: '테스트_회의록.txt',
+    name: '보안.txt',
     mimeType: 'text/plain',
-    buffer: Buffer.from('프로젝트 알파의 예산은 500만 원입니다. 11월 출시 예정입니다.'),
+    buffer: Buffer.from('정보보안 규정: 외부 협력사 계정은 프로젝트 종료 시 즉시 회수합니다.'),
   });
-  await page.getByLabel('문서 검색', { exact: true }).fill('테스트_회의록');
-  const row = page.getByRole('row').filter({ hasText: '테스트_회의록.txt' });
-  await expect(row.getByText('인덱싱 완료됨', { exact: false })).toBeVisible();
-  await row.getByRole('link', { name: '상세보기' }).click();
-  await expect(
-    page.getByRole('heading', { name: '테스트_회의록.txt', exact: true, level: 1 }),
-  ).toBeVisible();
-  await expect(
-    page
-      .getByLabel('원본 미리보기')
-      .getByText('프로젝트 알파의 예산은 500만 원입니다.', { exact: false }),
-  ).toBeVisible();
+  await expect(page.getByRole('link', { name: /보안.txt/ }).first()).toBeVisible();
+  await expect(page.getByText('● 인덱싱 완료됨')).toBeVisible();
+  expect(calls.uploads).toBe(1);
   await page.reload();
-  await expect(
-    page.getByRole('heading', { name: '테스트_회의록.txt', exact: true, level: 1 }),
-  ).toBeVisible();
-  await page.getByRole('button', { name: '메타데이터 편집' }).click();
-  await page.getByLabel('문서명', { exact: true }).fill('수정된_회의록.txt');
+  await page.getByRole('link', { name: '상세보기' }).click();
+  await expect(page.getByRole('heading', { name: '보안.txt', exact: true })).toBeVisible();
+  await expect(page.locator('.real-document-text')).toContainText('즉시 회수');
+  await expect(page.getByLabel('청크 선택')).toHaveValue('0');
+  await page.getByRole('button', { name: '정보 수정' }).click();
+  await page.getByLabel('문서 이름').fill('보안 정책.txt');
   await page.getByRole('button', { name: '변경 저장' }).click();
-  await expect(
-    page.getByRole('heading', { name: '수정된_회의록.txt', exact: true, level: 1 }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: '보안 정책.txt' })).toBeVisible();
+  await page.goto('/chat');
+  await page.getByLabel('질문 입력').fill('보안 규정은?');
+  await page.getByRole('button', { name: '질문하기', exact: true }).click();
+  await expect(page.getByText('원문 발췌', { exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: /\[1\] 보안.txt/ })).toBeVisible();
+  await page.reload();
+  await page.getByLabel('저장된 대화').selectOption(conversationId);
+  await expect(page.getByText('원문 발췌', { exact: true })).toBeVisible();
   await page.goto('/documents');
-  await page.getByLabel('문서 검색', { exact: true }).fill('수정된_회의록');
-  await page.getByRole('checkbox', { name: '수정된_회의록.txt 선택', exact: true }).check();
-  await page.getByRole('button', { name: '선택 삭제', exact: true }).click();
-  await page.getByRole('dialog').getByRole('button', { name: '삭제', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '검색 결과가 없습니다' })).toBeVisible();
+  await page.getByRole('button', { name: '보안 정책.txt 삭제' }).click();
+  await page.getByRole('button', { name: '삭제', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '아직 등록한 문서가 없습니다' })).toBeVisible();
+  expect(calls.deletions).toBe(1);
+});
+
+test('upload format validation rejects unsupported files before network upload', async ({
+  page,
+}) => {
+  const { calls } = await backend(page);
+  await page.goto('/documents');
   await page.getByLabel('문서 파일 선택').setInputFiles({
-    name: 'blocked.exe',
+    name: 'bad.exe',
     mimeType: 'application/octet-stream',
-    buffer: Buffer.from('no'),
+    buffer: Buffer.from('bad'),
   });
   await expect(page.getByRole('status')).toContainText('지원하지 않는 파일 형식');
+  expect(calls.uploads).toBe(0);
 });
-test('document filtering, pagination and unknown document state', async ({ page }) => {
+
+test('database setup failures show an error and retry, never fabricate documents', async ({
+  page,
+}) => {
+  await backend(page);
+  await page.route(project + '/rest/v1/documents**', (route) =>
+    route.fulfill({
+      status: 404,
+      json: {
+        code: 'PGRST205',
+        message: "Could not find the table 'public.documents' in the schema cache",
+      },
+    }),
+  );
   await page.goto('/documents');
-  await page.getByRole('button', { name: 'Markdown/TXT', exact: true }).click();
-  await expect(page.getByRole('row').filter({ hasText: '정보보안_가이드라인.md' })).toBeVisible();
-  await expect(page.getByRole('row').filter({ hasText: '2024_경영계획서_Q3.pdf' })).toHaveCount(0);
-  await page.locator('.tabs').getByRole('button', { name: /^전체/ }).click();
-  await page.getByLabel('인덱싱 상태 필터').selectOption('failed');
-  await expect(
-    page.getByRole('row').filter({ hasText: '구형_스캔문서_암호화본.pdf' }),
-  ).toBeVisible();
-  await page.getByLabel('인덱싱 상태 필터').selectOption('all');
-  await page.getByRole('button', { name: '다음 페이지', exact: true }).click();
-  await expect(page.getByRole('row').filter({ hasText: '정보보안_가이드라인.md' })).toBeVisible();
-  await page.goto('/documents/missing');
-  await expect(page.getByRole('heading', { name: '문서를 찾을 수 없습니다' })).toBeVisible();
+  await expect(page.locator('.backend-notice')).toContainText('테이블이 아직 설치되지 않았습니다');
+  await expect(page.getByRole('button', { name: '파일 찾아보기', exact: true })).toBeDisabled();
+  await page.getByRole('link', { name: '설치 안내', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '최초 데이터베이스 설치' })).toBeVisible();
 });
-test('mock email login and dashboard interactions', async ({ page }) => {
-  await page.goto('/login');
-  await page.getByRole('button', { name: '업무용 계정 로그인', exact: true }).click();
-  await page.getByLabel('업무용 이메일 주소', { exact: true }).fill('demo@company.test');
-  await page.locator('input[name=password]').fill('Demo1234!');
-  await page.getByRole('button', { name: '비밀번호 표시', exact: true }).click();
-  await expect(page.locator('input[name=password]')).toHaveAttribute('type', 'text');
-  await page.getByRole('button', { name: '워크스페이스 로그인', exact: true }).click();
-  await expect(page).toHaveURL(/\/chat/);
-  await page.goto('/admin');
-  await page.getByLabel('통계 기간').selectOption('7');
-  await expect(page.locator('.stat-value').filter({ hasText: '3,332' })).toBeVisible();
-  await page.getByLabel('감사 로그 필터').selectOption('failed');
-  await expect(page.getByText('업로드 차단 / 실패', { exact: true })).toBeVisible();
-  await expect(page.getByText('품질 검증 통과', { exact: true })).toHaveCount(0);
-  const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: '리포트 내보내기' }).click();
-  expect((await download).suggestedFilename()).toBe('DocuMind-운영리포트.csv');
-  await page.getByRole('button', { name: '스케줄 관리' }).click();
-  await page.getByLabel('매주 일요일 실행 시각 (KST)').fill('03:00');
-  await page.getByRole('button', { name: '설정 적용' }).click();
-  await expect(page.getByText('매주 일요일 03:00 KST', { exact: false })).toBeVisible();
-});
-test('signup validates password confirmation and completes demo flow', async ({ page }) => {
-  await page.goto('/signup');
-  await page.getByLabel('이름 및 직책 *', { exact: true }).fill('데모 연구원');
-  await page.getByLabel('업무용 이메일 주소 *', { exact: true }).fill('demo@company.test');
-  await page.getByLabel('소속 기업 / 기관명 *', { exact: true }).fill('미래전략연구소');
-  await page.getByLabel('비밀번호 설정 *', { exact: true }).fill('Demo1234!');
-  await page.getByLabel('비밀번호 확인 *', { exact: true }).fill('Different!');
-  await page.getByRole('button', { name: '다음 단계' }).click();
-  await expect(page.locator('p[role=alert]')).toContainText('일치하지 않습니다');
-  await page.getByLabel('비밀번호 확인 *', { exact: true }).fill('Demo1234!');
-  await expect(
-    page.getByLabel('비밀번호 보안 강도').getByText('매우 강력', { exact: true }),
-  ).toBeVisible();
-  await page.getByRole('button', { name: '다음 단계' }).click();
-  await expect(page.locator('p[role=alert]')).toContainText('필수 약관');
-  await page.getByRole('button', { name: '상세보기', exact: true }).click();
-  await expect(page.getByRole('dialog')).toContainText('실제 계정, 결제, 마케팅 구독은 생성하지');
-  await page.getByRole('dialog').getByRole('button', { name: '확인', exact: true }).click();
-  await page.getByRole('checkbox', { name: '약관 전체 동의하기', exact: true }).check();
-  await page.getByRole('button', { name: '다음 단계' }).click();
-  await expect(page.getByLabel('소속 기업 / 기관명 *', { exact: true })).toHaveValue(
-    '미래전략연구소',
-  );
-  await page.getByRole('button', { name: '이전', exact: true }).click();
-  await expect(page.getByLabel('이름 및 직책 *', { exact: true })).toHaveValue('데모 연구원');
-  await expect(page.getByLabel('업무용 이메일 주소 *', { exact: true })).toHaveValue(
-    'demo@company.test',
-  );
-  await page.getByRole('button', { name: '다음 단계' }).click();
-  await page.getByLabel('소속 기업 / 기관명 *', { exact: true }).fill('미래전략연구소');
-  await page.getByLabel('기업 도메인 *', { exact: true }).fill('company.test');
-  await page.getByRole('button', { name: '다음 단계' }).click();
-  await page.getByRole('checkbox').check();
-  await page.getByRole('button', { name: '데모 워크스페이스 시작하기' }).click();
-  await expect(page).toHaveURL(/\/chat/);
-});
-test('main routes fit viewport and mobile navigation works', async ({ page, isMobile }) => {
-  const errors: string[] = [];
-  page.on('pageerror', (e) => errors.push(e.message));
-  for (const route of [
-    '/chat',
-    '/documents',
-    '/documents/DOC-8942',
-    '/admin',
-    '/login',
-    '/signup',
-    '/settings',
-  ]) {
-    await page.goto(route);
-    await page.locator('h1').waitFor();
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
-      route,
-    ).toBe(true);
+
+test('workspace pages fit desktop and mobile viewports with working navigation', async ({
+  page,
+  isMobile,
+}) => {
+  await backend(page);
+  for (const path of ['/chat', '/documents', '/admin', '/settings', '/documents/not-found']) {
+    await page.goto(path);
+    await expect(page.locator('.app-shell')).toBeVisible();
+    const size = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      inner: window.innerWidth,
+    }));
+    expect(size.scroll).toBeLessThanOrEqual(size.inner + 1);
   }
   if (isMobile) {
     await page.getByRole('button', { name: '메뉴 열기' }).click();
-    await page.getByRole('link', { name: '관리자 대시보드', exact: true }).click();
-    await expect(page).toHaveURL(/\/admin/);
-    await expect(page.getByRole('button', { name: '메뉴 열기' })).toBeVisible();
+    await page.getByRole('link', { name: /AI 채팅/ }).click();
+    await expect(page).toHaveURL(/\/chat$/);
   }
-  expect(errors).toEqual([]);
+});
+
+test('signup submits to Supabase and waits for email confirmation without a fake session', async ({
+  page,
+}) => {
+  await backend(page, false);
+  let submitted = false;
+  await page.route(project + '/auth/v1/signup**', async (route) => {
+    const payload = route.request().postDataJSON();
+    expect(payload.email).toBe('new@example.com');
+    expect(payload.password).toBe('StrongPass123!');
+    expect(payload.data.company).toBe('테스트 기업');
+    submitted = true;
+    await route.fulfill({ json: session.user });
+  });
+  await page.goto('/signup');
+  await page.getByLabel('이름 및 직책 *', { exact: true }).fill('새 사용자');
+  await page.getByLabel('업무용 이메일 주소 *', { exact: true }).fill('new@example.com');
+  await page.getByLabel('소속 기업 / 기관명 *', { exact: true }).fill('테스트 기업');
+  await page.getByPlaceholder('8자 이상', { exact: true }).fill('StrongPass123!');
+  await page.getByPlaceholder('비밀번호 재입력').fill('Mismatch123!');
+  await page.getByRole('button', { name: '다음 단계' }).click();
+  await expect(page.locator('.error-box')).toContainText('비밀번호가 일치하지 않습니다');
+  await page.getByPlaceholder('비밀번호 재입력').fill('StrongPass123!');
+  await page.getByRole('checkbox', { name: '약관 전체 동의하기' }).check();
+  await page.getByRole('button', { name: '다음 단계' }).click();
+  await page.getByLabel('기업 도메인 *', { exact: true }).fill('example.com');
+  await page.getByRole('button', { name: '다음 단계' }).click();
+  await page.getByRole('checkbox', { name: '계정 및 문서 저장 안내를 확인했습니다.' }).check();
+  await page.getByRole('button', { name: '계정 만들기' }).click();
+  await expect(page.getByText('확인 이메일을 보냈습니다.', { exact: false })).toBeVisible();
+  await expect(page).toHaveURL(/\/signup$/);
+  expect(submitted).toBe(true);
+});
+
+test('recovery link enables password update through Supabase Auth', async ({ page }) => {
+  await backend(page, false);
+  let changed = false;
+  await page.route(project + '/auth/v1/user', async (route) => {
+    if (route.request().method() === 'PUT') {
+      expect(route.request().postDataJSON().password).toBe('NewPassword123!');
+      changed = true;
+    }
+    await route.fulfill({ json: session.user });
+  });
+  await page.goto(
+    '/reset-password#access_token=' +
+      token +
+      '&refresh_token=test-refresh&expires_in=3600&token_type=bearer&type=recovery',
+  );
+  await expect(page.getByRole('button', { name: '비밀번호 변경' })).toBeEnabled();
+  await page.getByLabel('새 비밀번호', { exact: true }).fill('NewPassword123!');
+  await page.getByLabel('비밀번호 확인', { exact: true }).fill('NewPassword123!');
+  await page.getByRole('button', { name: '비밀번호 변경' }).click();
+  await expect(page).toHaveURL(/\/chat$/);
+  expect(changed).toBe(true);
 });

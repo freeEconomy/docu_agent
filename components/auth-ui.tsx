@@ -62,7 +62,9 @@ export function SSOButtons({ signup = false }: { signup?: boolean }) {
           type="button"
           key={id}
           onClick={() =>
-            notify(`${label}: 실제 SSO는 미연동입니다. 데모 계정 흐름을 이용해 주세요.`)
+            notify(
+              `${label}: 실제 SSO는 미연동입니다. 이메일·비밀번호 가입과 로그인을 이용해 주세요.`,
+            )
           }
         >
           <ProviderMark provider={id} />

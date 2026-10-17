@@ -20,7 +20,16 @@ import {
 import { useWorkspace } from './workspace-provider';
 import { Badge, FileIcon, Modal, StatCard, downloadText } from './ui';
 export function Documents() {
-  const { documents, addFiles, removeDocuments, reindex, notify } = useWorkspace();
+  const {
+    documents,
+    addFiles,
+    removeDocuments,
+    reindex,
+    notify,
+    uploading,
+    loading,
+    connectionError,
+  } = useWorkspace();
   const [search, setSearch] = useState('');
   const [type, setType] = useState('전체');
   const [status, setStatus] = useState('all');
@@ -67,12 +76,12 @@ export function Documents() {
         <div>
           <div className="eyebrow">
             <BadgeCheck size={16} />
-            Enterprise RAG Vector Engine
+            Document Knowledge Base
           </div>
           <h1>
             문서 지식 베이스 관리 <span>/ Knowledge Base</span>
           </h1>
-          <p>AI 에이전트가 질문에 답변할 근거 문서를 등록하고 벡터 인덱싱 상태를 모니터링합니다.</p>
+          <p>AI 에이전트가 질문에 답변할 근거 문서를 등록하고 텍스트 분석 상태를 모니터링합니다.</p>
         </div>
         <div className="row flex-wrap">
           <button className="button secondary" onClick={exportDocuments}>
@@ -86,7 +95,11 @@ export function Documents() {
             <RefreshCw size={16} />
             전체 지식베이스 동기화
           </button>
-          <button className="button primary" onClick={() => input.current?.click()}>
+          <button
+            className="button primary"
+            disabled={uploading || !!connectionError}
+            onClick={() => input.current?.click()}
+          >
             <PlusCircle size={17} />
             문서 일괄 등록
           </button>
@@ -102,7 +115,7 @@ export function Documents() {
             <>
               <div className="row between">
                 <span>사용 중 용량: {documents.reduce((a, d) => a + d.size, 0).toFixed(1)} MB</span>
-                <span>5.0 GB 한도</span>
+                <span>Supabase Storage</span>
               </div>
               <div className="progress mt-3">
                 <i
@@ -115,11 +128,11 @@ export function Documents() {
           }
         />
         <StatCard
-          label="임베딩 벡터 청크"
+          label="검색 가능한 문서 청크"
           value={documents.reduce((a, d) => a + d.chunks, 0).toLocaleString()}
           suffix="개 청크"
           icon={<Network size={23} />}
-          detail="모델: text-embedding-3-large · Mock 데이터"
+          detail="실제 추출한 원문 · 키워드 및 부분 일치 검색"
         />
         <StatCard
           label="파싱 인덱싱 상태"
@@ -158,14 +171,18 @@ export function Documents() {
           </span>
           <h2>여기로 문서를 드래그하여 놓거나 파일을 선택하세요</h2>
           <p>
-            지원 형식: <b>PDF, DOCX, HWPX, TXT, Markdown</b> (파일당 최대 50MB, 다중 선택 가능)
+            지원 형식: <b>PDF, DOCX, HWPX, TXT, Markdown</b> (파일당 최대 20MB, 다중 선택 가능)
           </p>
-          <button className="button primary mt-4" onClick={() => input.current?.click()}>
+          <button
+            className="button primary mt-4"
+            disabled={uploading || !!connectionError}
+            onClick={() => input.current?.click()}
+          >
             <PlusCircle size={18} />
-            파일 찾아보기
+            {uploading ? '업로드 및 분석 중…' : '파일 찾아보기'}
           </button>
           <small className="muted mt-3 block">
-            로컬 파일 등록 및 인덱싱 시뮬레이션 · 실제 서버 업로드 없음
+            비공개 Supabase Storage 저장 · PDF / DOCX / HWPX 텍스트 추출 · TXT / Markdown UTF-8 지원
           </small>
           <input
             ref={input}
@@ -186,16 +203,14 @@ export function Documents() {
             <div className="grow">
               <b>{processing[0].name}</b>
               <p className="text-primary text-xs mt-2">
-                <RefreshCw size={12} className="inline animate-spin" /> 문서 벡터 청킹 및 임베딩
-                생성 중 (Mock)
+                <RefreshCw size={12} className="inline animate-spin" /> 원본 저장 및 텍스트 청크
+                분석 중
               </p>
             </div>
             <div className="upload-progress">
-              <span className="text-xs">
-                청크 인덱싱 {processing[0].uploaded ? '처리 중' : '74%'}
-              </span>
+              <span className="text-xs">청크 분석 처리 중</span>
               <div className="progress mt-2">
-                <i style={{ width: '74%' }} />
+                <i className="indeterminate" />
               </div>
             </div>
           </div>
@@ -341,6 +356,7 @@ export function Documents() {
                   </td>
                   <td>
                     <Badge status={d.status} />
+                    {d.error && <small className="block text-red-600 mt-2">{d.error}</small>}
                   </td>
                   <td>
                     <div className="row">
@@ -373,8 +389,18 @@ export function Documents() {
           {!visible.length && (
             <div className="empty-state">
               <Search size={30} />
-              <h3>검색 결과가 없습니다</h3>
-              <p>다른 검색어나 필터를 사용해 보세요.</p>
+              <h3>
+                {loading
+                  ? '문서를 불러오는 중…'
+                  : documents.length
+                    ? '검색 결과가 없습니다'
+                    : '아직 등록한 문서가 없습니다'}
+              </h3>
+              <p>
+                {documents.length
+                  ? '다른 검색어나 필터를 사용해 보세요.'
+                  : '파일을 업로드하면 문서 기반 검색을 시작할 수 있습니다.'}
+              </p>
               <button
                 className="text-button"
                 onClick={() => {
@@ -433,7 +459,7 @@ export function Documents() {
           className="text-button"
           onClick={() =>
             notify(
-              'TXT/Markdown은 로컬 텍스트 미리보기를 지원합니다. PDF·DOCX 파싱은 실제 RAG 연동 단계에서 제공됩니다.',
+              '텍스트가 있는 PDF·DOCX·HWPX와 UTF-8 TXT/Markdown을 지원합니다. 스캔 PDF는 OCR 후 업로드하고, 300페이지 또는 40만 자를 넘는 문서는 나누어 주세요.',
             )
           }
         >
@@ -443,8 +469,8 @@ export function Documents() {
       {modal === 'delete' && (
         <Modal title="선택한 문서를 삭제할까요?" onClose={() => setModal(null)}>
           <p className="muted">
-            {selected.length}개 문서가 이 브라우저의 데모 지식 베이스에서 삭제됩니다. 원본 파일에는
-            영향을 주지 않습니다.
+            {selected.length}개 문서의 원본 파일과 추출한 청크가 Supabase에서 삭제됩니다. 삭제한
+            문서는 복구할 수 없습니다.
           </p>
           <div className="row justify-end mt-6">
             <button className="button secondary" onClick={() => setModal(null)}>
@@ -479,7 +505,6 @@ export function Documents() {
               selected.forEach((id) => updateDocument(id, { category }));
               setModal(null);
               setSelected([]);
-              notify('카테고리를 변경했습니다.');
             }}
           >
             변경 저장

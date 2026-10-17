@@ -1,135 +1,227 @@
 'use client';
-import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from 'react';
-import { seedDocuments, validateFile, type KnowledgeDocument } from '@/lib/documents';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  type ReactNode,
+} from 'react';
+import type { Session } from '@supabase/supabase-js';
+import {
+  documentFromRow,
+  readableError,
+  validateFile,
+  type KnowledgeDocument,
+} from '@/lib/documents';
+import { getSupabase, apiRequest } from '@/lib/supabase/client';
+import { documentBucket } from '@/lib/supabase/config';
 type Workspace = {
   documents: KnowledgeDocument[];
   hydrated: boolean;
+  session: Session | null;
+  loading: boolean;
+  connectionError: string;
+  uploading: boolean;
   notify: (message: string) => void;
+  refresh: () => Promise<void>;
   addFiles: (files: File[]) => Promise<void>;
-  removeDocuments: (ids: string[]) => void;
-  updateDocument: (id: string, patch: Partial<KnowledgeDocument>) => void;
-  reindex: (ids: string[]) => void;
-  originalFiles: Record<string, File>;
+  removeDocuments: (ids: string[]) => Promise<void>;
+  updateDocument: (id: string, patch: Partial<KnowledgeDocument>) => Promise<void>;
+  reindex: (ids: string[]) => Promise<void>;
 };
 const Context = createContext<Workspace | null>(null);
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
-  const [documents, setDocuments] = useState(seedDocuments);
+  const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
+  const [session, setSession] = useState<Session | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [connectionError, setConnectionError] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState('');
-  const [originalFiles, setOriginalFiles] = useState<Record<string, File>>({});
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const currentUser = useRef<string | undefined>(undefined);
+  const uploadLock = useRef(false);
+  const userId = session?.user.id;
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('documind-documents-v1');
-      if (saved) {
-        const value = JSON.parse(saved);
-        if (
-          Array.isArray(value) &&
-          value.every(
-            (d) =>
-              typeof d.id === 'string' &&
-              typeof d.name === 'string' &&
-              typeof d.text === 'string' &&
-              ['ready', 'processing', 'failed'].includes(d.status),
-          )
-        )
-          setDocuments(
-            value.map((d) =>
-              d.uploaded && d.status === 'processing' ? { ...d, status: 'ready' } : d,
-            ),
-          );
+    const client = getSupabase();
+    const {
+      data: { subscription },
+    } = client.auth.onAuthStateChange((_event, next) => {
+      if (currentUser.current !== next?.user.id) {
+        setDocuments([]);
+        setConnectionError('');
       }
-    } catch {}
-    setHydrated(true);
-    return () => timers.current.forEach(clearTimeout);
+      currentUser.current = next?.user.id;
+      setSession(next);
+      setHydrated(true);
+    });
+    return () => subscription.unsubscribe();
   }, []);
+  const refresh = useCallback(async () => {
+    if (!userId) return;
+    setLoading(true);
+    try {
+      const { data, error } = await getSupabase()
+        .from('documents')
+        .select(
+          'id,name,file_type,size_bytes,chunk_count,page_count,category,status,storage_path,error_message,created_at',
+        )
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      if (currentUser.current === userId) {
+        setDocuments((data || []).map(documentFromRow));
+        setConnectionError('');
+      }
+    } catch (error) {
+      if (currentUser.current === userId) setConnectionError(readableError(error));
+    } finally {
+      if (currentUser.current === userId) setLoading(false);
+    }
+  }, [userId]);
   useEffect(() => {
-    if (hydrated)
-      try {
-        localStorage.setItem('documind-documents-v1', JSON.stringify(documents));
-      } catch {}
-  }, [documents, hydrated]);
+    if (userId) void refresh();
+    else {
+      setDocuments([]);
+      setLoading(false);
+    }
+  }, [userId, refresh]);
   useEffect(() => {
     if (toast) {
-      const t = setTimeout(() => setToast(''), 4500);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => setToast(''), 6500);
+      return () => clearTimeout(timer);
     }
   }, [toast]);
-  function updateDocument(id: string, patch: Partial<KnowledgeDocument>) {
-    setDocuments((ds) => ds.map((d) => (d.id === id ? { ...d, ...patch } : d)));
+  async function process(id: string) {
+    await apiRequest(`/api/documents/${id}/process`, {});
   }
-  function reindex(ids: string[]) {
-    setDocuments((ds) => ds.map((d) => (ids.includes(d.id) ? { ...d, status: 'processing' } : d)));
-    timers.current.push(
-      setTimeout(() => {
-        setDocuments((ds) =>
-          ds.map((d) =>
-            ids.includes(d.id) ? { ...d, status: 'ready', chunks: d.chunks || 8 } : d,
-          ),
-        );
-        setToast('모의 인덱싱이 완료되었습니다.');
-      }, 1600),
-    );
+  async function reindex(ids: string[]) {
+    if (!ids.length) return;
+    try {
+      for (const id of ids) {
+        await process(id);
+        await refresh();
+      }
+      setToast('문서 분석과 검색 인덱스 저장을 완료했습니다.');
+    } catch (error) {
+      setToast(readableError(error));
+    } finally {
+      await refresh();
+    }
   }
   async function addFiles(files: File[]) {
-    const added: KnowledgeDocument[] = [];
-    const originals: Record<string, File> = {};
-    const errors: string[] = [];
-    for (const file of files) {
-      const error = validateFile(file);
-      if (error) {
-        errors.push(error);
-        continue;
-      }
-      const id = `DOC-${crypto.randomUUID()}`;
-      const type = file.name.split('.').pop()!.toUpperCase();
-      let text =
-        '이 문서는 업로드 데모입니다. 바이너리 문서의 텍스트 추출과 임베딩은 다음 단계에서 연동합니다.';
-      if (['TXT', 'MD', 'MARKDOWN'].includes(type)) text = (await file.text()).slice(0, 100000);
-      added.push({
-        id,
-        name: file.name,
-        type,
-        size: Math.max(0.001, file.size / 1024 / 1024),
-        chunks: 0,
-        pages: 1,
-        category: '미분류',
-        owner: '이서연 수석',
-        date: new Date()
-          .toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' })
-          .replaceAll('-', '.'),
-        status: 'processing',
-        text,
-        uploaded: true,
-      });
-      originals[id] = file;
+    if (!userId) {
+      setToast('로그인이 필요합니다.');
+      return;
     }
-    setDocuments((ds) => [...added, ...ds]);
-    setOriginalFiles((fs) => ({ ...fs, ...originals }));
-    if (added.length) reindex(added.map((d) => d.id));
-    setToast(
-      [added.length ? `${added.length}개 문서 등록 · 모의 처리 중` : '', ...errors]
-        .filter(Boolean)
-        .join(' / '),
-    );
+    if (uploadLock.current) {
+      setToast('현재 업로드가 끝난 후 다시 시도하세요.');
+      return;
+    }
+    uploadLock.current = true;
+    setUploading(true);
+    const notices: string[] = [];
+    const client = getSupabase();
+    try {
+      for (const file of files) {
+        const validation = validateFile(file);
+        if (validation) {
+          notices.push(validation);
+          continue;
+        }
+        if (currentUser.current !== userId) break;
+        const id = crypto.randomUUID();
+        const type = file.name.split('.').pop()!.toUpperCase();
+        const path = `${userId}/${id}/original.${type.toLowerCase()}`;
+        try {
+          const { error } = await client.from('documents').insert({
+            id,
+            user_id: userId,
+            name: file.name,
+            file_type: type,
+            size_bytes: file.size,
+            storage_path: path,
+          });
+          if (error) throw error;
+          const { error: uploadError } = await client.storage
+            .from(documentBucket)
+            .upload(path, file, {
+              contentType: file.type || 'application/octet-stream',
+              upsert: false,
+            });
+          if (uploadError) {
+            const { error: cleanupError } = await client.from('documents').delete().eq('id', id);
+            if (cleanupError)
+              notices.push('업로드 실패 기록이 남았습니다. 해당 문서를 삭제하세요.');
+            throw uploadError;
+          }
+          await refresh();
+          await process(id);
+          notices.push(`${file.name}: 등록 및 분석 완료`);
+        } catch (error) {
+          notices.push(`${file.name}: ${readableError(error)}`);
+        }
+        await refresh();
+      }
+    } finally {
+      uploadLock.current = false;
+      setUploading(false);
+      setToast(notices.join(' / '));
+    }
+  }
+  async function removeDocuments(ids: string[]) {
+    try {
+      for (const id of ids) {
+        const doc = documents.find((d) => d.id === id);
+        if (!doc) continue;
+        const { error } = await getSupabase()
+          .storage.from(documentBucket)
+          .remove([doc.storagePath]);
+        if (error) throw error;
+        const { error: deleteError } = await getSupabase().from('documents').delete().eq('id', id);
+        if (deleteError) throw deleteError;
+      }
+      setToast('선택한 문서와 원본 파일을 삭제했습니다.');
+    } catch (error) {
+      setToast(readableError(error));
+    } finally {
+      await refresh();
+    }
+  }
+  async function updateDocument(id: string, patch: Partial<KnowledgeDocument>) {
+    try {
+      const updates: { name?: string; category?: string } = {};
+      if (patch.name) updates.name = patch.name;
+      if (patch.category) updates.category = patch.category;
+      const { data, error } = await getSupabase()
+        .from('documents')
+        .update(updates)
+        .eq('id', id)
+        .select('id')
+        .single();
+      if (error || !data) throw error || new Error('수정할 문서를 찾지 못했습니다.');
+      setToast('문서 정보를 저장했습니다.');
+    } catch (error) {
+      setToast(readableError(error));
+    } finally {
+      await refresh();
+    }
   }
   return (
     <Context.Provider
       value={{
         documents,
+        session,
         hydrated,
+        loading,
+        connectionError,
+        uploading,
+        refresh,
         notify: setToast,
         addFiles,
+        removeDocuments,
         updateDocument,
         reindex,
-        originalFiles,
-        removeDocuments: (ids) => {
-          setDocuments((ds) => ds.filter((d) => !ids.includes(d.id)));
-          setOriginalFiles((fs) =>
-            Object.fromEntries(Object.entries(fs).filter(([id]) => !ids.includes(id))),
-          );
-          setToast(`${ids.length}개 문서를 삭제했습니다.`);
-        },
       }}
     >
       {children}

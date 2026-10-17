@@ -10,7 +10,7 @@ import './globals.css';
 import { WorkspaceProvider } from '@/components/workspace-provider';
 export const metadata: Metadata = {
   title: 'DocuMind — 문서 기반 AI 워크스페이스',
-  description: 'DocuMind 문서 RAG 에이전트 프론트엔드 데모',
+  description: '내 문서에서 근거를 검색하는 DocuMind AI 워크스페이스',
 };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

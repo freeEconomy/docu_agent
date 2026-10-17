@@ -22,8 +22,8 @@ export function Badge({ status }: { status: string }) {
       {status === 'ready'
         ? '● 인덱싱 완료됨'
         : status === 'failed'
-          ? '⊗ 파싱 실패 (보호/OCR)'
-          : '● 처리중 (모의 임베딩)'}
+          ? '⊗ 분석 실패'
+          : '● 문서 처리 중'}
     </span>
   );
 }
