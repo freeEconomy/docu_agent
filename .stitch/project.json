@@ -1,0 +1,12 @@
+{
+  "projectId": "7162910529939285378",
+  "title": "DocuMind AI Agent Platform",
+  "screens": {
+    "7b40005916804141bbf4fdef86ceb1aa": "design/stitch_documind_ai_agent_platform/ai",
+    "dabfe7164068461cb01f6a0d9fbac03e": "design/stitch_documind_ai_agent_platform/_1",
+    "4e83b90890ab477086054743cb923919": "design/stitch_documind_ai_agent_platform/_2",
+    "1e8b5127dc5a42acac4882a88fd496cf": "design/stitch_documind_ai_agent_platform/_3",
+    "96619041f0f6477280ba7c72f3e719eb": "design/stitch_documind_ai_agent_platform/_4",
+    "74f5d6266a8341c6878da2ce8444d8de": "design/stitch_documind_ai_agent_platform/rag"
+  }
+}

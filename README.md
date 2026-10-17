@@ -99,3 +99,5 @@ Playwright가 프로덕션 서버를 자동 시작합니다. 데스크톱 Chromi
 ## Stitch 연결
 
 ZIP 없이 디자인을 조회하는 MCP 설정 및 인증 절차는 [Stitch 연결 가이드](docs/stitch-connection.md)를 참고하세요. `.codex/config.toml`은 `STITCH_API_KEY`를 참조하며 실제 키 값은 포함하지 않습니다. 현재 실행 중인 웹 대화의 도구 목록은 이 파일만으로 변경되지 않습니다.
+
+인증 후 `python3 scripts/stitch-sync.py`로 DocuMind의 최신 HTML·PNG 6개 화면을 기존 `design/` 폴더로 직접 가져올 수 있습니다. 프로젝트/화면 연결은 `.stitch/project.json`에 저장되어 있습니다. `--check`는 파일을 쓰지 않고 차이만 검사합니다. 가져온 변경은 Git 브랜치·PR로 검토하며, 자동 실시간 푸시나 앱 UI 자동 변환은 수행하지 않습니다.

@@ -1,0 +1,25 @@
+name: Stitch integration checks
+on:
+  pull_request:
+    paths:
+      - 'scripts/stitch*.py'
+      - 'tests/test_stitch_*.py'
+      - '.stitch/**'
+      - '.github/workflows/stitch-tools.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/stitch*.py'
+      - 'tests/test_stitch_*.py'
+      - '.stitch/**'
+      - '.github/workflows/stitch-tools.yml'
+jobs:
+  stitch-tools:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m unittest discover -s tests -p 'test_stitch_*.py'
