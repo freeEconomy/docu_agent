@@ -115,7 +115,7 @@ export function Documents() {
             <>
               <div className="row between">
                 <span>사용 중 용량: {documents.reduce((a, d) => a + d.size, 0).toFixed(1)} MB</span>
-                <span>로컬 원본 파일</span>
+                <span>Vercel Blob 원본</span>
               </div>
               <div className="progress mt-3">
                 <i
@@ -182,7 +182,7 @@ export function Documents() {
             {uploading ? '업로드 및 분석 중…' : '파일 찾아보기'}
           </button>
           <small className="muted mt-3 block">
-            비공개 로컬 원본 파일 저장 · PDF / DOCX / HWPX 텍스트 추출 · TXT / Markdown UTF-8 지원
+            비공개 Vercel Blob 원본 저장 · PDF / DOCX / HWPX 텍스트 추출 · TXT / Markdown UTF-8 지원
           </small>
           <input
             ref={input}

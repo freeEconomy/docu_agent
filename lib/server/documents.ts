@@ -1,84 +1,130 @@
-import { mkdir, writeFile, unlink, readFile } from 'node:fs/promises';
-import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import type { DatabaseSync } from 'node:sqlite';
+import type { Database } from './db';
 import { validateFile, maxFileBytes } from '../documents';
 import { parseDocument, chunkText } from '../ingestion';
-import { ApiError } from './http';
+import { ApiError, textField } from './http';
 import { ownedDocument, beginProcessing, finishProcessing } from './repository';
-export function originalPath(directory: string, id: string) {
-  if (!/^[0-9a-f-]{36}$/i.test(id)) throw new ApiError('문서 ID를 확인하세요.');
-  return path.join(directory, 'uploads', id);
+import { requireBlob, blobMetadata, readOriginal, removeOriginal } from './blob-store';
+export function documentMime(type: string) {
+  return type === 'PDF'
+    ? 'application/pdf'
+    : ['TXT', 'MD', 'MARKDOWN'].includes(type)
+      ? 'text/plain'
+      : 'application/octet-stream';
 }
-export async function uploadDocument(
-  db: DatabaseSync,
-  directory: string,
-  userId: string,
-  file: File,
-) {
-  const validation = validateFile(file);
-  if (validation) throw new ApiError(validation);
-  if (file.name.length > 240) throw new ApiError('파일명은 240자 이하로 입력하세요.');
-  const id = randomUUID();
-  const filename = originalPath(directory, id);
-  await mkdir(path.dirname(filename), { recursive: true, mode: 0o700 });
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  if (bytes.length !== file.size || bytes.length > maxFileBytes)
+export async function prepareUpload(db: Database, userId: string, body: Record<string, unknown>) {
+  requireBlob();
+  const name = textField(body.name, '파일 이름');
+  const size = body.size;
+  if (typeof size !== 'number' || !Number.isInteger(size))
     throw new ApiError('파일 용량을 확인하세요.');
-  await writeFile(filename, bytes, { flag: 'wx', mode: 0o600 });
-  try {
-    db.prepare(
-      'INSERT INTO documents(id,user_id,name,file_type,size_bytes,created_at) VALUES(?,?,?,?,?,?)',
-    ).run(
-      id,
-      userId,
-      file.name,
-      file.name.split('.').pop()!.toUpperCase(),
-      file.size,
-      new Date().toISOString(),
-    );
-  } catch (error) {
-    await unlink(filename);
-    throw error;
-  }
-  return { id };
+  const validation = validateFile({ name, size });
+  if (validation) throw new ApiError(validation);
+  const id = randomUUID();
+  const type = name.split('.').pop()!.toUpperCase();
+  const blobPath = `${userId}/${id}/original.${type.toLowerCase()}`;
+  await db.query(
+    'INSERT INTO documents(id,user_id,name,file_type,size_bytes,blob_path) VALUES($1,$2,$3,$4,$5,$6)',
+    [id, userId, name, type, size, blobPath],
+  );
+  return { id, pathname: blobPath, contentType: documentMime(type) };
 }
-export async function processDocument(
-  db: DatabaseSync,
-  directory: string,
-  userId: string,
-  id: string,
-) {
-  const doc = ownedDocument(db, userId, id);
-  const token = beginProcessing(db, userId, id);
+export async function completeUpload(db: Database, userId: string, id: string) {
+  const doc = await ownedDocument(db, userId, id);
+  const metadata = await blobMetadata(doc.blob_path);
+  if (
+    metadata.pathname !== doc.blob_path ||
+    metadata.size !== doc.size_bytes ||
+    metadata.size > maxFileBytes
+  )
+    throw new ApiError('업로드 원본의 경로 또는 크기가 일치하지 않습니다.', 422);
+  // A public store must never be silently accepted for private documents.
+  if (!new URL(metadata.url).hostname.endsWith('.private.blob.vercel-storage.com'))
+    throw new ApiError('Blob 저장소를 비공개(Private)로 생성해야 합니다.', 503);
+  await db.query(
+    'UPDATE documents SET uploaded_at=COALESCE(uploaded_at,now()) WHERE id=$1 AND user_id=$2 AND deleted_at IS NULL',
+    [id, userId],
+  );
+  return { ok: true };
+}
+export async function processDocument(db: Database, userId: string, id: string) {
+  let doc = await ownedDocument(db, userId, id);
+  if (!doc.uploaded_at) {
+    await completeUpload(db, userId, id);
+    doc = await ownedDocument(db, userId, id);
+  }
+  const token = await beginProcessing(db, userId, id);
   try {
-    const bytes = await readFile(originalPath(directory, id));
-    if (bytes.length !== doc.size_bytes) throw new Error('원본 파일 크기가 일치하지 않습니다.');
-    const parsed = await parseDocument(bytes, doc.file_type);
+    const original = await readOriginal(doc.blob_path);
+    if (original.blob.size !== doc.size_bytes || original.blob.size > maxFileBytes)
+      throw new Error('원본 파일 크기가 일치하지 않습니다.');
+    const reader = original.stream.getReader();
+    const pieces: Uint8Array[] = [];
+    let size = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.length;
+      if (size > maxFileBytes) {
+        await reader.cancel();
+        throw new Error('원본 파일 크기가 제한을 초과합니다.');
+      }
+      pieces.push(value);
+    }
+    if (size !== doc.size_bytes) throw new Error('원본 파일 크기가 일치하지 않습니다.');
+    let parsed;
+    try {
+      parsed = await parseDocument(new Uint8Array(Buffer.concat(pieces)), doc.file_type);
+    } catch (error) {
+      throw new ApiError(error instanceof Error ? error.message : '문서 분석 실패', 422);
+    }
     const text = parsed.text.replace(/\u0000/g, '').trim();
     const parts = chunkText(text);
-    finishProcessing(db, userId, id, token, text, parsed.pages, parts);
+    await finishProcessing(db, userId, id, token, text, parsed.pages, parts);
     return { chunks: parts.length, pages: parsed.pages };
   } catch (error) {
-    const failure = error instanceof Error ? error.message : '문서 분석 실패';
+    const failure =
+      error instanceof ApiError
+        ? error.message
+        : '문서 분석에 실패했습니다. 파일 형식과 텍스트를 확인하세요.';
     try {
-      finishProcessing(db, userId, id, token, '', 0, [], failure);
+      await finishProcessing(db, userId, id, token, '', 0, [], failure);
     } catch {}
     throw new ApiError(failure, 422);
   }
 }
-export async function deleteDocument(
-  db: DatabaseSync,
-  directory: string,
-  userId: string,
-  id: string,
-) {
-  ownedDocument(db, userId, id);
-  // Remove the original first. Missing originals allow deletion to be retried after a crash.
-  try {
-    await unlink(originalPath(directory, id));
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+export async function cleanupDeleted(db: Database, userId?: string) {
+  const rows = await db.query<{ id: string; blob_path: string }>(
+    `SELECT id,blob_path FROM documents WHERE deleted_at IS NOT NULL AND upload_token_expires_at<$1${userId ? ' AND user_id=$2' : ''} LIMIT 100`,
+    userId ? [Date.now() - 60000, userId] : [Date.now() - 60000],
+  );
+  let count = 0;
+  for (const row of rows) {
+    await removeOriginal(row.blob_path);
+    await db.query('DELETE FROM documents WHERE id=$1 AND deleted_at IS NOT NULL', [row.id]);
+    count++;
   }
-  db.prepare('DELETE FROM documents WHERE id=? AND user_id=?').run(id, userId);
+  return { removed: count };
+}
+export async function deleteDocument(db: Database, userId: string, id: string) {
+  const doc = await ownedDocument(db, userId, id, true);
+  await db.transaction([
+    {
+      text: 'UPDATE documents SET deleted_at=COALESCE(deleted_at,now()) WHERE id=$1 AND user_id=$2',
+      params: [id, userId],
+    },
+    {
+      text: 'DELETE FROM document_chunks WHERE document_id=$1 AND user_id=$2',
+      params: [id, userId],
+    },
+  ]);
+  // Retain a hidden tombstone until issued upload tokens expire. Otherwise an
+  // in-flight direct upload could recreate the original after deletion.
+  await removeOriginal(doc.blob_path);
+  if (Number(doc.upload_token_expires_at) < Date.now() - 60000)
+    await db.query('DELETE FROM documents WHERE id=$1 AND user_id=$2 AND deleted_at IS NOT NULL', [
+      id,
+      userId,
+    ]);
+  return { ok: true };
 }

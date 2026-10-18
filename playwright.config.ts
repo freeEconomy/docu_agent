@@ -1,6 +1,3 @@
-import { mkdtempSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import path from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
@@ -24,14 +21,9 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium' } },
   ],
   webServer: {
-    command: 'npm run start -- --port 3199',
+    command: 'node --import tsx tests/start-browser.ts',
     url: 'http://127.0.0.1:3199',
     reuseExistingServer: false,
-    env: {
-      DOCUMIND_DATA_DIR: mkdtempSync(path.join(tmpdir(), 'documind-browser-')),
-      RAG_API_KEY: '',
-      APP_ORIGIN: 'http://127.0.0.1:3199',
-    },
     timeout: 60000,
   },
 });

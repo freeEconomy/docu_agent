@@ -1,8 +1,7 @@
 import { randomBytes, randomUUID, scrypt, timingSafeEqual, createHash } from 'node:crypto';
 import { promisify } from 'node:util';
-import type { DatabaseSync } from 'node:sqlite';
+import type { Database } from './db';
 import { ApiError, textField } from './http';
-import { transaction } from './db';
 const derive = promisify(scrypt);
 const cookieName = 'documind_session';
 const lifetime = 7 * 86400;
@@ -53,101 +52,90 @@ export function tokenFromRequest(request: Request) {
     ?.slice(cookieName.length + 1);
   return raw && /^[a-f0-9]{64}$/.test(raw) ? raw : undefined;
 }
-export function currentUser(db: DatabaseSync, request: Request): AppUser | null {
+export async function currentUser(db: Database, request: Request): Promise<AppUser | null> {
   const token = tokenFromRequest(request);
   if (!token) return null;
-  const row = db
-    .prepare(
-      'SELECT u.* FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>?',
-    )
-    .get(hash(token), Date.now()) as UserRow | undefined;
+  const [row] = await db.query<UserRow>(
+    'SELECT u.* FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>$2',
+    [hash(token), Date.now()],
+  );
   return row ? publicUser(row) : null;
 }
-export function requireUser(db: DatabaseSync, request: Request) {
-  const user = currentUser(db, request);
+export async function requireUser(db: Database, request: Request) {
+  const user = await currentUser(db, request);
   if (!user) throw new ApiError('로그인이 필요합니다.', 401);
   return user;
 }
-function createSession(db: DatabaseSync, userId: string) {
+function newSession() {
   const token = randomBytes(32).toString('hex');
-  db.prepare('DELETE FROM sessions WHERE expires_at<=?').run(Date.now());
-  db.prepare('INSERT INTO sessions VALUES(?,?,?)').run(
-    hash(token),
-    userId,
-    Date.now() + lifetime * 1000,
-  );
-  return token;
+  return { token, digest: hash(token), expires: Date.now() + lifetime * 1000 };
 }
-function limit(db: DatabaseSync, key: string) {
-  const digest = hash(key);
+async function limit(db: Database, key: string) {
   const now = Date.now();
-  db.prepare(
-    'INSERT INTO auth_attempts VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN reset_at<? THEN 1 ELSE attempts+1 END,reset_at=CASE WHEN reset_at<? THEN excluded.reset_at ELSE reset_at END',
-  ).run(digest, now + 15 * 60000, now, now);
-  const row = db.prepare('SELECT attempts FROM auth_attempts WHERE key=?').get(digest) as {
-    attempts: number;
-  };
+  const [row] = await db.query<{ attempts: number }>(
+    'INSERT INTO auth_attempts(key,attempts,reset_at) VALUES($1,1,$2) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN auth_attempts.reset_at<$3 THEN 1 ELSE auth_attempts.attempts+1 END,reset_at=CASE WHEN auth_attempts.reset_at<$3 THEN EXCLUDED.reset_at ELSE auth_attempts.reset_at END RETURNING attempts',
+    [hash(key), now + 15 * 60000, now],
+  );
   if (row.attempts > 10) throw new ApiError('시도가 너무 많습니다. 15분 후 다시 시도하세요.', 429);
 }
-export async function register(db: DatabaseSync, body: Record<string, unknown>) {
+export async function register(db: Database, body: Record<string, unknown>) {
   const email = emailField(body.email);
   const password = passwordField(body.password);
   const name = textField(body.name, '이름', 80);
   const company = typeof body.company === 'string' ? body.company.trim().slice(0, 80) : '';
-  limit(db, 'register:' + email);
+  await limit(db, 'register:' + email);
   const passwordHash = await hashPassword(password);
-  return transaction(db, () => {
-    if (db.prepare('SELECT id FROM users WHERE email=?').get(email))
-      throw new ApiError('이미 등록된 이메일입니다.', 409);
-    const id = randomUUID();
-    db.prepare('INSERT INTO users VALUES(?,?,?,?,?,?)').run(
-      id,
-      email,
-      name,
-      company,
-      passwordHash,
-      new Date().toISOString(),
-    );
-    return {
-      user: publicUser({ id, email, name, company, password_hash: passwordHash }),
-      token: createSession(db, id),
-    };
-  });
+  const id = randomUUID();
+  const s = newSession();
+  const [row] = await db.query<UserRow>(
+    `WITH u AS (INSERT INTO users(id,email,name,company,password_hash) VALUES($1,$2,$3,$4,$5) ON CONFLICT(email) DO NOTHING RETURNING *), s AS (INSERT INTO sessions(token_hash,user_id,expires_at) SELECT $6,id,$7 FROM u RETURNING user_id) SELECT u.* FROM u JOIN s ON s.user_id=u.id`,
+    [id, email, name, company, passwordHash, s.digest, s.expires],
+  );
+  if (!row) throw new ApiError('이미 등록된 이메일입니다.', 409);
+  return { user: publicUser(row), token: s.token };
 }
-export async function login(db: DatabaseSync, body: Record<string, unknown>) {
+export async function login(db: Database, body: Record<string, unknown>) {
   const email = emailField(body.email);
   const password = passwordField(body.password);
-  limit(db, 'login:' + email);
-  const row = db.prepare('SELECT * FROM users WHERE email=?').get(email) as UserRow | undefined;
+  await limit(db, 'login:' + email);
+  const [row] = await db.query<UserRow>('SELECT * FROM users WHERE email=$1', [email]);
   const valid = await verifyPassword(
     password,
     row?.password_hash || '00000000000000000000000000000000:' + '00'.repeat(64),
   );
   if (!row || !valid) throw new ApiError('이메일 또는 비밀번호를 확인하세요.', 401);
-  db.prepare('DELETE FROM auth_attempts WHERE key=?').run(hash('login:' + email));
-  return { user: publicUser(row), token: createSession(db, row.id) };
+  const s = newSession();
+  const results = await db.transaction([
+    { text: 'DELETE FROM sessions WHERE expires_at<=$1', params: [Date.now()] },
+    { text: 'DELETE FROM auth_attempts WHERE key=$1', params: [hash('login:' + email)] },
+    {
+      text: 'INSERT INTO sessions(token_hash,user_id,expires_at) SELECT $1,id,$2 FROM users WHERE id=$3 AND password_hash=$4 RETURNING user_id',
+      params: [s.digest, s.expires, row.id, row.password_hash],
+    },
+  ]);
+  if (!results[2].length) throw new ApiError('비밀번호가 변경되었습니다. 다시 로그인하세요.', 401);
+  return { user: publicUser(row), token: s.token };
 }
-export function logout(db: DatabaseSync, request: Request) {
+export async function logout(db: Database, request: Request) {
   const token = tokenFromRequest(request);
-  if (token) db.prepare('DELETE FROM sessions WHERE token_hash=?').run(hash(token));
+  if (token) await db.query('DELETE FROM sessions WHERE token_hash=$1', [hash(token)]);
 }
-export async function changePassword(
-  db: DatabaseSync,
-  user: AppUser,
-  body: Record<string, unknown>,
-) {
+export async function changePassword(db: Database, user: AppUser, body: Record<string, unknown>) {
   const old = passwordField(body.currentPassword);
   const next = passwordField(body.password);
-  limit(db, 'password:' + user.id);
-  const row = db.prepare('SELECT password_hash FROM users WHERE id=?').get(user.id) as {
-    password_hash: string;
-  };
-  if (!(await verifyPassword(old, row.password_hash)))
+  await limit(db, 'password:' + user.id);
+  const [row] = await db.query<{ password_hash: string }>(
+    'SELECT password_hash FROM users WHERE id=$1',
+    [user.id],
+  );
+  if (!row || !(await verifyPassword(old, row.password_hash)))
     throw new ApiError('현재 비밀번호가 일치하지 않습니다.', 401);
   const passwordHash = await hashPassword(next);
-  return transaction(db, () => {
-    db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(passwordHash, user.id);
-    db.prepare('DELETE FROM sessions WHERE user_id=?').run(user.id);
-    return createSession(db, user.id);
-  });
+  const s = newSession();
+  const changed = await db.query(
+    `WITH u AS (UPDATE users SET password_hash=$1 WHERE id=$2 AND password_hash=$3 RETURNING id), revoked AS (DELETE FROM sessions WHERE user_id IN (SELECT id FROM u)), fresh AS (INSERT INTO sessions(token_hash,user_id,expires_at) SELECT $4,id,$5 FROM u RETURNING user_id) SELECT * FROM fresh`,
+    [passwordHash, user.id, row.password_hash, s.digest, s.expires],
+  );
+  if (!changed.length) throw new ApiError('비밀번호가 변경되었습니다. 다시 로그인하세요.', 409);
+  return s.token;
 }

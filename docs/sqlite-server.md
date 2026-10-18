@@ -1,3 +1,5 @@
+> 이전 버전 참고 문서입니다. 현재 앱 설정은 [Neon + Private Blob 안내](neon-blob-setup.md)를 사용하세요.
+
 # SQLite 서버 실행과 운영
 
 DocuMind는 프로젝트 내부 파일을 영구 저장소로 사용합니다. Supabase 키·접속·SQL Editor 설정은 필요하지 않습니다. Node.js **22.13 이상**의 내장 SQLite와 FTS5를 사용합니다. Docker는 Node 22 최신 패치 버전을 사용합니다.

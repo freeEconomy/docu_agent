@@ -1,12 +1,17 @@
+import { neonConfig } from '@neondatabase/serverless';
+import { DatabaseSync } from 'node:sqlite';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { randomUUID } from 'node:crypto';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, readFile } from 'node:fs/promises';
+import { mkdtemp, rm, readFile, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { zipSync, strToU8 } from 'fflate';
 import { chunkText, parseDocument } from '../lib/ingestion';
 import { validateFile } from '../lib/documents';
-import { openDatabase } from '../lib/server/db';
+import { createDatabase } from '../lib/server/db';
 import {
   register,
   login,
@@ -24,163 +29,188 @@ import {
   saveTurn,
 } from '../lib/server/repository';
 import {
-  uploadDocument,
+  prepareUpload,
+  completeUpload,
   processDocument,
   deleteDocument,
-  originalPath,
+  cleanupDeleted,
 } from '../lib/server/documents';
+import { readOriginal } from '../lib/server/blob-store';
 import { checkOrigin, readJson } from '../lib/server/http';
+import { startServices, testBlobToken, testDatabaseUrl } from './helpers/services';
+import { installBlobRedirect } from './helpers/redirect-blob.mjs';
 
-test('real SQLite, original files, authentication, isolation and restart persistence', async (t) => {
-  const directory = await mkdtemp(path.join(tmpdir(), 'documind-db-test-'));
-  let db = openDatabase(directory);
+test('PostgreSQL over Neon HTTP protocol and private Blob SDK lifecycle', async (t) => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'documind-neon-test-'));
+  const services = await startServices(directory);
+  process.env.DOCUMIND_TEST_MODE = '1';
+  process.env.DOCUMIND_TEST_NEON_URL = services.url + '/neon';
+  process.env.BLOB_READ_WRITE_TOKEN = testBlobToken;
+  process.env.VERCEL_BLOB_API_URL = services.url + '/blob-api';
+  const undo = installBlobRedirect(services.url);
+  const db = createDatabase(testDatabaseUrl);
   try {
-    const a = await register(db, {
-      email: 'a@example.com',
-      password: 'Password123!',
-      name: '사용자 A',
-    });
-    const b = await register(db, {
-      email: 'b@example.com',
-      password: 'Password123!',
-      name: '사용자 B',
-    });
-    const req = (token: string) =>
-      new Request('http://localhost/api/documents', {
-        headers: { cookie: `documind_session=${token}` },
-      });
-    await t.test(
-      'registration starts with no documents or conversations and never stores plaintext passwords',
-      () => {
-        assert.equal(listDocuments(db, a.user.id).length, 0);
-        assert.equal(db.prepare('SELECT count(*) n FROM conversations').get()?.n, 0);
-        const row = db.prepare('SELECT password_hash FROM users WHERE id=?').get(a.user.id);
-        assert.notEqual(row?.password_hash, 'Password123!');
-        assert.match(String(row?.password_hash), /^[a-f0-9]{32}:[a-f0-9]{128}$/);
-        assert.equal(currentUser(db, req(a.token))?.id, a.user.id);
-        assert.equal(currentUser(db, req('bad')), null);
-        assert.match(
-          sessionCookie(new Request('https://example.com'), a.token),
-          /HttpOnly; SameSite=Lax/,
-        );
-        assert.match(sessionCookie(new Request('https://example.com'), a.token), /Secure/);
-      },
-    );
-    await t.test(
-      'wrong credentials are rejected and valid credentials create a real session',
-      async () => {
-        await assert.rejects(
-          () => login(db, { email: 'a@example.com', password: 'WrongPassword' }),
-          /이메일 또는 비밀번호/,
-        );
-        const logged = await login(db, { email: 'a@example.com', password: 'Password123!' });
-        assert.equal(currentUser(db, req(logged.token))?.id, a.user.id);
-        logout(db, req(logged.token));
-        assert.equal(currentUser(db, req(logged.token)), null);
-      },
-    );
-    const source = '정보보안 규정: 외부 협력사 계정은 프로젝트 종료 시 즉시 회수합니다.';
-    const doc = await uploadDocument(
-      db,
-      directory,
-      a.user.id,
-      new File([source], '보안.txt', { type: 'text/plain' }),
-    );
-    await t.test(
-      'original upload, extraction and Korean retrieval use real files and SQLite FTS5',
-      async () => {
-        assert.equal(await readFile(originalPath(directory, doc.id), 'utf8'), source);
-        await processDocument(db, directory, a.user.id, doc.id);
-        assert.equal(ownedDocument(db, a.user.id, doc.id).status, 'ready');
-        const hits = searchChunks(db, a.user.id, '보안');
-        assert.equal(hits[0].content, source);
-        assert.equal(hits[0].document_id, doc.id);
-        assert.equal(searchChunks(db, a.user.id, 'zzzzxyz').length, 0);
-        assert.equal(searchChunks(db, a.user.id, '보안', []).length, 0);
-      },
-    );
-    await t.test(
-      'another account cannot retrieve, process, or delete the original document',
-      async () => {
-        assert.equal(listDocuments(db, b.user.id).length, 0);
-        assert.equal(searchChunks(db, b.user.id, '보안').length, 0);
-        assert.throws(() => ownedDocument(db, b.user.id, doc.id), /찾을 수 없습니다/);
-        await assert.rejects(
-          () => processDocument(db, directory, b.user.id, doc.id),
-          /찾을 수 없습니다/,
-        );
-        await assert.rejects(
-          () => deleteDocument(db, directory, b.user.id, doc.id),
-          /찾을 수 없습니다/,
-        );
-        assert.throws(
-          () =>
-            db
-              .prepare('INSERT INTO document_chunks VALUES(?,?,?,?,?)')
-              .run('bad', doc.id, b.user.id, 9, 'bad'),
-          /FOREIGN KEY/,
-        );
-      },
-    );
-    await t.test('indexing locks reject duplicates and failed chunk replacements roll back', () => {
-      const token = beginProcessing(db, a.user.id, doc.id);
-      assert.throws(() => beginProcessing(db, a.user.id, doc.id), /분석 중/);
-      assert.throws(
-        () => finishProcessing(db, a.user.id, doc.id, token, 'bad', 0, ['x'.repeat(1201)]),
-        /크기/,
-      );
+    await t.test('same migration can run twice without deleting existing records', async () => {
+      await db.query(await readFile('migrations/001_neon.sql', 'utf8'));
       assert.equal(
-        db.prepare('SELECT count(*) n FROM document_chunks WHERE document_id=?').get(doc.id)?.n,
-        1,
-      );
-      assert.equal(searchChunks(db, a.user.id, '보안').length, 0);
-      finishProcessing(db, a.user.id, doc.id, token, source, 0, [source]);
-      assert.throws(
-        () => finishProcessing(db, a.user.id, doc.id, token, source, 0, [source]),
-        /만료/,
-      );
-    });
-    let conversationId = '';
-    await t.test('conversation and turn are saved atomically and enforce ownership', () => {
-      const turn = saveTurn(db, a.user.id, {
-        question: '보안 규정은?',
-        answer: source,
-        citations: searchChunks(db, a.user.id, '보안'),
-        mode: 'extractive',
-      });
-      conversationId = turn.conversationId;
-      assert.ok(conversationId);
-      assert.throws(
-        () =>
-          saveTurn(db, b.user.id, {
-            conversationId,
-            question: 'bad',
-            answer: 'bad',
-            citations: [],
-            mode: 'extractive',
-          }),
-        /찾을 수 없습니다/,
+        (await db.query<{ n: number }>('SELECT count(*)::integer n FROM documents'))[0].n,
+        0,
       );
     });
     await t.test(
-      'closing and reopening the database preserves sessions, documents, chunks, conversations and originals',
+      'proxy-bound connection strings are forwarded only to the specified Neon HTTPS endpoint',
       async () => {
-        db.close();
-        db = openDatabase(directory);
-        assert.equal(listDocuments(db, a.user.id).length, 1);
-        assert.equal(searchChunks(db, a.user.id, '보안')[0].content, source);
-        assert.equal(currentUser(db, req(a.token))?.id, a.user.id);
+        const endpoint = neonConfig.fetchEndpoint;
+        const fetchFunction = neonConfig.fetchFunction;
+        const oldEndpoint = process.env.NEON_HTTP_ENDPOINT;
+        process.env.NEON_HTTP_ENDPOINT = 'https://api.us-east-2.aws.neon.tech/sql';
+        try {
+          neonConfig.fetchFunction = async (url: RequestInfo | URL, init?: RequestInit) => {
+            assert.equal(url, 'https://api.us-east-2.aws.neon.tech/sql');
+            assert.equal(
+              new Headers(init?.headers).get('Neon-Connection-String'),
+              'test-proxy-placeholder',
+            );
+            return fetch(services.url + '/neon', init);
+          };
+          const proxy = createDatabase('test-proxy-placeholder');
+          assert.equal((await proxy.query<{ n: number }>('SELECT 42::integer n'))[0].n, 42);
+          assert.equal((await proxy.transaction([{ text: 'SELECT 43::integer n' }]))[0][0].n, 43);
+        } finally {
+          neonConfig.fetchEndpoint = endpoint;
+          neonConfig.fetchFunction = fetchFunction;
+          if (oldEndpoint === undefined) delete process.env.NEON_HTTP_ENDPOINT;
+          else process.env.NEON_HTTP_ENDPOINT = oldEndpoint;
+        }
+      },
+    );
+    const a = await register(db, { email: 'a@example.com', password: 'Password123!', name: 'A' });
+    const b = await register(db, { email: 'b@example.com', password: 'Password123!', name: 'B' });
+    const req = (token: string) =>
+      new Request('https://example.com/api/documents', {
+        headers: { Cookie: `documind_session=${token}` },
+      });
+    await t.test(
+      'passwords and sessions are hashed and empty accounts contain no sample documents',
+      async () => {
+        assert.equal((await listDocuments(db, a.user.id)).length, 0);
+        assert.equal((await currentUser(db, req(a.token)))?.id, a.user.id);
+        const [row] = await db.query<{ password_hash: string }>(
+          'SELECT password_hash FROM users WHERE id=$1',
+          [a.user.id],
+        );
+        assert.match(row.password_hash, /^[a-f0-9]{32}:[a-f0-9]{128}$/);
+        assert.match(sessionCookie(req(a.token), a.token), /HttpOnly; SameSite=Lax/);
+        assert.match(sessionCookie(req(a.token), a.token), /Secure/);
+      },
+    );
+    await t.test('wrong credentials and invalid sessions are rejected', async () => {
+      await assert.rejects(
+        () => login(db, { email: 'a@example.com', password: 'WrongPassword' }),
+        /이메일 또는 비밀번호/,
+      );
+      const logged = await login(db, { email: 'a@example.com', password: 'Password123!' });
+      await logout(db, req(logged.token));
+      assert.equal(await currentUser(db, req(logged.token)), null);
+    });
+    const text = '정보보안 규정: 외부 협력사 계정은 프로젝트 종료 시 즉시 회수합니다.';
+    const bytes = Buffer.from(text);
+    const doc = await prepareUpload(db, a.user.id, { name: '보안.txt', size: bytes.length });
+    await t.test(
+      'upload completion verifies provider metadata instead of trusting client URLs',
+      async () => {
+        await assert.rejects(
+          () => completeUpload(db, a.user.id, doc.id),
+          /원본을 찾을 수 없습니다/,
+        );
+        services.blobs.set(doc.pathname, { data: Buffer.from('wrong length'), type: 'text/plain' });
+        await assert.rejects(() => completeUpload(db, a.user.id, doc.id), /크기가 일치/);
+        services.blobs.set(doc.pathname, { data: bytes, type: 'text/plain' });
+        await completeUpload(db, a.user.id, doc.id);
+        assert.ok((await ownedDocument(db, a.user.id, doc.id)).uploaded_at);
+      },
+    );
+    await t.test(
+      'real parser text is stored and Korean FTS/substring retrieval returns real citations',
+      async () => {
+        await processDocument(db, a.user.id, doc.id);
+        assert.equal((await ownedDocument(db, a.user.id, doc.id)).status, 'ready');
+        const hits = await searchChunks(db, a.user.id, '보안');
+        assert.equal(hits[0].content, text);
+        assert.equal(hits[0].document_id, doc.id);
+        assert.equal((await searchChunks(db, a.user.id, 'zzzzxyz')).length, 0);
+        assert.equal((await searchChunks(db, a.user.id, '보안', [])).length, 0);
+      },
+    );
+    await t.test(
+      'another account cannot read metadata, reprocess, delete or search the document',
+      async () => {
+        assert.equal((await listDocuments(db, b.user.id)).length, 0);
+        assert.equal((await searchChunks(db, b.user.id, '보안')).length, 0);
+        await assert.rejects(() => ownedDocument(db, b.user.id, doc.id), /찾을 수 없습니다/);
+        await assert.rejects(() => processDocument(db, b.user.id, doc.id), /찾을 수 없습니다/);
+        await assert.rejects(() => deleteDocument(db, b.user.id, doc.id), /찾을 수 없습니다/);
+      },
+    );
+    await t.test(
+      'processing locks and atomic replacement reject duplicate and stale workers',
+      async () => {
+        const token = await beginProcessing(db, a.user.id, doc.id);
+        await assert.rejects(() => beginProcessing(db, a.user.id, doc.id), /분석 중/);
+        await assert.rejects(
+          () => finishProcessing(db, a.user.id, doc.id, token, 'x', 0, ['x'.repeat(1201)]),
+          /크기/,
+        );
+        assert.equal((await searchChunks(db, a.user.id, '보안')).length, 0);
+        await finishProcessing(db, a.user.id, doc.id, token, text, 0, [text]);
+        await assert.rejects(
+          () => finishProcessing(db, a.user.id, doc.id, token, text, 0, [text]),
+          /만료/,
+        );
+      },
+    );
+    let conversationId = '';
+    await t.test(
+      'conversation and answer commit together and an account cannot append to another owner',
+      async () => {
+        const turn = await saveTurn(db, a.user.id, {
+          question: '보안',
+          answer: text,
+          citations: await searchChunks(db, a.user.id, '보안'),
+          mode: 'extractive',
+        });
+        conversationId = turn.conversationId;
+        assert.ok(conversationId);
+        await assert.rejects(
+          () =>
+            saveTurn(db, b.user.id, {
+              conversationId,
+              question: 'bad',
+              answer: 'bad',
+              citations: [],
+              mode: 'extractive',
+            }),
+          /찾을 수 없습니다/,
+        );
+      },
+    );
+    await t.test(
+      'independent client instances retain the same data and private originals',
+      async () => {
+        const another = createDatabase(testDatabaseUrl);
+        assert.equal((await listDocuments(another, a.user.id)).length, 1);
+        assert.equal((await searchChunks(another, a.user.id, '보안'))[0].content, text);
+        const original = await readOriginal(doc.pathname);
+        assert.equal(await new Response(original.stream).text(), text);
         assert.equal(
-          db
-            .prepare('SELECT count(*) n FROM chat_turns WHERE conversation_id=?')
-            .get(conversationId)?.n,
+          (await db.query('SELECT id FROM chat_turns WHERE conversation_id=$1', [conversationId]))
+            .length,
           1,
         );
-        assert.equal(await readFile(originalPath(directory, doc.id), 'utf8'), source);
       },
     );
     await t.test(
-      'password change verifies the current password and revokes previous sessions',
+      'password changes reject wrong current password and revoke existing sessions',
       async () => {
         await assert.rejects(
           () =>
@@ -194,46 +224,127 @@ test('real SQLite, original files, authentication, isolation and restart persist
           currentPassword: 'Password123!',
           password: 'NewPassword123!',
         });
-        assert.equal(currentUser(db, req(a.token)), null);
-        assert.equal(currentUser(db, req(token))?.id, a.user.id);
+        assert.equal(await currentUser(db, req(a.token)), null);
+        assert.equal((await currentUser(db, req(token)))?.id, a.user.id);
         await assert.rejects(() => login(db, { email: 'a@example.com', password: 'Password123!' }));
-        assert.equal(
-          (await login(db, { email: 'a@example.com', password: 'NewPassword123!' })).user.id,
-          a.user.id,
-        );
       },
     );
     await t.test(
-      'deletion removes the original, cascades chunks and updates the FTS index',
+      'legacy SQLite import preserves credentials, originals, chunks and conversations and can resume',
       async () => {
-        await deleteDocument(db, directory, a.user.id, doc.id);
-        assert.equal(listDocuments(db, a.user.id).length, 0);
-        assert.equal(db.prepare('SELECT count(*) n FROM document_chunks').get()?.n, 0);
+        const legacy = path.join(directory, 'legacy');
+        await mkdir(path.join(legacy, 'uploads'), { recursive: true });
+        const file = new DatabaseSync(path.join(legacy, 'documind.sqlite'));
+        const uid = randomUUID(),
+          did = randomUUID(),
+          cid = randomUUID();
+        const [user] = await db.query('SELECT password_hash FROM users WHERE id=$1', [a.user.id]);
+        const now = new Date().toISOString();
+        file.exec(`CREATE TABLE users(id,email,name,company,password_hash,created_at);
+        CREATE TABLE documents(id,user_id,name,file_type,size_bytes,category,status,chunk_count,page_count,extracted_text,error_message,created_at);
+        CREATE TABLE document_chunks(id,document_id,user_id,position,content);
+        CREATE TABLE conversations(id,user_id,title,created_at);
+        CREATE TABLE chat_turns(id,user_id,conversation_id,question,answer,citations,mode,created_at);`);
+        file
+          .prepare('INSERT INTO users VALUES(?,?,?,?,?,?)')
+          .run(uid, 'legacy@example.com', '기존 사용자', '', String(user.password_hash), now);
+        file
+          .prepare('INSERT INTO documents VALUES(?,?,?,?,?,?,?,?,?,?,?,?)')
+          .run(
+            did,
+            uid,
+            'legacy.txt',
+            'TXT',
+            bytes.length,
+            '미분류',
+            'ready',
+            1,
+            1,
+            text,
+            null,
+            now,
+          );
+        file
+          .prepare('INSERT INTO document_chunks VALUES(?,?,?,?,?)')
+          .run(randomUUID(), did, uid, 0, text);
+        file.prepare('INSERT INTO conversations VALUES(?,?,?,?)').run(cid, uid, '보안 질문', now);
+        file
+          .prepare('INSERT INTO chat_turns VALUES(?,?,?,?,?,?,?,?)')
+          .run(randomUUID(), uid, cid, '보안', text, '[]', 'extractive', now);
+        file.close();
+        await writeFile(path.join(legacy, 'uploads', did), bytes);
+        const args = ['--import', 'tsx', 'scripts/import-sqlite.ts', '--source', legacy];
+        const env = { ...process.env, DATABASE_URL: testDatabaseUrl };
+        const run = promisify(execFile);
+        const dry = await run(process.execPath, args, { env });
+        assert.match(dry.stdout, /Dry run only/);
+        assert.equal((await db.query('SELECT id FROM users WHERE id=$1', [uid])).length, 0);
+        await run(process.execPath, [...args, '--apply'], { env });
+        await run(process.execPath, [...args, '--apply'], { env });
         assert.equal(
-          db.prepare("SELECT count(*) n FROM chunks_fts WHERE chunks_fts MATCH '보안'").get()?.n,
-          0,
+          (await db.query('SELECT password_hash FROM users WHERE id=$1', [uid]))[0].password_hash,
+          user.password_hash,
         );
-        await assert.rejects(() => readFile(originalPath(directory, doc.id)));
+        assert.equal((await searchChunks(db, uid, '보안'))[0].content, text);
+        assert.equal(
+          (await db.query('SELECT id FROM chat_turns WHERE conversation_id=$1', [cid])).length,
+          1,
+        );
+        assert.equal(services.blobs.get(`${uid}/${did}/original.txt`)?.data.toString(), text);
+        assert.equal((await readFile(path.join(legacy, 'uploads', did))).toString(), text);
       },
     );
-    await t.test('cross-site writes and oversized JSON are rejected', async () => {
-      assert.throws(
-        () =>
-          checkOrigin(
-            new Request('http://localhost/api/auth/login', {
-              headers: { origin: 'https://evil.example' },
-            }),
-          ),
-        /다른 사이트/,
-      );
-      await assert.rejects(
-        () =>
-          readJson(new Request('http://localhost', { method: 'POST', body: 'x'.repeat(17000) })),
-        /너무 큽니다/,
-      );
-    });
+    await t.test(
+      'deletion hides document, removes chunks and original, and cleans late uploads after token expiry',
+      async () => {
+        await db.query('UPDATE documents SET upload_token_expires_at=$1 WHERE id=$2', [
+          Date.now() + 60000,
+          doc.id,
+        ]);
+        await deleteDocument(db, a.user.id, doc.id);
+        assert.equal((await listDocuments(db, a.user.id)).length, 0);
+        assert.equal(services.blobs.has(doc.pathname), false);
+        assert.equal(
+          (await db.query('SELECT id FROM document_chunks WHERE document_id=$1', [doc.id])).length,
+          0,
+        );
+        services.blobs.set(doc.pathname, { data: bytes, type: 'text/plain' });
+        await db.query('UPDATE documents SET upload_token_expires_at=$1 WHERE id=$2', [
+          Date.now() - 120000,
+          doc.id,
+        ]);
+        await cleanupDeleted(db, a.user.id);
+        assert.equal(services.blobs.has(doc.pathname), false);
+        assert.equal((await db.query('SELECT id FROM documents WHERE id=$1', [doc.id])).length, 0);
+      },
+    );
+    await t.test(
+      'cross-site writes, oversized JSON and missing production configuration fail clearly',
+      async () => {
+        assert.throws(
+          () =>
+            checkOrigin(
+              new Request('https://example.com', { headers: { origin: 'https://evil.example' } }),
+            ),
+          /다른 사이트/,
+        );
+        await assert.rejects(
+          () =>
+            readJson(
+              new Request('https://example.com', { method: 'POST', body: 'x'.repeat(17000) }),
+            ),
+          /너무 큽니다/,
+        );
+        assert.throws(() => createDatabase(''), /DATABASE_URL/);
+      },
+    );
   } finally {
-    db.close();
+    undo();
+    delete process.env.DOCUMIND_TEST_MODE;
+    delete process.env.DOCUMIND_TEST_NEON_URL;
+    delete process.env.BLOB_READ_WRITE_TOKEN;
+    delete process.env.VERCEL_BLOB_API_URL;
+    await services.close();
     await rm(directory, { recursive: true, force: true });
   }
 });

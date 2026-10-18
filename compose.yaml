@@ -4,11 +4,9 @@ services:
     ports:
       - '127.0.0.1:3000:3000'
     environment:
+      DATABASE_URL: ${DATABASE_URL:?Set the Neon connection string}
+      BLOB_READ_WRITE_TOKEN: ${BLOB_READ_WRITE_TOKEN:?Set the private Vercel Blob token}
       APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
       RAG_API_KEY: ${RAG_API_KEY:-}
       RAG_MODEL: ${RAG_MODEL:-gpt-4o-mini}
-    volumes:
-      - documind-data:/app/data
     restart: unless-stopped
-volumes:
-  documind-data:

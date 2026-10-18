@@ -119,7 +119,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="avatar">나</span>
             <div className="grow">
               <strong>{session.user.user_metadata.name || session.user.email}</strong>
-              <small>로컬 계정</small>
+              <small>DocuMind 계정</small>
             </div>
             <button
               aria-label="로그아웃"
@@ -162,7 +162,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           <span className="sync-state">
             <span className="status-dot" />
-            SQLite 워크스페이스
+            Neon 워크스페이스
           </span>
           <button
             className="icon-button notification"

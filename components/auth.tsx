@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ArrowRight,
   BrainCircuit,
@@ -23,7 +23,7 @@ import {
 import { Brand, Modal } from './ui';
 import { PasswordStrength, SSOButtons } from './auth-ui';
 import { useWorkspace } from './workspace-provider';
-import { apiRequest } from '@/lib/client';
+import { apiRequest, requestJson } from '@/lib/client';
 import { readableError } from '@/lib/documents';
 export function AuthHeader() {
   const { notify, refreshSession } = useWorkspace();
@@ -51,7 +51,7 @@ export function AuthHeader() {
         <button
           onClick={() =>
             notify(
-              '서버의 SQLite DB와 비공개 원본 폴더를 사용합니다. 계정별 접근 권한을 서버에서 확인합니다.',
+              'Neon DB와 비공개 Vercel Blob을 사용합니다. 계정별 접근 권한을 서버에서 확인합니다.',
             )
           }
         >
@@ -85,6 +85,12 @@ export function AuthFooter() {
 export function Login() {
   const router = useRouter();
   const { notify, refreshSession } = useWorkspace();
+  const [setupMissing, setSetupMissing] = useState(false);
+  useEffect(() => {
+    void requestJson<{ databaseConfigured: boolean; blobConfigured: boolean }>('/api/health')
+      .then((r) => setSetupMissing(!r.databaseConfigured || !r.blobConfigured))
+      .catch(() => {});
+  }, []);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
@@ -106,7 +112,7 @@ export function Login() {
   }
   async function reset() {
     notify(
-      '로컬 모드에서는 이메일 재설정을 제공하지 않습니다. 로그인 후 설정에서 비밀번호를 변경하거나 서버 관리자에게 문의하세요.',
+      '현재 이메일 재설정을 제공하지 않습니다. 로그인 후 설정에서 비밀번호를 변경하거나 서버 관리자에게 문의하세요.',
     );
   }
 
@@ -142,6 +148,12 @@ export function Login() {
           <div className="card login-card">
             <h2>워크스페이스 로그인</h2>
             <p className="muted mt-3 mb-6">가입한 이메일과 비밀번호로 접속하세요.</p>
+            {setupMissing && (
+              <div className="inset mb-5" role="status">
+                저장 서비스 연결을 준비 중입니다. 관리자는 Vercel 환경 변수에
+                DATABASE_URL·BLOB_READ_WRITE_TOKEN을 등록하고 DB 마이그레이션을 실행해 주세요.
+              </div>
+            )}
             <form onSubmit={login}>
               <label className="field">
                 이메일
@@ -262,7 +274,7 @@ export function Signup() {
         </div>
         <div className="signup-grid">
           <section className="card signup-card">
-            <span className="pill">로컬 계정 생성</span>
+            <span className="pill">DocuMind 계정 생성</span>
             <h2 className="mt-3">기업용 DocuMind 가입 시작</h2>
             <p className="muted mt-3 mb-6">
               가입하면 비어 있는 개인 문서 지식 베이스를 사용할 수 있습니다.
@@ -455,7 +467,7 @@ export function Signup() {
                       </div>
                     ))}
                     <p className="muted text-xs">
-                      계정과 업로드 문서는 이 서버의 SQLite DB와 원본 폴더에 저장됩니다. 마케팅
+                      계정과 업로드 문서는 Neon DB와 비공개 Vercel Blob에 저장됩니다. 마케팅
                       이메일은 발송하지 않습니다.
                     </p>
                   </div>
@@ -559,7 +571,7 @@ export function Signup() {
                 [
                   CloudOff,
                   '비공개 파일 저장소',
-                  '원본은 비공개 폴더에 보관하고 인증된 요청으로 확인합니다.',
+                  '원본은 비공개 Vercel Blob에 보관하고 인증된 요청으로 확인합니다.',
                 ],
                 [
                   ShieldCheck,
@@ -606,9 +618,9 @@ export function Signup() {
       {terms && (
         <Modal title="DocuMind 이용 안내" onClose={() => setTerms(false)}>
           <p className="muted">
-            계정 정보와 대화는 이 서버의 SQLite DB에, 원본 문서는 비공개 파일 폴더에 저장합니다.
-            문서는 로그인한 본인만 접근할 수 있습니다. AI 생성 모드를 활성화하면 질문과 검색된 문서
-            발췌가 AI 제공자에게 전달됩니다. 결제와 마케팅 구독은 생성하지 않습니다.
+            계정 정보와 대화는 Neon DB에, 원본 문서는 비공개 Vercel Blob에 저장합니다. 문서는
+            로그인한 본인만 접근할 수 있습니다. AI 생성 모드를 활성화하면 질문과 검색된 문서 발췌가
+            AI 제공자에게 전달됩니다. 결제와 마케팅 구독은 생성하지 않습니다.
           </p>
           <button type="button" className="button primary mt-5" onClick={() => setTerms(false)}>
             확인

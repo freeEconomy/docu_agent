@@ -1,5 +1,14 @@
 import { test, expect, type Page } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
+test.beforeEach(async ({ page }) => {
+  await page.route('https://vercel.com/api/blob/**', async (route) => {
+    const url = new URL(route.request().url());
+    const response = await route.fetch({
+      url: 'http://127.0.0.1:3188/blob-api' + url.pathname.slice('/api/blob'.length) + url.search,
+    });
+    await route.fulfill({ response });
+  });
+});
 const password = 'Password123!';
 async function account(page: Page) {
   const email = `${randomUUID()}@example.com`;
@@ -29,7 +38,7 @@ test('anonymous users are redirected and all private API resources reject access
     expect((await request.get(route)).status()).toBe(401);
   expect((await request.post('/api/chat', { data: { question: '보안' } })).status()).toBe(401);
 });
-test('real login, empty SQLite state and logout', async ({ page, isMobile }) => {
+test('real login, empty PostgreSQL state and logout', async ({ page, isMobile }) => {
   const user = await account(page);
   await page.request.post('/api/auth/logout');
   await page.goto('/login');
@@ -60,7 +69,7 @@ test('real upload, reload, original download, rename, retrieval, conversation re
   await expect(page.locator('.real-document-text')).toContainText('즉시 회수');
   await expect(page.getByLabel('청크 선택')).toHaveValue('0');
   const original = await page.request.get(`/api/documents/${documentId}/original?download=1`);
-  expect(original.status()).toBe(200);
+  expect(original.status(), await original.text()).toBe(200);
   expect((await original.body()).toString()).toContain('즉시 회수');
   await page.getByRole('button', { name: '정보 수정' }).click();
   await page.getByLabel('문서 이름').fill('보안 정책.txt');
@@ -188,4 +197,55 @@ test('workspace pages fit desktop and mobile viewports', async ({ page, isMobile
     await page.getByRole('link', { name: /AI 채팅/ }).click();
     await expect(page).toHaveURL(/\/chat$/);
   }
+});
+
+test('files above 4.5 MB upload directly to private Blob while app requests stay small', async ({
+  page,
+}) => {
+  await account(page);
+  const bodySizes: number[] = [];
+  page.on('request', (request) => {
+    if (
+      new URL(request.url()).origin === 'http://127.0.0.1:3199' &&
+      new URL(request.url()).pathname.startsWith('/api/')
+    )
+      bodySizes.push(request.postDataBuffer()?.length || 0);
+  });
+  const content = '대용량 문서 보안 지침입니다.';
+  const bytes = Buffer.concat([Buffer.from(content), Buffer.alloc(5 * 1024 * 1024, 32)]);
+  await page.goto('/documents');
+  await page
+    .getByLabel('문서 파일 선택')
+    .setInputFiles({ name: 'large.txt', mimeType: 'text/plain', buffer: bytes });
+  await expect(page.getByText('● 인덱싱 완료됨')).toBeVisible({ timeout: 30000 });
+  const documents = await (await page.request.get('/api/documents')).json();
+  expect(documents.documents[0].size_bytes).toBe(bytes.length);
+  const original = await page.request.get(`/api/documents/${documents.documents[0].id}/original`);
+  expect(original.status()).toBe(200);
+  expect((await original.body()).length).toBe(bytes.length);
+  expect(Math.max(...bodySizes)).toBeLessThan(16384);
+});
+
+test('upload tokens reject another document owner and a substituted Blob path', async ({
+  page,
+}) => {
+  await account(page);
+  const prepared = await (
+    await page.request.post('/api/documents', { data: { name: 'token.txt', size: 20 } })
+  ).json();
+  const tokenRequest = (pathname: string) => ({
+    type: 'blob.generate-client-token',
+    payload: { pathname, clientPayload: JSON.stringify({ documentId: prepared.id }) },
+  });
+  const wrong = await page.request.post('/api/blob/upload', {
+    data: tokenRequest(prepared.pathname + '-other'),
+  });
+  expect(wrong.status()).toBe(400);
+  await page.request.post('/api/auth/logout');
+  await account(page);
+  expect(
+    (
+      await page.request.post('/api/blob/upload', { data: tokenRequest(prepared.pathname) })
+    ).status(),
+  ).toBe(404);
 });

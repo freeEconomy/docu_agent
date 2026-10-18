@@ -15,6 +15,7 @@ import {
   type KnowledgeDocument,
 } from '@/lib/documents';
 import { requestJson, apiRequest, type AppSession } from '@/lib/client';
+import { upload } from '@vercel/blob/client';
 type Workspace = {
   documents: KnowledgeDocument[];
   session: AppSession | null;
@@ -133,12 +134,18 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         }
         if (currentUser.current !== userId) break;
         try {
-          const form = new FormData();
-          form.set('file', file);
-          const { id } = await requestJson<{ id: string }>('/api/documents', {
-            method: 'POST',
-            body: form,
+          const { id, pathname, contentType } = await apiRequest<{
+            id: string;
+            pathname: string;
+            contentType: string;
+          }>('/api/documents', { name: file.name, size: file.size });
+          await upload(pathname, file, {
+            access: 'private',
+            contentType,
+            handleUploadUrl: '/api/blob/upload',
+            clientPayload: JSON.stringify({ documentId: id }),
           });
+          await apiRequest(`/api/documents/${id}/complete`, {});
           await refresh();
           await apiRequest(`/api/documents/${id}/process`, {});
           notices.push(`${file.name}: 등록 및 분석 완료`);

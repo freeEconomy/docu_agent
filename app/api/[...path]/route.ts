@@ -1,5 +1,5 @@
-import { readFile } from 'node:fs/promises';
-import { getDb, dataDirectory } from '@/lib/server/db';
+import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
+import { getDb } from '@/lib/server/db';
 import {
   currentUser,
   requireUser,
@@ -20,13 +20,15 @@ import {
 } from '@/lib/server/http';
 import { listDocuments, ownedDocument, searchChunks, saveTurn } from '@/lib/server/repository';
 import {
-  uploadDocument,
+  prepareUpload,
+  completeUpload,
   processDocument,
   deleteDocument,
-  originalPath,
+  documentMime,
+  cleanupDeleted,
 } from '@/lib/server/documents';
+import { readOriginal, requireBlob } from '@/lib/server/blob-store';
 import { answerQuestion } from '@/lib/server/answer';
-import { maxFileBytes } from '@/lib/documents';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -36,9 +38,20 @@ async function handle(request: Request, { params }: { params: Promise<{ path: st
     const route = (await params).path;
     const endpoint = route.join('/');
     const method = request.method;
+    if (endpoint === 'health' && method === 'GET')
+      return json({
+        databaseConfigured: !!process.env.DATABASE_URL,
+        blobConfigured: !!process.env.BLOB_READ_WRITE_TOKEN,
+      });
+    if (
+      endpoint === 'auth/session' &&
+      method === 'GET' &&
+      !request.headers.get('cookie')?.includes('documind_session=')
+    )
+      return json({ session: null });
     const db = getDb();
     if (endpoint === 'auth/session' && method === 'GET') {
-      const user = currentUser(db, request);
+      const user = await currentUser(db, request);
       return json({ session: user ? { user } : null });
     }
     if (['auth/login', 'auth/register'].includes(endpoint) && method === 'POST') {
@@ -49,59 +62,78 @@ async function handle(request: Request, { params }: { params: Promise<{ path: st
       });
     }
     if (endpoint === 'auth/logout' && method === 'POST') {
-      logout(db, request);
+      await logout(db, request);
       return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(request, '', 0) });
     }
-    const user = requireUser(db, request);
+    const user = await requireUser(db, request);
     if (endpoint === 'auth/password' && method === 'POST') {
       const token = await changePassword(db, user, await readJson(request));
       return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(request, token) });
     }
-    if (endpoint === 'settings' && method === 'GET')
+    if (endpoint === 'settings' && method === 'GET') {
+      const [version] = await db.query(
+        'SELECT max(version)::integer AS version FROM documind_schema_versions',
+      );
       return json({
-        storage: 'SQLite',
-        database: 'data/documind.sqlite',
-        documents: 'data/uploads',
+        storage: 'Neon PostgreSQL + Private Vercel Blob',
+        schemaVersion: version?.version,
         aiEnabled: !!process.env.RAG_API_KEY,
       });
+    }
     if (endpoint === 'documents' && method === 'GET')
-      return json({ documents: listDocuments(db, user.id) });
+      return json({ documents: await listDocuments(db, user.id) });
     if (endpoint === 'documents' && method === 'POST') {
-      if (!request.headers.get('content-type')?.startsWith('multipart/form-data'))
-        throw new ApiError('파일 업로드 요청을 확인하세요.');
-      // Bound the body even when a client omits or forges Content-Length.
-      const limit = maxFileBytes + 65536;
-      let size = 0;
-      const reader = request.body?.getReader();
-      const pieces: Uint8Array[] = [];
-      if (reader)
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          size += value.length;
-          if (size > limit) {
-            await reader.cancel();
-            throw new ApiError('파일당 최대 20MB까지 업로드할 수 있습니다.', 413);
+      await cleanupDeleted(db, user.id);
+      return json(await prepareUpload(db, user.id, await readJson(request)), 201);
+    }
+    if (endpoint === 'documents/cleanup' && method === 'POST')
+      return json(await cleanupDeleted(db, user.id));
+    if (endpoint === 'blob/upload' && method === 'POST') {
+      requireBlob();
+      const body = await readJson(request);
+      if (body.type !== 'blob.generate-client-token')
+        throw new ApiError('지원하지 않는 업로드 요청입니다.');
+      const result = await handleUpload({
+        body: body as unknown as HandleUploadBody,
+        request,
+        onBeforeGenerateToken: async (pathname, payload) => {
+          let id;
+          try {
+            id = JSON.parse(payload || '{}').documentId;
+          } catch {
+            throw new ApiError('문서 ID를 확인하세요.');
           }
-          pieces.push(value);
-        }
-      const form = await new Response(Buffer.concat(pieces), {
-        headers: { 'Content-Type': request.headers.get('content-type')! },
-      }).formData();
-      const file = form.get('file');
-      if (!(file instanceof File)) throw new ApiError('파일을 선택하세요.');
-      return json(await uploadDocument(db, dataDirectory(), user.id, file), 201);
+          if (!isUuid(id)) throw new ApiError('문서 ID를 확인하세요.');
+          const doc = await ownedDocument(db, user.id, id);
+          if (doc.blob_path !== pathname || doc.uploaded_at)
+            throw new ApiError('업로드 경로 또는 문서 상태를 확인하세요.');
+          const validUntil = Date.now() + 15 * 60000;
+          await db.query(
+            'UPDATE documents SET upload_token_expires_at=GREATEST(upload_token_expires_at,$1) WHERE id=$2 AND user_id=$3 AND deleted_at IS NULL',
+            [validUntil, id, user.id],
+          );
+          return {
+            maximumSizeInBytes: doc.size_bytes,
+            allowedContentTypes: [documentMime(doc.file_type)],
+            validUntil,
+            allowOverwrite: false,
+            addRandomSuffix: false,
+          };
+        },
+      });
+      return json(result);
     }
     if (route[0] === 'documents' && route[1]) {
       const id = route[1];
       if (!isUuid(id)) throw new ApiError('문서를 찾을 수 없습니다.', 404);
-      const doc = ownedDocument(db, user.id, id);
+      if (route.length === 2 && method === 'DELETE')
+        return json(await deleteDocument(db, user.id, id));
+      const doc = await ownedDocument(db, user.id, id);
       if (route.length === 2 && method === 'GET') {
-        const chunks = db
-          .prepare(
-            'SELECT id,document_id,position,content FROM document_chunks WHERE document_id=? AND user_id=? ORDER BY position',
-          )
-          .all(id, user.id);
+        const chunks = await db.query(
+          'SELECT id,document_id,position,content FROM document_chunks WHERE document_id=$1 AND user_id=$2 ORDER BY position',
+          [id, user.id],
+        );
         return json({ text: doc.extracted_text, chunks });
       }
       if (route.length === 2 && method === 'PATCH') {
@@ -109,36 +141,27 @@ async function handle(request: Request, { params }: { params: Promise<{ path: st
         const name = body.name === undefined ? doc.name : textField(body.name, '문서 이름');
         const category =
           body.category === undefined ? doc.category : textField(body.category, '카테고리', 80);
-        db.prepare('UPDATE documents SET name=?,category=? WHERE id=? AND user_id=?').run(
-          name,
-          category,
-          id,
-          user.id,
+        await db.query(
+          'UPDATE documents SET name=$1,category=$2 WHERE id=$3 AND user_id=$4 AND deleted_at IS NULL',
+          [name, category, id, user.id],
         );
         return json({ ok: true });
       }
-      if (route.length === 2 && method === 'DELETE') {
-        await deleteDocument(db, dataDirectory(), user.id, id);
-        return json({ ok: true });
-      }
+      if (route.length === 3 && route[2] === 'complete' && method === 'POST')
+        return json(await completeUpload(db, user.id, id));
       if (route.length === 3 && route[2] === 'process' && method === 'POST')
-        return json(await processDocument(db, dataDirectory(), user.id, id));
+        return json(await processDocument(db, user.id, id));
       if (route.length === 3 && route[2] === 'original' && method === 'GET') {
-        let bytes: Buffer;
-        try {
-          bytes = await readFile(originalPath(dataDirectory(), id));
-        } catch {
-          throw new ApiError('원본 파일을 찾을 수 없습니다.', 404);
-        }
+        if (!doc.uploaded_at) throw new ApiError('업로드가 아직 완료되지 않았습니다.', 409);
+        const original = await readOriginal(doc.blob_path);
         const inline =
           doc.file_type === 'PDF' &&
           doc.status === 'ready' &&
           !new URL(request.url).searchParams.has('download');
-        return new Response(new Uint8Array(bytes), {
+        return new Response(original.stream, {
           headers: {
             'Content-Type': inline ? 'application/pdf' : 'application/octet-stream',
             'Content-Disposition': `${inline ? 'inline' : 'attachment'}; filename="document.${doc.file_type.toLowerCase()}"; filename*=UTF-8''${encodeURIComponent(doc.name).replaceAll("'", '%27')}`,
-            'Content-Length': String(bytes.length),
             'Cache-Control': 'private, no-store',
             'X-Content-Type-Options': 'nosniff',
             'Content-Security-Policy': 'sandbox',
@@ -148,38 +171,44 @@ async function handle(request: Request, { params }: { params: Promise<{ path: st
     }
     if (endpoint === 'conversations' && method === 'GET')
       return json({
-        conversations: db
-          .prepare(
-            'SELECT id,title FROM conversations WHERE user_id=? ORDER BY created_at DESC LIMIT 50',
-          )
-          .all(user.id),
+        conversations: await db.query(
+          'SELECT id,title FROM conversations WHERE user_id=$1 ORDER BY created_at DESC LIMIT 50',
+          [user.id],
+        ),
       });
     if (route[0] === 'conversations' && route.length === 2 && method === 'GET') {
       if (
-        !db.prepare('SELECT id FROM conversations WHERE id=? AND user_id=?').get(route[1], user.id)
+        !isUuid(route[1]) ||
+        !(
+          await db.query('SELECT id FROM conversations WHERE id=$1 AND user_id=$2', [
+            route[1],
+            user.id,
+          ])
+        ).length
       )
         throw new ApiError('대화를 찾을 수 없습니다.', 404);
-      const turns = db
-        .prepare(
-          'SELECT id,question,answer,citations,mode FROM (SELECT * FROM chat_turns WHERE conversation_id=? AND user_id=? ORDER BY created_at DESC LIMIT 100) ORDER BY created_at',
-        )
-        .all(route[1], user.id)
-        .map((t) => ({ ...t, citations: JSON.parse(String(t.citations)) }));
-      return json({ turns });
+      return json({
+        turns: await db.query(
+          'SELECT id,question,answer,citations,mode FROM (SELECT * FROM chat_turns WHERE conversation_id=$1 AND user_id=$2 ORDER BY created_at DESC LIMIT 100) recent ORDER BY created_at',
+          [route[1], user.id],
+        ),
+      });
     }
     if (endpoint === 'dashboard' && method === 'GET') {
       const raw = Number(new URL(request.url).searchParams.get('days') || 30);
       const days = [7, 30, 90].includes(raw) ? raw : 30;
       const since = new Date(Date.now() - days * 86400000).toISOString();
-      const row = db
-        .prepare('SELECT count(*) AS count FROM chat_turns WHERE user_id=? AND created_at>=?')
-        .get(user.id, since);
-      const recent = db
-        .prepare(
-          'SELECT id,question,mode,created_at FROM chat_turns WHERE user_id=? AND created_at>=? ORDER BY created_at DESC LIMIT 10',
-        )
-        .all(user.id, since);
-      return json({ count: row?.count || 0, recent });
+      const [[count], recent] = await Promise.all([
+        db.query(
+          'SELECT count(*)::integer AS count FROM chat_turns WHERE user_id=$1 AND created_at>=$2',
+          [user.id, since],
+        ),
+        db.query(
+          'SELECT id,question,mode,created_at FROM chat_turns WHERE user_id=$1 AND created_at>=$2 ORDER BY created_at DESC LIMIT 10',
+          [user.id, since],
+        ),
+      ]);
+      return json({ count: count?.count || 0, recent });
     }
     if (endpoint === 'chat' && method === 'POST') {
       const body = await readJson(request);
@@ -192,18 +221,24 @@ async function handle(request: Request, { params }: { params: Promise<{ path: st
         throw new ApiError('대화 ID를 확인하세요.');
       if (
         conversationId &&
-        !db
-          .prepare('SELECT id FROM conversations WHERE id=? AND user_id=?')
-          .get(conversationId, user.id)
+        !(
+          await db.query('SELECT id FROM conversations WHERE id=$1 AND user_id=$2', [
+            conversationId,
+            user.id,
+          ])
+        ).length
       )
         throw new ApiError('대화를 찾을 수 없습니다.', 404);
       if (
-        !db
-          .prepare("SELECT id FROM documents WHERE user_id=? AND status='ready' LIMIT 1")
-          .get(user.id)
+        !(
+          await db.query(
+            "SELECT id FROM documents WHERE user_id=$1 AND status='ready' AND deleted_at IS NULL LIMIT 1",
+            [user.id],
+          )
+        ).length
       )
         throw new ApiError('처리가 완료된 문서를 먼저 업로드하세요.', 409);
-      const citations = searchChunks(
+      const citations = await searchChunks(
         db,
         user.id,
         question,
@@ -211,7 +246,7 @@ async function handle(request: Request, { params }: { params: Promise<{ path: st
       );
       const result = await answerQuestion(question, citations);
       return json(
-        saveTurn(db, user.id, {
+        await saveTurn(db, user.id, {
           conversationId: conversationId as string | undefined,
           question,
           citations,

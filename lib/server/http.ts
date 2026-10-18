@@ -10,19 +10,23 @@ export function json(body: unknown, status = 200, headers?: HeadersInit) {
   return Response.json(body, { status, headers: { 'Cache-Control': 'no-store', ...headers } });
 }
 export function errorResponse(error: unknown) {
+  if (typeof error === 'object' && error && 'code' in error && error.code === '42P01')
+    return json(
+      { error: 'DB 테이블 설치가 필요합니다. 관리자는 Neon 마이그레이션을 실행해 주세요.' },
+      503,
+    );
   if (!(error instanceof ApiError))
     console.error(
       'Server operation failed:',
-      error instanceof Error ? error.message : 'Unknown error',
+      error instanceof Error ? error.name : 'UnknownError',
+      typeof error === 'object' && error && 'code' in error ? String(error.code) : '',
     );
   return json(
     {
       error:
         error instanceof ApiError
           ? error.message
-          : process.env.VERCEL
-            ? 'SQLite 모드는 영구 디스크가 있는 Node.js 서버에서 실행해야 합니다.'
-            : '서버 처리에 실패했습니다. 저장 공간과 서버 로그를 확인하세요.',
+          : '서버 처리에 실패했습니다. Neon 연결·마이그레이션·Blob 설정을 확인하세요.',
     },
     error instanceof ApiError ? error.status : 500,
   );

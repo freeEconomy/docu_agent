@@ -13,10 +13,6 @@ function option(name, fallback) {
 }
 process.env.PORT = option('--port', process.env.PORT || '3000');
 process.env.HOSTNAME = option('--hostname', '0.0.0.0');
-// Generated standalone server changes cwd. Keep data outside replaceable build output.
-process.env.DOCUMIND_DATA_DIR = path.resolve(
-  process.env.DOCUMIND_DATA_DIR || path.join(root, 'data'),
-);
 const server = path.join(root, '.next/standalone/server.js');
 if (!existsSync(server)) throw new Error('먼저 npm run build를 실행하세요.');
 await import(pathToFileURL(server).href);
