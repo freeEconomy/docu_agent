@@ -1,3 +1,5 @@
+> 이전 Supabase 버전의 기록입니다. 현재 앱은 Supabase를 사용하지 않습니다. 새 설정은 [SQLite 서버 운영 안내](sqlite-server.md)를 따르세요. 이 문서의 과거 연결 검사 워크플로는 제거되었습니다.
+
 # DocuMind Supabase 설치
 
 대상 프로젝트: https://supabase.com/dashboard/project/uyckuziyzjqterrsgvhg

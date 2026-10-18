@@ -41,7 +41,7 @@ export async function parseDocument(
     case 'pdf': {
       if (!new TextDecoder().decode(bytes.slice(0, 5)).startsWith('%PDF-'))
         throw new Error('올바른 PDF 파일이 아닙니다.');
-      const pdf = await getDocumentProxy(bytes);
+      const pdf = await getDocumentProxy(new Uint8Array(bytes));
       try {
         if (pdf.numPages > 300) throw new Error('PDF는 300페이지 이하로 나누어 업로드하세요.');
         const result = await extractText(pdf, { mergePages: true });

@@ -115,7 +115,7 @@ export function Documents() {
             <>
               <div className="row between">
                 <span>사용 중 용량: {documents.reduce((a, d) => a + d.size, 0).toFixed(1)} MB</span>
-                <span>Supabase Storage</span>
+                <span>로컬 원본 파일</span>
               </div>
               <div className="progress mt-3">
                 <i
@@ -182,7 +182,7 @@ export function Documents() {
             {uploading ? '업로드 및 분석 중…' : '파일 찾아보기'}
           </button>
           <small className="muted mt-3 block">
-            비공개 Supabase Storage 저장 · PDF / DOCX / HWPX 텍스트 추출 · TXT / Markdown UTF-8 지원
+            비공개 로컬 원본 파일 저장 · PDF / DOCX / HWPX 텍스트 추출 · TXT / Markdown UTF-8 지원
           </small>
           <input
             ref={input}
@@ -469,8 +469,8 @@ export function Documents() {
       {modal === 'delete' && (
         <Modal title="선택한 문서를 삭제할까요?" onClose={() => setModal(null)}>
           <p className="muted">
-            {selected.length}개 문서의 원본 파일과 추출한 청크가 Supabase에서 삭제됩니다. 삭제한
-            문서는 복구할 수 없습니다.
+            {selected.length}개 문서의 원본 파일과 추출한 청크가 서버에서 삭제됩니다. 삭제한 문서는
+            복구할 수 없습니다.
           </p>
           <div className="row justify-end mt-6">
             <button className="button secondary" onClick={() => setModal(null)}>

@@ -7,3 +7,9 @@ out/
 playwright-report/
 test-results/
 __pycache__/
+data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+backups/

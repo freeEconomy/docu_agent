@@ -59,10 +59,7 @@ export function readableError(error: unknown): string {
       : typeof error === 'object' && error && 'message' in error
         ? String(error.message)
         : '요청에 실패했습니다.';
-  if (/schema cache|does not exist|Could not find|PGRST20[025]/i.test(message))
-    return 'Supabase 테이블이 아직 설치되지 않았습니다. 설정 화면의 데이터베이스 설치 안내를 확인하세요.';
-  if (/fetch|network/i.test(message))
-    return 'Supabase에 연결하지 못했습니다. 네트워크와 프로젝트 상태를 확인하세요.';
+  if (/fetch|network/i.test(message)) return '서버에 연결하지 못했습니다. 서버 상태를 확인하세요.';
   return message;
 }
 

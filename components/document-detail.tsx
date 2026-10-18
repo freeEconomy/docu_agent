@@ -3,8 +3,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { FileSearch, Download, RefreshCw, Pencil, ArrowLeft, FileText } from 'lucide-react';
 import { useWorkspace } from './workspace-provider';
-import { getSupabase } from '@/lib/supabase/client';
-import { documentBucket } from '@/lib/supabase/config';
+import { requestJson } from '@/lib/client';
 import { readableError, type DocumentChunk } from '@/lib/documents';
 import { Badge, Modal } from './ui';
 export function DocumentDetail({ id }: { id: string }) {
@@ -29,21 +28,11 @@ export function DocumentDetail({ id }: { id: string }) {
     setChunkIndex(0);
     if (!doc) return;
     setBusy(true);
-    void Promise.all([
-      getSupabase().from('documents').select('extracted_text').eq('id', id).single(),
-      getSupabase()
-        .from('document_chunks')
-        .select('id,document_id,position,content')
-        .eq('document_id', id)
-        .order('position')
-        .limit(500),
-    ])
-      .then(([document, parts]) => {
-        if (!active) return;
-        if (document.error || parts.error) setError(readableError(document.error || parts.error));
-        else {
-          setText(document.data?.extracted_text || '');
-          setChunks(parts.data || []);
+    void requestJson<{ text: string; chunks: DocumentChunk[] }>(`/api/documents/${id}`)
+      .then((result) => {
+        if (active) {
+          setText(result.text);
+          setChunks(result.chunks);
         }
       })
       .catch((e) => {
@@ -58,24 +47,17 @@ export function DocumentDetail({ id }: { id: string }) {
   }, [id, doc?.status, doc?.chunks]);
   async function original(download = false) {
     if (!doc) return;
-    const { data, error } = await getSupabase()
-      .storage.from(documentBucket)
-      .createSignedUrl(doc.storagePath, 120, download ? { download: doc.name } : undefined);
-    if (error) {
-      notify(readableError(error));
-      return;
-    }
+    const url = `/api/documents/${id}/original${download ? '?download=1' : ''}`;
     if (download) {
       const a = document.createElement('a');
-      a.href = data.signedUrl;
-      a.rel = 'noopener noreferrer';
-      a.target = '_blank';
+      a.href = url;
       a.click();
     } else {
-      setSignedUrl(data.signedUrl);
+      setSignedUrl(url);
       setView('original');
     }
   }
+
   if (!doc)
     return (
       <div className="empty-state">
@@ -160,9 +142,7 @@ export function DocumentDetail({ id }: { id: string }) {
           </div>
           {view === 'original' && doc.type === 'PDF' && signedUrl ? (
             <>
-              <p className="muted text-xs mt-4">
-                링크는 2분 후 만료됩니다. 원본 미리보기를 다시 눌러 갱신하세요.
-              </p>
+              <p className="muted text-xs mt-4">로그인한 본인 계정의 원본 파일을 표시합니다.</p>
               <iframe title="원본 PDF 미리보기" src={signedUrl} className="original-frame mt-4" />
             </>
           ) : (

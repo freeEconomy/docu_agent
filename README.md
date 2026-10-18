@@ -1,72 +1,71 @@
-# DocuMind — 문서 기반 AI 워크스페이스
+# DocuMind — SQLite 문서 에이전트
 
-Google Stitch 디자인을 기반으로 만든 Next.js App Router + React + TypeScript + Tailwind 앱입니다. Supabase Auth·Postgres·비공개 Storage를 사용합니다. 초기 문서·대화·통계는 비어 있고 업로드한 실제 문서만 검색합니다.
+Next.js App Router + React + TypeScript + Tailwind 앱입니다. **프로젝트 내부 SQLite 파일과 비공개 원본 폴더**에 계정·문서·청크·대화를 저장합니다. Supabase 없이 동작하며 처음에는 모든 사용자 문서와 대화가 비어 있습니다.
 
-## 최초 설정
+```text
+data/documind.sqlite   # 실제 DB
+data/uploads/         # 실제 업로드 원본
+```
 
-[Supabase 설치 안내](docs/supabase-setup.md)를 따라 [마이그레이션 SQL](supabase/migrations/202610180001_documind.sql)을 프로젝트 SQL Editor에서 **한 번** 실행하세요. 제공받은 공개 URL/key는 연결되어 있습니다. SQL 실행 없이 앱만 배포하면 테이블 설치 안내가 표시됩니다. 이메일 확인과 비밀번호 재설정을 위해 Supabase Auth에 배포 URL도 등록해야 합니다.
+첫 요청 시 테이블을 자동 생성합니다. 회원가입 → 문서 업로드 → 실제 텍스트 추출 → 질문 → 근거 및 원본 확인 순서로 사용할 수 있습니다. 재시작 후에도 데이터가 유지됩니다. 비밀번호는 scrypt 해시로, 세션은 HttpOnly 쿠키와 DB의 토큰 해시로 관리하고 사용자별 문서를 분리합니다.
 
-AI 키가 없으면 실제 문서 청크를 검색해 원문 발췌를 반환합니다. 서버에 `RAG_API_KEY`를 설정하면 OpenAI가 검색된 근거로 답변을 생성합니다. 현재 검색은 FTS·한글 부분 일치·trigram이며 임베딩 벡터 검색은 사용하지 않습니다.
+## 실행
 
-## 실행 및 검증
-
-Node.js 22 이상이 필요합니다.
+Node.js **22.13 이상**이 필요합니다.
 
 ```bash
 npm ci
-npm run dev
+npm run build
+npm start
+```
+
+개발은 `npm run dev`, Docker는 `docker compose up -d --build`입니다. Docker 기본 포트는 호스트의 127.0.0.1:3000이며 localhost로 접속합니다. 공개 도메인에는 HTTPS 프록시와 `APP_ORIGIN` 설정이 필요합니다. 설치·영구 볼륨·백업·복원은 [서버 운영 안내](docs/sqlite-server.md)를 참고하세요.
+
+환경 변수:
+
+| 이름                | 용도                                        |
+| ------------------- | ------------------------------------------- |
+| `DOCUMIND_DATA_DIR` | 저장 경로, 기본 프로젝트의 `data/`          |
+| `APP_ORIGIN`        | HTTPS 배포 URL origin, 프록시 뒤에서는 필수 |
+| `RAG_API_KEY`       | 선택적 서버 전용 OpenAI 키                  |
+| `RAG_MODEL`         | 기본 `gpt-4o-mini`                          |
+
+AI 키가 없으면 SQLite FTS5·한글 부분 일치로 검색한 **실제 원문 발췌**를 반환합니다. 키가 있으면 같은 근거로 AI가 답변을 생성합니다. 임베딩 벡터 검색이나 OCR은 사용하지 않습니다.
+
+## 검증
+
+```bash
 npm run typecheck
 npm run test:backend
 npm run build
-npm start
-npm run format:check
-```
-
-제한된 환경의 npm 캐시는 `npm ci --cache /workspace/.npm-cache`를 사용하세요.
-
-```bash
 npx playwright install --with-deps chromium
 npm test
-# 시스템 Chromium을 사용한다면:
-PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm test
+npm run format:check
 python3 -m unittest discover -s tests -p 'test_stitch_*.py'
 ```
 
-백엔드 테스트는 실제 파일 파서 및 PostgreSQL(PGlite)에서 마이그레이션·사용자 간 격리·Storage 정책·청크 교체·한글 검색을 검증합니다. 브라우저 테스트는 외부 서비스 경계 응답을 대체하여 빈 상태·로그인·업로드/상세/수정/삭제·대화 복원·모바일을 검사합니다. 운영 Supabase 통합 검증과 구별합니다.
+시스템 Chromium은 `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm test`로 사용할 수 있습니다. 제한된 환경의 npm 캐시는 `npm ci --cache /workspace/.npm-cache`를 사용하세요.
 
-## 구현 화면
+백엔드 테스트는 실제 SQLite와 파일 저장·재시작·접근 분리·청크 검색·파서를 검사합니다. 브라우저도 모킹 없이 실제 로컬 인증·업로드·분석·대화·삭제 API를 사용합니다. 테스트마다 임시 저장 디렉터리를 만들어 사용자 운영 DB를 건드리지 않습니다. 외부 OpenAI 응답 검증은 포함하지 않습니다.
 
-| 경로                | 기능                                                       |
-| ------------------- | ---------------------------------------------------------- |
-| `/login`, `/signup` | Supabase 이메일·비밀번호 인증, 가입 확인 이메일 처리       |
-| `/reset-password`   | 이메일 링크를 통한 비밀번호 변경                           |
-| `/chat`             | 실제 검색 API, 원문 발췌/AI 생성, 인용, 저장된 대화 복원   |
-| `/documents`        | 실제 파일 업로드, 분석 상태, 검색·필터, 재분석, 수정·삭제  |
-| `/documents/[id]`   | 비공개 원본 다운로드/PDF 미리보기, 실제 추출 텍스트와 청크 |
-| `/admin`            | 본인 계정의 문서·청크·질문 통계                            |
-| `/settings`         | DB 연결 상태 및 설치 안내                                  |
+## 화면과 구조
 
-사용자마다 데이터가 분리됩니다. 같은 회사 이름으로 가입해도 공유 권한이 생기지 않습니다. SSO·기업 멤버 공유·전사 관리자 역할·OCR·벡터 검색은 아직 제공하지 않습니다.
-
-## 구조
+기존 Stitch의 색상·사이드바·스플릿 뷰·반응형 레이아웃을 유지합니다. `/login`, `/signup`, `/chat`, `/documents`, `/documents/[id]`, `/admin`, `/settings`, `/reset-password`를 제공합니다. `/admin`은 본인 계정의 실제 사용 통계이고 `/reset-password`는 로그인 후 현재 비밀번호를 확인하는 변경 화면입니다. 이메일 재설정과 SSO는 제공하지 않습니다.
 
 ```text
-app/api/chat/route.ts                   인증·검색·선택적 생성·대화 저장
-app/api/documents/[id]/process/route.ts  원본 읽기·파싱·원자적 인덱싱
-components/workspace-provider.tsx       Auth 세션과 Supabase 문서 CRUD
-lib/supabase/                          공개 설정·타입·브라우저/서버 클라이언트
-lib/ingestion.ts                       PDF/DOCX/HWPX/TXT/Markdown 추출·청크화
-supabase/migrations/                   테이블·RPC·RLS·비공개 Storage 정책
-docs/supabase-setup.md                 실행 SQL·인증·Vercel 설정·검증 절차
+app/api/[...path]/route.ts    자체 인증·문서·원본·검색·대화 API
+lib/server/db.ts             SQLite DDL·WAL·트랜잭션
+lib/server/auth.ts           비밀번호 해시·세션·접근 확인
+lib/server/documents.ts      실제 원본 파일 및 파싱
+lib/server/repository.ts     사용자별 쿼리·FTS5·청크·대화 저장
+lib/ingestion.ts             PDF/DOCX/HWPX/TXT/Markdown 추출
+components/                 기존 디자인 기반 UI
+Dockerfile / compose.yaml   서버 컨테이너 및 영구 볼륨
 ```
 
-Stitch의 캔버스 `#faf8ff`, 표면 `#f2f3ff`, 주요 버튼 `#004ac6`, 채팅 강조 `#2563eb` 및 사이드바·스플릿 뷰·반응형 내비게이션을 유지합니다. Inter/Noto Sans KR은 자체 호스팅합니다. 기존 브라우저 목업 저장소는 읽거나 자동 업로드하지 않습니다.
+## 배포 및 데이터 보존
 
-## Vercel 배포
-
-Framework: **Next.js**, Root Directory: 저장소 루트, Node.js **22.x**, Install: `npm ci`, Build: `npm run build`. `vercel.json`의 outputDirectory는 `.next`입니다. `public`으로 지정하지 마세요.
-
-Git 연동으로 main 푸시는 운영 배포, 별도 브랜치는 Preview 배포를 생성합니다. 공개 Supabase 값 변경 시 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 설정하고 다시 빌드하세요. 선택적 `RAG_API_KEY`와 `RAG_MODEL`은 서버 전용입니다. 앱은 service role 키를 사용하지 않습니다. 상세한 인증 URL·초기 SQL 설정은 위 설치 안내를 참고하세요.
+**Vercel 대신 영구 디스크가 있는 Node.js 서버에서 실행**합니다. Vercel 자동 배포는 `ignoreCommand`로 건너뜁니다. 저장소에 코드를 푸시해도 로컬 DB나 원본 파일은 Git에 올라가지 않습니다. 서버 데이터 전체를 별도로 백업하세요. 기존 Supabase 프로젝트와 데이터는 그대로 두며 현재 앱과 연결하지 않습니다.
 
 ## Stitch 연결
 

@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useWorkspace } from './workspace-provider';
 import { FileIcon, Modal, downloadText } from './ui';
-import { getSupabase, apiRequest } from '@/lib/supabase/client';
+import { requestJson, apiRequest } from '@/lib/client';
 import { citationsFromJson, readableError, type Citation } from '@/lib/documents';
 type Turn = { id: string; question: string; answer: string; citations: Citation[]; mode: string };
 type Conversation = { id: string; title: string };
@@ -55,13 +55,14 @@ export function Chat() {
     setSplit(window.innerWidth > 1050);
   }, []);
   async function loadConversations() {
-    const { data, error } = await getSupabase()
-      .from('conversations')
-      .select('id,title')
-      .order('created_at', { ascending: false })
-      .limit(50);
-    if (error) setError(readableError(error));
-    else setConversations(data || []);
+    try {
+      const { conversations } = await requestJson<{ conversations: Conversation[] }>(
+        '/api/conversations',
+      );
+      setConversations(conversations);
+    } catch (error) {
+      setError(readableError(error));
+    }
   }
   useEffect(() => {
     if (session) void loadConversations();
@@ -74,22 +75,19 @@ export function Chat() {
     const current = ++generation.current;
     setError('');
     setHistoryLoading(true);
-    const { data, error } = await getSupabase()
-      .from('chat_turns')
-      .select('id,question,answer,citations,mode')
-      .eq('conversation_id', id)
-      .order('created_at')
-      .limit(100);
-    if (current !== generation.current) return;
-    setHistoryLoading(false);
-    if (error) {
-      setError(readableError(error));
-      return;
+    try {
+      const { turns: data } = await requestJson<{ turns: Turn[] }>(`/api/conversations/${id}`);
+      if (current !== generation.current) return;
+      setConversationId(id);
+      setTurns(data);
+      setActiveCitations(citationsFromJson(data.at(-1)?.citations));
+    } catch (error) {
+      if (current === generation.current) setError(readableError(error));
+    } finally {
+      if (current === generation.current) setHistoryLoading(false);
     }
-    setConversationId(id);
-    setTurns((data || []).map((t) => ({ ...t, citations: citationsFromJson(t.citations) })));
-    setActiveCitations(citationsFromJson(data?.at(-1)?.citations));
   }
+
   async function send() {
     const question = input.trim();
     if (!question || requestLock.current || !ready.length || connectionError || historyLoading)

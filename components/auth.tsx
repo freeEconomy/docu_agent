@@ -23,10 +23,10 @@ import {
 import { Brand, Modal } from './ui';
 import { PasswordStrength, SSOButtons } from './auth-ui';
 import { useWorkspace } from './workspace-provider';
-import { getSupabase } from '@/lib/supabase/client';
+import { apiRequest } from '@/lib/client';
 import { readableError } from '@/lib/documents';
 export function AuthHeader() {
-  const { notify } = useWorkspace();
+  const { notify, refreshSession } = useWorkspace();
   const path = usePathname();
   return (
     <header className="auth-header">
@@ -49,7 +49,11 @@ export function AuthHeader() {
           SSO 연동
         </button>
         <button
-          onClick={() => notify('Supabase Auth, 비공개 Storage, 사용자별 RLS 정책을 사용합니다.')}
+          onClick={() =>
+            notify(
+              '서버의 SQLite DB와 비공개 원본 폴더를 사용합니다. 계정별 접근 권한을 서버에서 확인합니다.',
+            )
+          }
         >
           보안 인증 센터
         </button>
@@ -80,7 +84,7 @@ export function AuthFooter() {
 }
 export function Login() {
   const router = useRouter();
-  const { notify } = useWorkspace();
+  const { notify, refreshSession } = useWorkspace();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
@@ -91,8 +95,8 @@ export function Login() {
     setError('');
     setBusy(true);
     try {
-      const { error } = await getSupabase().auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      await apiRequest('/api/auth/login', { email, password });
+      await refreshSession();
       router.replace('/chat');
     } catch (error) {
       setError(readableError(error));
@@ -101,24 +105,11 @@ export function Login() {
     }
   }
   async function reset() {
-    if (!email.trim()) {
-      setError('비밀번호를 재설정할 이메일을 입력하세요.');
-      return;
-    }
-    setBusy(true);
-    setError('');
-    try {
-      const { error } = await getSupabase().auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/reset-password',
-      });
-      if (error) throw error;
-      notify('등록된 계정이면 비밀번호 재설정 이메일을 발송합니다. 이메일을 확인하세요.');
-    } catch (error) {
-      setError(readableError(error));
-    } finally {
-      setBusy(false);
-    }
+    notify(
+      '로컬 모드에서는 이메일 재설정을 제공하지 않습니다. 로그인 후 설정에서 비밀번호를 변경하거나 서버 관리자에게 문의하세요.',
+    );
   }
+
   return (
     <div className="auth-page">
       <AuthHeader />
@@ -138,7 +129,7 @@ export function Login() {
             <article className="card">
               <ShieldCheck size={32} />
               <h3 className="mt-4">나만의 지식 베이스</h3>
-              <p>Supabase 인증과 사용자별 데이터 접근 정책을 적용합니다.</p>
+              <p>자체 로그인과 사용자별 데이터 접근 정책을 적용합니다.</p>
             </article>
             <article className="card">
               <BrainCircuit size={32} />
@@ -219,11 +210,10 @@ export function Login() {
   );
 }
 export function Signup() {
-  const { notify } = useWorkspace();
+  const { notify, refreshSession } = useWorkspace();
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
-  const [confirmation, setConfirmation] = useState(false);
   const [profile, setProfile] = useState({
     name: '',
     email: '',
@@ -272,7 +262,7 @@ export function Signup() {
         </div>
         <div className="signup-grid">
           <section className="card signup-card">
-            <span className="pill">Supabase 계정 생성</span>
+            <span className="pill">로컬 계정 생성</span>
             <h2 className="mt-3">기업용 DocuMind 가입 시작</h2>
             <p className="muted mt-3 mb-6">
               가입하면 비어 있는 개인 문서 지식 베이스를 사용할 수 있습니다.
@@ -303,26 +293,14 @@ export function Signup() {
                 else {
                   setBusy(true);
                   try {
-                    const { data, error } = await getSupabase().auth.signUp({
+                    await apiRequest('/api/auth/register', {
                       email: profile.email,
                       password,
-                      options: {
-                        emailRedirectTo: window.location.origin + '/chat',
-                        data: {
-                          name: profile.name,
-                          company: profile.company,
-                          purpose: profile.purpose,
-                          domain: profile.domain,
-                          usage_notice_acknowledged: true,
-                        },
-                      },
+                      name: profile.name,
+                      company: profile.company,
                     });
-                    if (error) throw error;
-                    if (data.session) router.replace('/chat');
-                    else {
-                      setConfirmation(true);
-                      notify('가입 확인 이메일을 확인해 주세요.');
-                    }
+                    await refreshSession();
+                    router.replace('/chat');
                   } catch (error) {
                     setError(readableError(error));
                   } finally {
@@ -477,8 +455,8 @@ export function Signup() {
                       </div>
                     ))}
                     <p className="muted text-xs">
-                      계정과 업로드 문서는 Supabase 프로젝트에 저장됩니다. 마케팅 이메일은 발송하지
-                      않습니다.
+                      계정과 업로드 문서는 이 서버의 SQLite DB와 원본 폴더에 저장됩니다. 마케팅
+                      이메일은 발송하지 않습니다.
                     </p>
                   </div>
                 </>
@@ -535,16 +513,11 @@ export function Signup() {
                       계정 및 문서 저장 안내를 확인했습니다.
                     </label>
                     <p className="text-xs muted mt-3">
-                      이메일과 비밀번호는 Supabase Auth에서 처리합니다. 문서와 대화는 본인 계정에
-                      저장되며, 같은 회사 이름으로 가입해도 공유되지 않습니다.
+                      계정은 서버에서 처리하며 비밀번호는 해시로 저장합니다. 문서와 대화는 본인
+                      계정에 저장되며, 같은 회사 이름으로 가입해도 공유되지 않습니다.
                     </p>
                   </div>
                 </>
-              )}
-              {confirmation && (
-                <p className="inset mt-4" role="status">
-                  확인 이메일을 보냈습니다. 이메일의 링크를 누른 뒤 로그인하세요.
-                </p>
               )}
               {error && (
                 <p className="error-box mt-4" role="alert">
@@ -561,18 +534,8 @@ export function Signup() {
                     이전
                   </button>
                 )}
-                <button
-                  className="button primary grow"
-                  type="submit"
-                  disabled={busy || confirmation}
-                >
-                  {busy
-                    ? '계정 생성 중…'
-                    : confirmation
-                      ? '이메일 확인 대기 중'
-                      : step === 3
-                        ? '계정 만들기'
-                        : '다음 단계'}
+                <button className="button primary grow" type="submit" disabled={busy}>
+                  {busy ? '계정 생성 중…' : step === 3 ? '계정 만들기' : '다음 단계'}
                   <ArrowRight size={18} />
                 </button>
               </div>
@@ -596,12 +559,12 @@ export function Signup() {
                 [
                   CloudOff,
                   '비공개 파일 저장소',
-                  '원본은 비공개 Storage에 보관하고 만료 시간이 있는 링크로 확인합니다.',
+                  '원본은 비공개 폴더에 보관하고 인증된 요청으로 확인합니다.',
                 ],
                 [
                   ShieldCheck,
                   '사용자별 접근 제어',
-                  '다른 사용자의 문서와 대화는 RLS 정책으로 분리합니다.',
+                  '다른 사용자의 문서와 대화는 서버에서 계정별로 분리합니다.',
                 ],
                 [
                   Zap,
@@ -643,10 +606,9 @@ export function Signup() {
       {terms && (
         <Modal title="DocuMind 이용 안내" onClose={() => setTerms(false)}>
           <p className="muted">
-            계정 정보는 Supabase Auth에서 처리하며, 업로드 문서와 대화 내역은 해당 Supabase
-            프로젝트에 저장합니다. 문서는 로그인한 본인만 접근할 수 있습니다. AI 생성 모드를
-            활성화하면 질문과 검색된 문서 발췌가 AI 제공자에게 전달됩니다. 결제와 마케팅 구독은
-            생성하지 않습니다.
+            계정 정보와 대화는 이 서버의 SQLite DB에, 원본 문서는 비공개 파일 폴더에 저장합니다.
+            문서는 로그인한 본인만 접근할 수 있습니다. AI 생성 모드를 활성화하면 질문과 검색된 문서
+            발췌가 AI 제공자에게 전달됩니다. 결제와 마케팅 구독은 생성하지 않습니다.
           </p>
           <button type="button" className="button primary mt-5" onClick={() => setTerms(false)}>
             확인

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useWorkspace } from './workspace-provider';
 import { StatCard, Badge, downloadText } from './ui';
-import { getSupabase } from '@/lib/supabase/client';
+import { requestJson } from '@/lib/client';
 import { readableError } from '@/lib/documents';
 type RecentTurn = { id: string; question: string; mode: string; created_at: string };
 export function Dashboard() {
@@ -27,21 +27,18 @@ export function Dashboard() {
     if (!session) return;
     setLoading(true);
     setError('');
-    const since = new Date(Date.now() - Number(days) * 86400000).toISOString();
-    void getSupabase()
-      .from('chat_turns')
-      .select('id,question,mode,created_at', { count: 'exact' })
-      .gte('created_at', since)
-      .order('created_at', { ascending: false })
-      .limit(10)
-      .then(({ data, count, error }) => {
-        if (!active) return;
-        if (error) setError(readableError(error));
-        else {
-          setCount(count || 0);
-          setRecent(data || []);
+    void requestJson<{ count: number; recent: RecentTurn[] }>(`/api/dashboard?days=${days}`)
+      .then((result) => {
+        if (active) {
+          setCount(result.count);
+          setRecent(result.recent);
         }
-        setLoading(false);
+      })
+      .catch((error) => {
+        if (active) setError(readableError(error));
+      })
+      .finally(() => {
+        if (active) setLoading(false);
       });
     return () => {
       active = false;

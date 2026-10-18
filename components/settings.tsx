@@ -1,9 +1,18 @@
 'use client';
-import { Settings as SettingsIcon, ShieldCheck, Database } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Settings as SettingsIcon, Database, ShieldCheck } from 'lucide-react';
+import { requestJson } from '@/lib/client';
 import { useWorkspace } from './workspace-provider';
-import { supabaseUrl } from '@/lib/supabase/config';
+import { readableError } from '@/lib/documents';
 export function Settings() {
   const { session, connectionError, loading, refresh } = useWorkspace();
+  const [aiEnabled, setAiEnabled] = useState(false);
+  useEffect(() => {
+    void requestJson<{ aiEnabled: boolean }>('/api/settings')
+      .then((r) => setAiEnabled(r.aiEnabled))
+      .catch(() => {});
+  }, []);
   return (
     <div className="page-content settings-page">
       <div className="eyebrow">
@@ -11,60 +20,52 @@ export function Settings() {
         Workspace Settings
       </div>
       <h1 className="mt-2 mb-2">워크스페이스 설정</h1>
-      <p className="muted mb-7">계정과 실제 데이터베이스 연결 상태를 확인합니다.</p>
+      <p className="muted mb-7">이 서버의 SQLite 데이터베이스와 문서 저장소를 사용합니다.</p>
       <section className="card p-6">
         <h2 className="row">
           <Database size={20} />
-          Supabase 연결
+          SQLite 연결
         </h2>
         <dl className="mt-5">
-          <dt>프로젝트</dt>
-          <dd className="mono break-all mt-2">{supabaseUrl}</dd>
-          <dt className="mt-5">로그인 계정</dt>
+          <dt>로그인 계정</dt>
           <dd className="mt-2">{session?.user.email}</dd>
-          <dt className="mt-5">데이터베이스 상태</dt>
+          <dt className="mt-5">저장 위치 (기본 설정)</dt>
+          <dd className="mono mt-2">data/documind.sqlite · data/uploads/</dd>
+          <dt className="mt-5">연결 상태</dt>
           <dd className="mt-2" role="status">
-            {loading ? '확인 중…' : connectionError || '문서 테이블 조회 성공'}
+            {loading ? '확인 중…' : connectionError || '로컬 문서 테이블 조회 성공'}
           </dd>
         </dl>
         <button className="button secondary mt-5" onClick={() => void refresh()}>
           연결 다시 확인
         </button>
+        <Link className="button secondary mt-5 ml-3" href="/reset-password">
+          비밀번호 변경
+        </Link>
       </section>
       <section className="card p-6 mt-6">
-        <h2>최초 데이터베이스 설치</h2>
-        <ol className="setup-steps mt-5">
-          <li>Supabase 프로젝트의 SQL Editor를 엽니다.</li>
-          <li>
-            GitHub 저장소의 <code>supabase/migrations/202610180001_documind.sql</code> 전체를 복사해
-            한 번 실행합니다.
-          </li>
-          <li>
-            Authentication → URL Configuration에서 배포 도메인을 Site URL 및 Redirect URLs에
-            등록합니다. <code>/chat</code>, <code>/reset-password</code> 경로도 허용합니다.
-          </li>
-          <li>이 화면에서 연결 다시 확인을 누른 후 문서를 업로드합니다.</li>
-        </ol>
-        <p className="muted mt-5">
-          이 SQL은 문서·청크·대화 테이블, 비공개 파일 버킷, 사용자별 접근 정책을 만듭니다. 샘플
-          문서는 추가하지 않습니다.
+        <h2>저장과 백업</h2>
+        <p className="muted mt-4">
+          문서·청크·대화·계정은 SQLite에 저장되며 원본은 비공개 폴더에 보관합니다. 서버를 재시작해도
+          유지됩니다. 운영 서버에서는 영구 디스크를 연결하고 data 폴더를 백업하세요.
+        </p>
+        <p className="muted mt-4">
+          Vercel에서는 로컬 데이터를 영구 저장할 수 없습니다. Docker 또는 파일 쓰기가 가능한 Node.js
+          서버에서 실행하세요. 서버 관리자는 DOCUMIND_DATA_DIR로 저장 위치를 지정할 수 있습니다.
         </p>
       </section>
       <section className="card p-6 mt-6">
         <h2>문서 검색과 AI 답변</h2>
-        <p className="muted mt-4">
-          기본 설정에서는 실제 문서 청크를 키워드와 부분 일치로 검색해 원문을 발췌합니다. 임베딩이나
-          AI 생성 결과를 가장하지 않습니다.
+        <p className="mt-4">
+          현재 모드: <strong>{aiEnabled ? 'AI 생성' : '원문 발췌'}</strong>
         </p>
         <p className="muted mt-4">
-          AI 생성을 사용하려면 Vercel 프로젝트의 Environment Variables에 서버 전용{' '}
-          <code>RAG_API_KEY</code> (OpenAI API 키)를 추가하고 재배포하세요. 모델은{' '}
-          <code>RAG_MODEL</code>로 지정할 수 있으며 기본값은 <code>gpt-4o-mini</code>입니다. 키를
-          프론트엔드 코드나 채팅에 입력하지 마세요.
+          SQLite FTS5와 한글 부분 일치로 실제 문서 청크를 검색합니다. 서버에 RAG_API_KEY를 설정하면
+          OpenAI가 검색된 근거로 답변을 생성합니다. API 키가 없으면 원문과 출처를 반환합니다.
         </p>
         <p className="row text-xs muted mt-5">
           <ShieldCheck size={17} />
-          사용자별 RLS를 적용합니다. 현재 기업 멤버 공유 및 부서별 관리자 권한은 제공하지 않습니다.
+          비밀번호 해시와 HttpOnly 세션 쿠키를 사용하며 계정별 문서 접근을 제한합니다.
         </p>
       </section>
     </div>

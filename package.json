@@ -4,19 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
-    "build": "next build",
-    "start": "next start --hostname 0.0.0.0",
+    "build": "next build && node scripts/prepare-standalone.mjs",
+    "start": "node scripts/start-server.mjs",
     "typecheck": "tsc --noEmit",
     "test": "playwright test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:backend": "tsx --test tests/backend.test.ts",
-    "check:supabase": "tsx scripts/supabase-check.ts"
+    "test:backend": "tsx --test tests/backend.test.ts"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.0",
     "@fontsource/noto-sans-kr": "^5.2.0",
-    "@supabase/supabase-js": "^2.118.0",
     "fast-xml-parser": "^5.11.2",
     "fflate": "^0.8.3",
     "lucide-react": "^0.468.0",
@@ -27,7 +25,6 @@
     "unpdf": "^1.9.0"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.5.10",
     "@playwright/test": "^1.56.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.0.0",
@@ -39,6 +36,6 @@
     "typescript": "^5.7.0"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.13.0"
   }
 }

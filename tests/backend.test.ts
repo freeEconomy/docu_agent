@@ -1,226 +1,242 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { PGlite } from '@electric-sql/pglite';
-import { pg_trgm } from '@electric-sql/pglite/contrib/pg_trgm';
+import { mkdtemp, rm, readFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { zipSync, strToU8 } from 'fflate';
 import { chunkText, parseDocument } from '../lib/ingestion';
 import { validateFile } from '../lib/documents';
+import { openDatabase } from '../lib/server/db';
+import {
+  register,
+  login,
+  currentUser,
+  logout,
+  changePassword,
+  sessionCookie,
+} from '../lib/server/auth';
+import {
+  listDocuments,
+  ownedDocument,
+  beginProcessing,
+  finishProcessing,
+  searchChunks,
+  saveTurn,
+} from '../lib/server/repository';
+import {
+  uploadDocument,
+  processDocument,
+  deleteDocument,
+  originalPath,
+} from '../lib/server/documents';
+import { checkOrigin, readJson } from '../lib/server/http';
 
-const userA = '11111111-1111-4111-8111-111111111111';
-const userB = '22222222-2222-4222-8222-222222222222';
-const docA = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-const conversationA = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
-
-test('migration executes in PostgreSQL with real RLS, ownership and atomic ingestion', async (t) => {
-  const db = new PGlite({ extensions: { pg_trgm } });
+test('real SQLite, original files, authentication, isolation and restart persistence', async (t) => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'documind-db-test-'));
+  let db = openDatabase(directory);
   try {
-    // Minimal hosted Auth/Storage contracts; application migration and policies are unchanged.
-    await db.exec(`create role anon; create role authenticated;
-      create schema auth; create schema storage; create schema extensions;
-      create table auth.users(id uuid primary key);
-      create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
-      grant usage on schema auth,storage,extensions to authenticated,anon;
-      create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint);
-      create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);
-      alter table storage.objects enable row level security;
-      create function storage.foldername(name text) returns text[] language sql immutable as $$select (string_to_array(name,'/'))[1:array_length(string_to_array(name,'/'),1)-1]$$;
-      grant select,insert,delete on storage.objects to authenticated;
-      insert into auth.users values ('${userA}'),('${userB}');`);
-    await db.exec(
-      await readFile(
-        new URL('../supabase/migrations/202610180001_documind.sql', import.meta.url),
-        'utf8',
-      ),
-    );
-    async function asUser(id: string) {
-      await db.exec('reset role; set role authenticated;');
-      await db.query("select set_config('request.jwt.claim.sub',$1,false)", [id]);
-    }
-    await asUser(userA);
-    await t.test('new accounts contain no seeded documents, chunks or turns', async () => {
-      for (const table of ['documents', 'document_chunks', 'conversations', 'chat_turns'])
-        assert.equal(
-          (await db.query<{ n: number }>(`select count(*)::int n from ${table}`)).rows[0].n,
-          0,
-        );
+    const a = await register(db, {
+      email: 'a@example.com',
+      password: 'Password123!',
+      name: '사용자 A',
     });
-    await db.query(
-      'insert into documents(id,name,file_type,size_bytes,storage_path) values($1,$2,$3,$4,$5)',
-      [docA, '보안 규정.txt', 'TXT', 100, `${userA}/${docA}/original.txt`],
-    );
-    let token = '';
-    await t.test('processing claims prevent duplicate concurrent ingestion', async () => {
-      token = (
-        await db.query<{ token: string }>('select begin_document_processing($1) token', [docA])
-      ).rows[0].token;
-      await assert.rejects(
-        () => db.query('select begin_document_processing($1)', [docA]),
-        /already processing/,
-      );
+    const b = await register(db, {
+      email: 'b@example.com',
+      password: 'Password123!',
+      name: '사용자 B',
     });
-    const text = '정보보안 규정: 외부 협력사 계정은 프로젝트 종료 시 즉시 회수합니다.';
-    await t.test('extracted chunks and ready state commit together', async () => {
-      await db.query('select finish_document_processing($1,$2,$3,0,$4)', [
-        docA,
-        token,
-        text,
-        [text],
-      ]);
-      const rows = (
-        await db.query<{ status: string; chunk_count: number }>(
-          'select status,chunk_count from documents',
-        )
-      ).rows;
-      assert.equal(rows[0].status, 'ready');
-      assert.equal(rows[0].chunk_count, 1);
-    });
+    const req = (token: string) =>
+      new Request('http://localhost/api/documents', {
+        headers: { cookie: `documind_session=${token}` },
+      });
     await t.test(
-      'Korean retrieval returns real source text and no unrelated fallback',
+      'registration starts with no documents or conversations and never stores plaintext passwords',
+      () => {
+        assert.equal(listDocuments(db, a.user.id).length, 0);
+        assert.equal(db.prepare('SELECT count(*) n FROM conversations').get()?.n, 0);
+        const row = db.prepare('SELECT password_hash FROM users WHERE id=?').get(a.user.id);
+        assert.notEqual(row?.password_hash, 'Password123!');
+        assert.match(String(row?.password_hash), /^[a-f0-9]{32}:[a-f0-9]{128}$/);
+        assert.equal(currentUser(db, req(a.token))?.id, a.user.id);
+        assert.equal(currentUser(db, req('bad')), null);
+        assert.match(
+          sessionCookie(new Request('https://example.com'), a.token),
+          /HttpOnly; SameSite=Lax/,
+        );
+        assert.match(sessionCookie(new Request('https://example.com'), a.token), /Secure/);
+      },
+    );
+    await t.test(
+      'wrong credentials are rejected and valid credentials create a real session',
       async () => {
-        const hits = await db.query<{ content: string; document_id: string }>(
-          "select * from search_document_chunks('보안',null)",
+        await assert.rejects(
+          () => login(db, { email: 'a@example.com', password: 'WrongPassword' }),
+          /이메일 또는 비밀번호/,
         );
-        assert.equal(hits.rows[0].content, text);
-        assert.equal(hits.rows[0].document_id, docA);
-        assert.equal(
-          (await db.query("select * from search_document_chunks('zzzzxyz',null)")).rows.length,
-          0,
+        const logged = await login(db, { email: 'a@example.com', password: 'Password123!' });
+        assert.equal(currentUser(db, req(logged.token))?.id, a.user.id);
+        logout(db, req(logged.token));
+        assert.equal(currentUser(db, req(logged.token)), null);
+      },
+    );
+    const source = '정보보안 규정: 외부 협력사 계정은 프로젝트 종료 시 즉시 회수합니다.';
+    const doc = await uploadDocument(
+      db,
+      directory,
+      a.user.id,
+      new File([source], '보안.txt', { type: 'text/plain' }),
+    );
+    await t.test(
+      'original upload, extraction and Korean retrieval use real files and SQLite FTS5',
+      async () => {
+        assert.equal(await readFile(originalPath(directory, doc.id), 'utf8'), source);
+        await processDocument(db, directory, a.user.id, doc.id);
+        assert.equal(ownedDocument(db, a.user.id, doc.id).status, 'ready');
+        const hits = searchChunks(db, a.user.id, '보안');
+        assert.equal(hits[0].content, source);
+        assert.equal(hits[0].document_id, doc.id);
+        assert.equal(searchChunks(db, a.user.id, 'zzzzxyz').length, 0);
+        assert.equal(searchChunks(db, a.user.id, '보안', []).length, 0);
+      },
+    );
+    await t.test(
+      'another account cannot retrieve, process, or delete the original document',
+      async () => {
+        assert.equal(listDocuments(db, b.user.id).length, 0);
+        assert.equal(searchChunks(db, b.user.id, '보안').length, 0);
+        assert.throws(() => ownedDocument(db, b.user.id, doc.id), /찾을 수 없습니다/);
+        await assert.rejects(
+          () => processDocument(db, directory, b.user.id, doc.id),
+          /찾을 수 없습니다/,
         );
-        assert.equal(
-          (await db.query("select * from search_document_chunks('보안',array[]::uuid[])")).rows
-            .length,
-          0,
+        await assert.rejects(
+          () => deleteDocument(db, directory, b.user.id, doc.id),
+          /찾을 수 없습니다/,
+        );
+        assert.throws(
+          () =>
+            db
+              .prepare('INSERT INTO document_chunks VALUES(?,?,?,?,?)')
+              .run('bad', doc.id, b.user.id, 9, 'bad'),
+          /FOREIGN KEY/,
         );
       },
     );
-    await db.query('insert into conversations(id,title) values($1,$2)', [
-      conversationA,
-      '보안 질문',
-    ]);
-    await db.query(
-      "insert into chat_turns(conversation_id,question,answer,mode) values($1,'보안','계정을 회수합니다.','extractive')",
-      [conversationA],
-    );
-    await db.query("insert into storage.objects(bucket_id,name) values('documents',$1)", [
-      `${userA}/${docA}/original.txt`,
-    ]);
-    await asUser(userB);
-    await t.test(
-      'a second account cannot read documents, chunks, conversations, turns or original objects',
-      async () => {
-        for (const table of [
-          'documents',
-          'document_chunks',
-          'conversations',
-          'chat_turns',
-          'storage.objects',
-        ])
-          assert.equal((await db.query(`select * from ${table}`)).rows.length, 0, table);
-        assert.equal(
-          (await db.query("select * from search_document_chunks('보안',null)")).rows.length,
-          0,
-        );
-      },
-    );
-    await t.test('cross-account document and Storage writes are denied', async () => {
-      await assert.rejects(
-        () =>
-          db.query(
-            'insert into documents(user_id,name,file_type,size_bytes,storage_path) values($1,$2,$3,1,$4)',
-            [userA, 'bad.txt', 'TXT', `${userA}/${docA}/original.txt`],
-          ),
-        /row-level security/,
-      );
-      await assert.rejects(
-        () =>
-          db.query("insert into storage.objects(bucket_id,name) values('documents',$1)", [
-            `${userA}/bad.txt`,
-          ]),
-        /row-level security/,
-      );
-      await assert.rejects(
-        () => db.query('select begin_document_processing($1)', [docA]),
-        /unavailable/,
+    await t.test('indexing locks reject duplicates and failed chunk replacements roll back', () => {
+      const token = beginProcessing(db, a.user.id, doc.id);
+      assert.throws(() => beginProcessing(db, a.user.id, doc.id), /분석 중/);
+      assert.throws(
+        () => finishProcessing(db, a.user.id, doc.id, token, 'bad', 0, ['x'.repeat(1201)]),
+        /크기/,
       );
       assert.equal(
-        (await db.query('delete from documents where id=$1 returning id', [docA])).rows.length,
-        0,
+        db.prepare('SELECT count(*) n FROM document_chunks WHERE document_id=?').get(doc.id)?.n,
+        1,
+      );
+      assert.equal(searchChunks(db, a.user.id, '보안').length, 0);
+      finishProcessing(db, a.user.id, doc.id, token, source, 0, [source]);
+      assert.throws(
+        () => finishProcessing(db, a.user.id, doc.id, token, source, 0, [source]),
+        /만료/,
       );
     });
-    await t.test('foreign keys reject chunks and turns attached to another owner', async () => {
-      await assert.rejects(
+    let conversationId = '';
+    await t.test('conversation and turn are saved atomically and enforce ownership', () => {
+      const turn = saveTurn(db, a.user.id, {
+        question: '보안 규정은?',
+        answer: source,
+        citations: searchChunks(db, a.user.id, '보안'),
+        mode: 'extractive',
+      });
+      conversationId = turn.conversationId;
+      assert.ok(conversationId);
+      assert.throws(
         () =>
-          db.query(
-            "insert into document_chunks(document_id,position,content) values($1,100,'bad')",
-            [docA],
-          ),
-        /foreign key/,
-      );
-      await assert.rejects(
-        () =>
-          db.query(
-            "insert into chat_turns(conversation_id,question,answer,mode) values($1,'bad','bad','extractive')",
-            [conversationA],
-          ),
-        /foreign key/,
+          saveTurn(db, b.user.id, {
+            conversationId,
+            question: 'bad',
+            answer: 'bad',
+            citations: [],
+            mode: 'extractive',
+          }),
+        /찾을 수 없습니다/,
       );
     });
-    await asUser(userA);
     await t.test(
-      'failed replacement rolls back chunk deletion and excludes failed documents from retrieval',
+      'closing and reopening the database preserves sessions, documents, chunks, conversations and originals',
       async () => {
-        const claim = (
-          await db.query<{ token: string }>('select begin_document_processing($1) token', [docA])
-        ).rows[0].token;
-        await assert.rejects(
-          () =>
-            db.query('select finish_document_processing($1,$2,$3,0,$4)', [
-              docA,
-              claim,
-              'x'.repeat(1201),
-              ['x'.repeat(1201)],
-            ]),
-          /check constraint/,
-        );
-        assert.equal((await db.query('select content from document_chunks')).rows.length, 1);
-        await db.query(
-          "select finish_document_processing($1,$2,'',0,array[]::text[],'Parsing failed')",
-          [docA, claim],
-        );
+        db.close();
+        db = openDatabase(directory);
+        assert.equal(listDocuments(db, a.user.id).length, 1);
+        assert.equal(searchChunks(db, a.user.id, '보안')[0].content, source);
+        assert.equal(currentUser(db, req(a.token))?.id, a.user.id);
         assert.equal(
-          (await db.query("select * from search_document_chunks('보안',null)")).rows.length,
-          0,
+          db
+            .prepare('SELECT count(*) n FROM chat_turns WHERE conversation_id=?')
+            .get(conversationId)?.n,
+          1,
         );
+        assert.equal(await readFile(originalPath(directory, doc.id), 'utf8'), source);
+      },
+    );
+    await t.test(
+      'password change verifies the current password and revokes previous sessions',
+      async () => {
         await assert.rejects(
           () =>
-            db.query('select finish_document_processing($1,$2,$3,0,$4)', [
-              docA,
-              claim,
-              text,
-              [text],
-            ]),
-          /claim expired/,
+            changePassword(db, a.user, {
+              currentPassword: 'WrongPassword',
+              password: 'NewPassword123!',
+            }),
+          /일치하지/,
+        );
+        const token = await changePassword(db, a.user, {
+          currentPassword: 'Password123!',
+          password: 'NewPassword123!',
+        });
+        assert.equal(currentUser(db, req(a.token)), null);
+        assert.equal(currentUser(db, req(token))?.id, a.user.id);
+        await assert.rejects(() => login(db, { email: 'a@example.com', password: 'Password123!' }));
+        assert.equal(
+          (await login(db, { email: 'a@example.com', password: 'NewPassword123!' })).user.id,
+          a.user.id,
         );
       },
     );
-    await t.test('deleting a document cascades its chunks', async () => {
-      await db.query('delete from documents where id=$1', [docA]);
-      assert.equal((await db.query('select * from document_chunks')).rows.length, 0);
-    });
-    await t.test('anonymous database and RPC access is denied', async () => {
-      await db.exec('reset role;set role anon;');
-      await assert.rejects(() => db.query('select * from documents'), /permission denied/);
+    await t.test(
+      'deletion removes the original, cascades chunks and updates the FTS index',
+      async () => {
+        await deleteDocument(db, directory, a.user.id, doc.id);
+        assert.equal(listDocuments(db, a.user.id).length, 0);
+        assert.equal(db.prepare('SELECT count(*) n FROM document_chunks').get()?.n, 0);
+        assert.equal(
+          db.prepare("SELECT count(*) n FROM chunks_fts WHERE chunks_fts MATCH '보안'").get()?.n,
+          0,
+        );
+        await assert.rejects(() => readFile(originalPath(directory, doc.id)));
+      },
+    );
+    await t.test('cross-site writes and oversized JSON are rejected', async () => {
+      assert.throws(
+        () =>
+          checkOrigin(
+            new Request('http://localhost/api/auth/login', {
+              headers: { origin: 'https://evil.example' },
+            }),
+          ),
+        /다른 사이트/,
+      );
       await assert.rejects(
-        () => db.query("select * from search_document_chunks('보안',null)"),
-        /permission denied/,
+        () =>
+          readJson(new Request('http://localhost', { method: 'POST', body: 'x'.repeat(17000) })),
+        /너무 큽니다/,
       );
     });
   } finally {
-    await db.close();
+    db.close();
+    await rm(directory, { recursive: true, force: true });
   }
 });
-
 test('text extraction, format limits and overlapping chunks', async (t) => {
   await t.test('UTF-8 Korean TXT is extracted without sample content', async () => {
     const result = await parseDocument(strToU8('사내 보안 규정\n계정을 회수합니다.'), 'TXT');
@@ -291,7 +307,7 @@ test('text extraction, format limits and overlapping chunks', async (t) => {
         .map((o) => String(o).padStart(10, '0') + ' 00000 n \n')
         .join('') +
       `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
-    const result = await parseDocument(strToU8(pdf), 'PDF');
+    const result = await parseDocument(Buffer.from(pdf), 'PDF');
     assert.match(result.text, /Document security/);
     assert.equal(result.pages, 1);
   });

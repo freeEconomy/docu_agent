@@ -24,7 +24,6 @@ import {
 } from 'lucide-react';
 import { Brand } from './ui';
 import { useWorkspace } from './workspace-provider';
-import { getSupabase } from '@/lib/supabase/client';
 const navigation = [
   ['/chat', 'AI 채팅 (RAG)', MessageSquare],
   ['/documents', '문서 지식 베이스', Folder],
@@ -35,7 +34,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const { documents, notify, session, hydrated, connectionError, refresh } = useWorkspace();
+  const { documents, notify, session, hydrated, connectionError, refresh, signOut } =
+    useWorkspace();
   useEffect(() => {
     if (hydrated && !session) router.replace('/login');
   }, [hydrated, session, router]);
@@ -119,18 +119,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="avatar">나</span>
             <div className="grow">
               <strong>{session.user.user_metadata.name || session.user.email}</strong>
-              <small>Supabase 계정</small>
+              <small>로컬 계정</small>
             </div>
             <button
               aria-label="로그아웃"
               className="icon-button"
               onClick={() => {
-                void getSupabase()
-                  .auth.signOut()
-                  .then(({ error }) => {
-                    if (error) notify(error.message);
-                    else router.replace('/login');
-                  });
+                void signOut()
+                  .then(() => router.replace('/login'))
+                  .catch(() => {});
               }}
             >
               <LogOut size={18} />
@@ -165,7 +162,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           <span className="sync-state">
             <span className="status-dot" />
-            Supabase 워크스페이스
+            SQLite 워크스페이스
           </span>
           <button
             className="icon-button notification"
