@@ -20,6 +20,7 @@ async function main() {
       env: {
         ...process.env,
         DATABASE_URL: testDatabaseUrl,
+        NEON_HTTP_ENDPOINT: '',
         DOCUMIND_TEST_MODE: '1',
         DOCUMIND_TEST_NEON_URL: services.url + '/neon',
         BLOB_READ_WRITE_TOKEN: testBlobToken,

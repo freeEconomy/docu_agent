@@ -43,6 +43,8 @@ import { installBlobRedirect } from './helpers/redirect-blob.mjs';
 test('PostgreSQL over Neon HTTP protocol and private Blob SDK lifecycle', async (t) => {
   const directory = await mkdtemp(path.join(tmpdir(), 'documind-neon-test-'));
   const services = await startServices(directory);
+  const productionEndpoint = process.env.NEON_HTTP_ENDPOINT;
+  delete process.env.NEON_HTTP_ENDPOINT;
   process.env.DOCUMIND_TEST_MODE = '1';
   process.env.DOCUMIND_TEST_NEON_URL = services.url + '/neon';
   process.env.BLOB_READ_WRITE_TOKEN = testBlobToken;
@@ -339,6 +341,8 @@ test('PostgreSQL over Neon HTTP protocol and private Blob SDK lifecycle', async 
       },
     );
   } finally {
+    if (productionEndpoint === undefined) delete process.env.NEON_HTTP_ENDPOINT;
+    else process.env.NEON_HTTP_ENDPOINT = productionEndpoint;
     undo();
     delete process.env.DOCUMIND_TEST_MODE;
     delete process.env.DOCUMIND_TEST_NEON_URL;

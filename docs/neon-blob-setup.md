@@ -32,6 +32,8 @@ npm run check:services
 
 `check:services`는 스키마 버전 조회와 Blob 목록 읽기를 수행합니다. 빈 저장소의 비공개 설정 여부와 업로드 권한까지 증명하지는 않으므로 배포 후 작은 파일 업로드·원본 다운로드·삭제도 확인하세요. 실제 서비스가 없으면 이 검증을 완료할 수 없습니다.
 
+Codex에 Neon만 연결한 상태에서는 `npm run check:services -- --database-only`로 DB 접속·스키마 버전·필수 테이블 7개를 검사할 수 있습니다. 이 옵션은 Blob 검사를 생략했다고 명시하며 파일 업로드 성공을 의미하지 않습니다. DB 운영 명령은 환경의 `HTTPS_PROXY`/`HTTP_PROXY`를 자동 사용하므로 Codex의 네트워크 시크릿을 HTTPS 요청으로 전달합니다. 프록시 인증정보는 출력하지 않습니다.
+
 ## 4. Vercel 배포
 
 GitHub 연결과 Production Branch `main`을 유지합니다. 저장소의 `vercel.json`에서 배포를 건너뛰던 `ignoreCommand`를 제거했습니다. 프로젝트 Settings에 별도의 Ignored Build Step이 설정되어 있다면 Automatic으로 바꿉니다. 프레임워크는 Next.js, 출력은 `.next`이며 `public`으로 지정하지 않습니다.
