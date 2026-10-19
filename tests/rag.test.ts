@@ -82,8 +82,7 @@ test('low cost RAG: semantic retrieval, exact quotes, ownership, cache and atomi
     if (badSource)
       return reply({
         supported: true,
-        answer: '답변 [1]',
-        sources: [{ source: 99999 }],
+        statements: [{ text: '답변', sources: [99999] }],
       });
     return Response.json(mockAnswer(body));
   };
@@ -258,7 +257,8 @@ test('low cost RAG: semantic retrieval, exact quotes, ownership, cache and atomi
         globalThis.fetch = async (_input, init) => {
           const body = JSON.parse(String(init?.body));
           assert.equal(
-            'quote' in body.generationConfig.responseJsonSchema.properties.sources.items.properties,
+            'quote' in
+              body.generationConfig.responseJsonSchema.properties.statements.items.properties,
             false,
           );
           const input = JSON.parse(body.contents[0].parts[0].text);
@@ -277,8 +277,12 @@ test('low cost RAG: semantic retrieval, exact quotes, ownership, cache and atomi
                     {
                       text: JSON.stringify({
                         supported: true,
-                        answer: `시설 항목은 표에 표시되어 있습니다 [${selected.source}].`,
-                        sources: [{ source: selected.source }],
+                        statements: [
+                          {
+                            text: '시설 항목은 표에 표시되어 있습니다 [99, 100].',
+                            sources: [selected.source, selected.source],
+                          },
+                        ],
                       }),
                     },
                   ],

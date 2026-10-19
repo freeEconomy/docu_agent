@@ -15,8 +15,12 @@ export function mockAnswer(body: any) {
             {
               text: JSON.stringify({
                 supported: true,
-                answer: '문서에 명시된 기준을 따라 처리해야 합니다. [1]',
-                sources: [{ source: input.excerpts[0].source }],
+                statements: [
+                  {
+                    text: '문서에 명시된 기준을 따라 처리해야 합니다.',
+                    sources: [input.excerpts[0].source],
+                  },
+                ],
               }),
             },
           ],
