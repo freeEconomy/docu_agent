@@ -245,13 +245,17 @@ export function Chat() {
                     <p className="whitespace-pre-wrap mt-4">{turn.answer}</p>
                     <div className="row flex-wrap mt-4">
                       {turn.citations.map((c, i) => (
-                        <Link key={c.chunk_id} href={`/documents/${c.document_id}`} className="tag">
+                        <Link
+                          key={`${c.chunk_id}:${i}`}
+                          href={`/documents/${c.document_id}`}
+                          className="tag"
+                        >
                           [{i + 1}] {c.document_name} · 청크 {c.position + 1}
                         </Link>
                       ))}
                     </div>
                     {turn.citations.map((c, i) => (
-                      <details className="inset mt-3" key={c.chunk_id}>
+                      <details className="inset mt-3" key={`${c.chunk_id}:${i}`}>
                         <summary>
                           [{i + 1}] 원문 일부 · {c.document_name}
                         </summary>
@@ -378,7 +382,7 @@ export function Chat() {
             </div>
             <div className="evidence-content">
               {activeCitations.map((c, i) => (
-                <article className="source-card" key={c.chunk_id}>
+                <article className="source-card" key={`${c.chunk_id}:${i}`}>
                   <div className="row">
                     <FileIcon />
                     <strong className="source-title">

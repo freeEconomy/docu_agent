@@ -188,7 +188,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <span className="avatar small">나</span>
         </header>
         <div className="demo-strip">
-          <Sparkles size={13} />내 문서에서 근거를 검색합니다 · AI 키 미설정 시 원문 발췌 모드
+          <Sparkles size={13} />
+          선택한 문서에서 근거를 찾아 답합니다 · 출처를 눌러 원문을 확인하세요
         </div>
         <main id="main">
           {connectionError && (

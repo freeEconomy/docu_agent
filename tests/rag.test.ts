@@ -13,7 +13,7 @@ import {
   normalizeVector,
 } from '../lib/server/rag';
 import { embeddingVersion } from '../lib/server/rag-provider';
-import { answerQuestion } from '../lib/server/answer';
+import { answerQuestion, sourcePassages } from '../lib/server/answer';
 import { searchChunks } from '../lib/server/repository';
 import { mockEmbedding, mockAnswer } from './helpers/mock-ai';
 
@@ -47,7 +47,7 @@ test('low cost RAG: semantic retrieval, exact quotes, ownership, cache and atomi
   };
   let embeddingRequests = 0,
     answerRequests = 0,
-    badQuote = false,
+    badSource = false,
     refusal = false,
     providerFailure = false;
   globalThis.fetch = async (input, init) => {
@@ -68,7 +68,7 @@ test('low cost RAG: semantic retrieval, exact quotes, ownership, cache and atomi
 
     answerRequests++;
     assert.equal(body.generationConfig.maxOutputTokens, 900);
-    assert.ok(JSON.parse(body.contents[0].parts[0].text).excerpts.length <= 4);
+    assert.ok(JSON.parse(body.contents[0].parts[0].text).excerpts.length <= 40);
     const reply = (value: unknown) =>
       Response.json({
         candidates: [
@@ -76,11 +76,11 @@ test('low cost RAG: semantic retrieval, exact quotes, ownership, cache and atomi
         ],
       });
     if (refusal) return reply({ supported: false, answer: 'untrusted ignored', sources: [] });
-    if (badQuote)
+    if (badSource)
       return reply({
         supported: true,
         answer: '답변 [1]',
-        sources: [{ source: 1, quote: 'This never appeared in the document' }],
+        sources: [{ source: 99999 }],
       });
     return Response.json(mockAnswer(body));
   };
@@ -194,12 +194,71 @@ test('low cost RAG: semantic retrieval, exact quotes, ownership, cache and atomi
       },
     );
     await t.test(
-      'invented quotations and invalid vectors are rejected, insufficient evidence has no raw-text fallback',
+      'PDF table newlines and symbols are cited from server text without model transcription',
+      async () => {
+        const pdfText =
+          '일반 안내\n'.repeat(22) +
+          '1-2 시설현황\n- 시설기준 준수\n생활실 사무실 의료/\n간호사실 프로그램실 물리(작업)\n치료실 식당/\n조리실 화장실 세면장 및\n목욕실 세탁장\n건조장\n○ ○ ○ ○ ○ ○\n' +
+          '후속 내용\n'.repeat(40);
+        const citation = {
+          document_id: doc,
+          document_name: 'table.pdf',
+          chunk_id: randomUUID(),
+          position: 0,
+          content: pdfText,
+        };
+        const passages = sourcePassages([citation]);
+        assert.ok(passages.length > 1);
+        assert.ok(passages.every((p) => p.content.length <= 220 && pdfText.includes(p.content)));
+        assert.equal(passages.map((p) => p.content).join(''), pdfText);
+        const originalFetch = globalThis.fetch;
+        globalThis.fetch = async (_input, init) => {
+          const body = JSON.parse(String(init?.body));
+          assert.equal(
+            'quote' in body.generationConfig.responseJsonSchema.properties.sources.items.properties,
+            false,
+          );
+          const input = JSON.parse(body.contents[0].parts[0].text);
+          const selected = input.excerpts.find((p: { text: string }) => p.text.includes('○'));
+          assert.ok(selected);
+          return Response.json({
+            candidates: [
+              {
+                finishReason: 'STOP',
+                content: {
+                  parts: [
+                    {
+                      text: JSON.stringify({
+                        supported: true,
+                        answer: `시설 항목은 표에 표시되어 있습니다 [${selected.source}].`,
+                        sources: [{ source: selected.source }],
+                      }),
+                    },
+                  ],
+                },
+              },
+            ],
+          });
+        };
+        try {
+          const result = await answerQuestion('시설 현황에 대해서 알려줘', [citation]);
+          assert.equal(result.mode, 'generated');
+          assert.equal(result.citations.length, 1);
+          assert.ok(result.citations[0].content.includes('○'));
+          assert.ok(pdfText.includes(result.citations[0].content));
+          assert.ok(result.answer.includes('[1]'));
+        } finally {
+          globalThis.fetch = originalFetch;
+        }
+      },
+    );
+    await t.test(
+      'invented source IDs and invalid vectors are rejected, insufficient evidence has no raw-text fallback',
       async () => {
         const citations = await hybridSearch(db, user, '계정', mockEmbedding('계정'));
-        badQuote = true;
-        await assert.rejects(answerQuestion('계정', citations), /원문이 문서와 일치/);
-        badQuote = false;
+        badSource = true;
+        await assert.rejects(answerQuestion('계정', citations), /출처 번호/);
+        badSource = false;
         refusal = true;
         const result = await answerQuestion('계정', citations);
         assert.equal(result.mode, 'no_match');

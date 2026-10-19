@@ -177,7 +177,7 @@ export async function ragAnswer(db: Database, userId: string, question: string, 
     return { answer: noMatch, mode: 'no_match', citations: [] as Citation[], cached: false };
   const normalized = question.trim().replace(/\s+/g, ' ');
   const cacheKey = hash(
-    JSON.stringify(['rag-v1', answerModel(), embeddingVersion, normalized, corpus]),
+    JSON.stringify(['rag-v2-source-passages', answerModel(), embeddingVersion, normalized, corpus]),
   );
   const [cached] = await db.query<{ answer: string; mode: string; citations: Citation[] }>(
     'SELECT answer,mode,citations FROM rag_answer_cache WHERE user_id=$1 AND cache_key=$2 AND expires_at>$3',
