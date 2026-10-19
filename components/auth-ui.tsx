@@ -1,5 +1,7 @@
 'use client';
 import { ArrowRight, CheckCircle2, Circle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { apiRequest, requestJson } from '@/lib/client';
 import { useWorkspace } from './workspace-provider';
 
 export function ProviderMark({ provider }: { provider: 'google' | 'microsoft' | 'okta' }) {
@@ -42,37 +44,130 @@ export function ProviderMark({ provider }: { provider: 'google' | 'microsoft' | 
   );
 }
 
+export function SSOFeedback() {
+  const [message, setMessage] = useState('');
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const errors: Record<string, string> = {
+      cancelled: 'Google 로그인이 취소되었습니다.',
+      expired: '로그인 요청이 만료되었거나 브라우저 세션이 다릅니다. 다시 시작하세요.',
+      not_configured: 'Google Workspace SSO 설정이 아직 완료되지 않았습니다.',
+      domain_denied: '이 워크스페이스에서 허용한 Google Workspace 도메인이 아닙니다.',
+      account_exists:
+        '이미 등록된 이메일입니다. 이메일·비밀번호로 로그인한 뒤 설정에서 Google 계정을 연결하세요.',
+      link_conflict: '이미 다른 계정에 연결된 Google 계정이거나 기존 연결과 다릅니다.',
+      invalid_identity: 'Google 인증을 확인할 수 없습니다. 다시 시도하세요.',
+      failed: 'Google 로그인 처리에 실패했습니다. 다시 시도하거나 관리자에게 문의하세요.',
+    };
+    const code = params.get('sso_error');
+    setMessage(
+      code
+        ? errors[code] || errors.failed
+        : params.get('sso') === 'linked'
+          ? 'Google 계정 연결을 완료했습니다.'
+          : '',
+    );
+    if (code || params.has('sso')) {
+      params.delete('sso_error');
+      params.delete('sso');
+      window.history.replaceState(
+        null,
+        '',
+        window.location.pathname + (params.size ? '?' + params : '') + window.location.hash,
+      );
+    }
+  }, []);
+  return message ? (
+    <p role="status" className="inset mt-4 mb-4">
+      {message}
+    </p>
+  ) : null;
+}
+
 export function SSOButtons({ signup = false }: { signup?: boolean }) {
-  const { notify } = useWorkspace();
-  const providers = [
-    {
-      id: 'google' as const,
-      label: signup ? 'Google Workspace SSO' : 'Google Workspace 계정으로 로그인',
-    },
-    {
-      id: 'microsoft' as const,
-      label: signup ? 'Microsoft Entra ID' : 'Microsoft Azure AD / Entra ID',
-    },
-    ...(!signup ? [{ id: 'okta' as const, label: 'Okta / SAML 2.0 단일 인증 (SSO)' }] : []),
-  ];
+  const [enabled, setEnabled] = useState(false);
+  const [checked, setChecked] = useState(false);
+  useEffect(() => {
+    void requestJson<{ google: boolean }>('/api/auth/sso/providers')
+      .then((r) => setEnabled(r.google))
+      .catch(() => {})
+      .finally(() => setChecked(true));
+  }, []);
   return (
-    <div className={`sso-buttons ${signup ? 'signup-sso-buttons' : ''}`}>
-      {providers.map(({ id, label }) => (
-        <button
-          type="button"
-          key={id}
-          onClick={() =>
-            notify(
-              `${label}: 실제 SSO는 미연동입니다. 이메일·비밀번호 가입과 로그인을 이용해 주세요.`,
-            )
-          }
-        >
-          <ProviderMark provider={id} />
-          {label}
-          {!signup && <ArrowRight size={16} />}
-        </button>
-      ))}
+    <div id="sso" className={`sso-buttons ${signup ? 'signup-sso-buttons' : ''}`}>
+      <button
+        type="button"
+        disabled={!enabled}
+        onClick={() => {
+          window.location.assign('/api/auth/sso/google/start');
+        }}
+      >
+        <ProviderMark provider="google" />
+        {signup ? 'Google Workspace로 시작하기' : 'Google Workspace 계정으로 로그인'}
+        <ArrowRight size={16} />
+      </button>
+      {!enabled && (
+        <p className="muted text-xs" role="status">
+          {checked
+            ? 'Google Workspace SSO는 관리자 설정 후 사용할 수 있습니다.'
+            : 'SSO 연결 확인 중…'}
+        </p>
+      )}
     </div>
+  );
+}
+
+export function GoogleConnection() {
+  const { notify } = useWorkspace();
+  const [email, setEmail] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    void Promise.all([
+      requestJson<{ google: boolean }>('/api/auth/sso/providers'),
+      requestJson<{ email: string | null }>('/api/auth/sso/google/account'),
+    ])
+      .then(([providers, account]) => {
+        setReady(providers.google);
+        setEmail(account.email);
+      })
+      .catch(() => notify('Google 계정 연결 상태를 확인하지 못했습니다.'));
+  }, [notify]);
+  async function link() {
+    setBusy(true);
+    try {
+      const result = await apiRequest<{ url: string }>('/api/auth/sso/google/link', {});
+      window.location.assign(result.url);
+    } catch (error) {
+      notify(error instanceof Error ? error.message : '연결을 시작하지 못했습니다.');
+      setBusy(false);
+    }
+  }
+  return (
+    <section className="card p-6 mt-6">
+      <h2>Google Workspace SSO</h2>
+      <SSOFeedback />
+      <p className="muted mt-4">
+        {email
+          ? `연결된 Google 계정: ${email}`
+          : 'Google 계정을 연결하면 기존 문서와 대화를 그대로 사용하며 Google로 로그인할 수 있습니다.'}
+      </p>
+      {!ready && (
+        <p className="muted mt-4">
+          관리자가 Google Workspace SSO 설정을 완료해야 사용할 수 있습니다.
+        </p>
+      )}
+      {!email && (
+        <button
+          className="button secondary mt-5"
+          type="button"
+          disabled={!ready || busy}
+          onClick={() => void link()}
+        >
+          {busy ? '연결 중…' : 'Google 계정 연결'}
+        </button>
+      )}
+    </section>
   );
 }
 

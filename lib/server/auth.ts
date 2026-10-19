@@ -10,7 +10,13 @@ export type AppUser = {
   email: string;
   user_metadata: { name: string; company: string };
 };
-type UserRow = { id: string; email: string; name: string; company: string; password_hash: string };
+type UserRow = {
+  id: string;
+  email: string;
+  name: string;
+  company: string;
+  password_hash: string | null;
+};
 function publicUser(row: UserRow): AppUser {
   return { id: row.id, email: row.email, user_metadata: { name: row.name, company: row.company } };
 }
@@ -66,7 +72,7 @@ export async function requireUser(db: Database, request: Request) {
   if (!user) throw new ApiError('로그인이 필요합니다.', 401);
   return user;
 }
-function newSession() {
+export function newSession() {
   const token = randomBytes(32).toString('hex');
   return { token, digest: hash(token), expires: Date.now() + lifetime * 1000 };
 }
@@ -124,11 +130,17 @@ export async function changePassword(db: Database, user: AppUser, body: Record<s
   const old = passwordField(body.currentPassword);
   const next = passwordField(body.password);
   await limit(db, 'password:' + user.id);
-  const [row] = await db.query<{ password_hash: string }>(
+  const [row] = await db.query<{ password_hash: string | null }>(
     'SELECT password_hash FROM users WHERE id=$1',
     [user.id],
   );
-  if (!row || !(await verifyPassword(old, row.password_hash)))
+  if (
+    !row ||
+    !(await verifyPassword(
+      old,
+      row.password_hash || '00000000000000000000000000000000:' + '00'.repeat(64),
+    ))
+  )
     throw new ApiError('현재 비밀번호가 일치하지 않습니다.', 401);
   const passwordHash = await hashPassword(next);
   const s = newSession();

@@ -12,7 +12,9 @@ async function body(req: IncomingMessage) {
 }
 export async function startServices(directory: string, port = 0) {
   const db = new PGlite(path.join(directory, 'postgres'));
-  await db.exec(await readFile(path.resolve('migrations/001_neon.sql'), 'utf8'));
+  for (const file of ['001_neon.sql', '002_google_sso.sql']) {
+    await db.exec(await readFile(path.resolve('migrations', file), 'utf8'));
+  }
   const blobs = new Map<string, { data: Buffer; type: string }>();
   function metadata(name: string, entry: { data: Buffer; type: string }) {
     return {

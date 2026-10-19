@@ -21,7 +21,7 @@ import {
   AtSign,
 } from 'lucide-react';
 import { Brand, Modal } from './ui';
-import { PasswordStrength, SSOButtons } from './auth-ui';
+import { PasswordStrength, SSOButtons, SSOFeedback } from './auth-ui';
 import { useWorkspace } from './workspace-provider';
 import { apiRequest, requestJson } from '@/lib/client';
 import { readableError } from '@/lib/documents';
@@ -41,13 +41,7 @@ export function AuthHeader() {
         >
           로그인
         </Link>
-        <button
-          onClick={() =>
-            notify('현재 이메일·비밀번호 로그인을 지원합니다. SSO는 별도 설정이 필요합니다.')
-          }
-        >
-          SSO 연동
-        </button>
+        <Link href="/login#sso">SSO 연동</Link>
         <button
           onClick={() =>
             notify(
@@ -154,7 +148,9 @@ export function Login() {
                 DATABASE_URL·BLOB_READ_WRITE_TOKEN을 등록하고 DB 마이그레이션을 실행해 주세요.
               </div>
             )}
-            <form onSubmit={login}>
+            <SSOFeedback />
+            <SSOButtons />
+            <form className="mt-6" onSubmit={login}>
               <label className="field">
                 이메일
                 <input

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Settings as SettingsIcon, Database, ShieldCheck } from 'lucide-react';
 import { requestJson } from '@/lib/client';
 import { useWorkspace } from './workspace-provider';
-import { readableError } from '@/lib/documents';
+import { GoogleConnection } from './auth-ui';
 export function Settings() {
   const { session, connectionError, loading, refresh } = useWorkspace();
   const [aiEnabled, setAiEnabled] = useState(false);
@@ -43,6 +43,7 @@ export function Settings() {
           비밀번호 변경
         </Link>
       </section>
+      <GoogleConnection />
       <section className="card p-6 mt-6">
         <h2>저장과 백업</h2>
         <p className="muted mt-4">

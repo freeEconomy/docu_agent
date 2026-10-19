@@ -29,6 +29,7 @@ import {
 } from '@/lib/server/documents';
 import { readOriginal, requireBlob } from '@/lib/server/blob-store';
 import { answerQuestion } from '@/lib/server/answer';
+import { googleConfig, startGoogle, finishGoogle } from '@/lib/server/google-sso';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -49,7 +50,17 @@ async function handle(request: Request, { params }: { params: Promise<{ path: st
       !request.headers.get('cookie')?.includes('documind_session=')
     )
       return json({ session: null });
+    if (endpoint === 'auth/sso/providers' && method === 'GET') {
+      const config = googleConfig();
+      return json({ google: !!config && new URL(request.url).origin === config.origin });
+    }
     const db = getDb();
+    if (endpoint === 'auth/sso/google/start' && method === 'GET')
+      return await startGoogle(db, request);
+    if (endpoint === 'auth/sso/google/link' && method === 'POST')
+      return await startGoogle(db, request, true);
+    if (endpoint === 'auth/sso/google/callback' && method === 'GET')
+      return await finishGoogle(db, request);
     if (endpoint === 'auth/session' && method === 'GET') {
       const user = await currentUser(db, request);
       return json({ session: user ? { user } : null });
@@ -66,6 +77,13 @@ async function handle(request: Request, { params }: { params: Promise<{ path: st
       return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(request, '', 0) });
     }
     const user = await requireUser(db, request);
+    if (endpoint === 'auth/sso/google/account' && method === 'GET') {
+      const [identity] = await db.query<{ email: string }>(
+        "SELECT email FROM sso_identities WHERE provider='google' AND user_id=$1",
+        [user.id],
+      );
+      return json({ email: identity?.email || null });
+    }
     if (endpoint === 'auth/password' && method === 'POST') {
       const token = await changePassword(db, user, await readJson(request));
       return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(request, token) });

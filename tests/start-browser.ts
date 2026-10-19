@@ -27,6 +27,9 @@ async function main() {
         VERCEL_BLOB_API_URL: services.url + '/blob-api',
         APP_ORIGIN: 'http://127.0.0.1:3199',
         RAG_API_KEY: '',
+        GOOGLE_CLIENT_ID: '',
+        GOOGLE_CLIENT_SECRET: '',
+        GOOGLE_WORKSPACE_DOMAINS: '',
       },
     },
   );

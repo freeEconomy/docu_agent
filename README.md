@@ -48,7 +48,7 @@ python3 -m unittest discover -s tests -p 'test_stitch_*.py'
 
 ## 구조
 
-기존 Stitch 디자인과 반응형 레이아웃을 유지합니다. `/login`, `/signup`, `/chat`, `/documents`, `/documents/[id]`, `/admin`, `/settings`, `/reset-password`를 제공합니다. `/admin`은 본인 계정의 사용 통계이고 비밀번호 변경에는 현재 비밀번호가 필요합니다. 이메일 재설정과 SSO는 제공하지 않습니다.
+기존 Stitch 디자인과 반응형 레이아웃을 유지합니다. `/login`, `/signup`, `/chat`, `/documents`, `/documents/[id]`, `/admin`, `/settings`, `/reset-password`를 제공합니다. `/admin`은 본인 계정의 사용 통계이고 비밀번호 변경에는 현재 비밀번호가 필요합니다. 이메일 재설정은 제공하지 않습니다. Google Workspace SSO는 [설정 가이드](docs/google-workspace-sso.md)에 따라 OAuth 앱과 허용 도메인을 등록하면 활성화됩니다. 기존 이메일 계정은 로그인 후 설정에서 Google 계정을 연결합니다.
 
 ```text
 migrations/001_neon.sql       빈 PostgreSQL 스키마
