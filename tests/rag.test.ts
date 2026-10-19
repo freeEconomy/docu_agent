@@ -11,9 +11,12 @@ import {
   embedTexts,
   reserveUsage,
   normalizeVector,
+  topicChunks,
+  selectEvidence,
 } from '../lib/server/rag';
 import { embeddingVersion } from '../lib/server/rag-provider';
 import { answerQuestion, sourcePassages } from '../lib/server/answer';
+import { queryFocus } from '../lib/server/query-focus';
 import { searchChunks } from '../lib/server/repository';
 import { mockEmbedding, mockAnswer } from './helpers/mock-ai';
 
@@ -153,6 +156,46 @@ test('low cost RAG: semantic retrieval, exact quotes, ownership, cache and atomi
       },
     );
     await t.test(
+      'section heading with Korean spacing and polite wording beats generic keyword distractors',
+      async () => {
+        assert.equal(queryFocus('시설 현황에 대해서 알려줘'), '시설현황');
+        assert.equal(queryFocus('시설현황을 알려주세요.'), '시설현황');
+        assert.equal(queryFocus('시설 현황에 대해 설명해 주세요'), '시설현황');
+        assert.equal(queryFocus('시설'), '');
+        const facilityId = randomUUID();
+        const facility =
+          '1-2 시설현황\n- 시설기준 준수\n생활실 사무실 의료/\n간호사실 프로그램실 물리(작업)\n치료실 식당/\n조리실 화장실\n○ ○ ○ ○ ○ ○';
+        await db.query(
+          'INSERT INTO document_chunks(id,document_id,user_id,position,content) VALUES($1,$2,$3,1,$4)',
+          [facilityId, doc, user, facility],
+        );
+        for (let i = 2; i < 15; i++)
+          await db.query(
+            'INSERT INTO document_chunks(id,document_id,user_id,position,content) VALUES($1,$2,$3,$4,$5)',
+            [
+              randomUUID(),
+              doc,
+              user,
+              i,
+              '시설 운영 시설 점검 시설 관리 시설 안전 시설 교육. '.repeat(5),
+            ],
+          );
+        const anchors = await topicChunks(db, user, '시설 현황에 대해서 알려줘', [doc]);
+        assert.equal(anchors[0].chunk_id, facilityId);
+        const distractors = await searchChunks(db, user, '시설 현황에 대해서 알려줘', [doc]);
+        const chosen = selectEvidence([], distractors, anchors);
+        assert.equal(chosen[0].chunk_id, facilityId);
+        assert.ok(chosen[0].content.includes('간호사실'));
+        assert.equal((await topicChunks(db, other, '시설 현황에 대해서 알려줘', [doc])).length, 0);
+        assert.equal(
+          (await topicChunks(db, user, '시설 현황에 대해서 알려줘', [foreignDoc])).length,
+          0,
+        );
+        assert.equal((await topicChunks(db, user, '시설 현황에 대해서 알려줘', [])).length, 0);
+        await db.query('DELETE FROM document_chunks WHERE document_id=$1 AND position>0', [doc]);
+      },
+    );
+    await t.test(
       'answer cites an exact short substring, repeats consume no extra provider calls or budget',
       async () => {
         const q = '접근권한을 없애야 하는 시점은?';
@@ -221,6 +264,10 @@ test('low cost RAG: semantic retrieval, exact quotes, ownership, cache and atomi
           const input = JSON.parse(body.contents[0].parts[0].text);
           const selected = input.excerpts.find((p: { text: string }) => p.text.includes('○'));
           assert.ok(selected);
+          assert.ok(
+            selected.text.includes('시설현황'),
+            'Keep the section heading and short facility table together',
+          );
           return Response.json({
             candidates: [
               {

@@ -10,6 +10,7 @@ import {
   requireAI,
   createEmbeddings,
 } from './rag-provider';
+import { queryFocus } from './query-focus';
 import { searchChunks } from './repository';
 import { answerQuestion } from './answer';
 const hash = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -136,6 +137,7 @@ export async function prepareRag(db: Database, userId: string, ids?: string[]) {
 export function selectEvidence(
   semantic: (Citation & { similarity: number })[],
   lexical: Citation[],
+  anchors: Citation[] = [],
 ): Citation[] {
   const ranks = new Map<string, { citation: Citation; score: number }>();
   for (const list of [semantic, lexical])
@@ -144,14 +146,44 @@ export function selectEvidence(
       ranks.set(c.chunk_id, { citation: c, score: (old?.score || 0) + 1 / (40 + i) });
     });
   const selected: Citation[] = [];
-  for (const { citation } of [...ranks.values()].sort((a, b) => b.score - a.score)) {
+  // A literal section title must not be displaced by generic vocabulary that
+  // appears in many operational paragraphs (e.g. 시설). Keep semantic evidence
+  // for paraphrases after at most two explicit topic matches.
+  const ordered = [
+    ...anchors.slice(0, 2),
+    ...[...ranks.values()].sort((a, b) => b.score - a.score).map((r) => r.citation),
+  ];
+  for (const citation of ordered) {
     const normalized = citation.content.replace(/\s/g, '');
-    if (selected.some((c) => c.content.replace(/\s/g, '') === normalized)) continue;
+    if (
+      selected.some(
+        (c) => c.chunk_id === citation.chunk_id || c.content.replace(/\s/g, '') === normalized,
+      )
+    )
+      continue;
     if (selected.filter((c) => c.document_id === citation.document_id).length >= 3) continue;
     selected.push({ ...citation, content: citation.content.slice(0, 1200) });
     if (selected.length === 4) break;
   }
   return selected;
+}
+export async function topicChunks(
+  db: Database,
+  userId: string,
+  question: string,
+  ids?: string[],
+): Promise<Citation[]> {
+  const focus = queryFocus(question);
+  if (!focus || ids?.length === 0) return [];
+  return db.query<Citation>(
+    `SELECT c.id AS chunk_id,c.document_id,d.name AS document_name,c.position,c.content,
+      EXISTS(SELECT 1 FROM regexp_split_to_table(c.content,E'\\n') AS line WHERE regexp_replace(regexp_replace(lower(line),'^[[:space:][:digit:].()–—-]+','','g'),'[[:space:]]','','g')=$3) AS heading_match
+     FROM document_chunks c JOIN documents d ON d.id=c.document_id AND d.user_id=c.user_id
+     WHERE c.user_id=$1 AND d.status='ready' AND d.deleted_at IS NULL AND ($2::uuid[] IS NULL OR d.id=ANY($2::uuid[]))
+     AND strpos(regexp_replace(lower(c.content),'[[:space:]]','','g'),$3)>0
+     ORDER BY heading_match DESC,strpos(regexp_replace(lower(c.content),'[[:space:]]','','g'),$3),c.position,c.id LIMIT 2`,
+    [userId, ids || null, focus],
+  );
 }
 export async function hybridSearch(
   db: Database,
@@ -165,7 +197,11 @@ export async function hybridSearch(
     `SELECT c.id AS chunk_id,c.document_id,d.name AS document_name,c.position,c.content,v.similarity FROM document_chunks c JOIN documents d ON d.id=c.document_id AND d.user_id=c.user_id JOIN rag_embeddings e ON e.user_id=c.user_id AND e.model=$4 AND e.text_hash=${contentHashSql} CROSS JOIN LATERAL (SELECT sum(a.value * ($3::real[])[a.ordinality::integer]) AS similarity FROM unnest(e.embedding) WITH ORDINALITY a(value,ordinality)) v WHERE c.user_id=$1 AND d.status='ready' AND d.deleted_at IS NULL AND ($2::uuid[] IS NULL OR d.id=ANY($2::uuid[])) AND v.similarity>=0.3 ORDER BY v.similarity DESC,c.id LIMIT 12`,
     [userId, ids || null, vector, embeddingVersion],
   );
-  return selectEvidence(semantic, await searchChunks(db, userId, question, ids));
+  return selectEvidence(
+    semantic,
+    await searchChunks(db, userId, question, ids),
+    await topicChunks(db, userId, question, ids),
+  );
 }
 export async function ragAnswer(db: Database, userId: string, question: string, ids?: string[]) {
   requireAI();
@@ -177,7 +213,7 @@ export async function ragAnswer(db: Database, userId: string, question: string, 
     return { answer: noMatch, mode: 'no_match', citations: [] as Citation[], cached: false };
   const normalized = question.trim().replace(/\s+/g, ' ');
   const cacheKey = hash(
-    JSON.stringify(['rag-v2-source-passages', answerModel(), embeddingVersion, normalized, corpus]),
+    JSON.stringify(['rag-v3-topic-anchors', answerModel(), embeddingVersion, normalized, corpus]),
   );
   const [cached] = await db.query<{ answer: string; mode: string; citations: Citation[] }>(
     'SELECT answer,mode,citations FROM rag_answer_cache WHERE user_id=$1 AND cache_key=$2 AND expires_at>$3',
