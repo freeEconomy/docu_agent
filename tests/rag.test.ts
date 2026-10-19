@@ -241,7 +241,8 @@ test('low cost RAG: semantic retrieval, exact quotes, ownership, cache and atomi
         const pdfText =
           '일반 안내\n'.repeat(22) +
           '1-2 시설현황\n- 시설기준 준수\n생활실 사무실 의료/\n간호사실 프로그램실 물리(작업)\n치료실 식당/\n조리실 화장실 세면장 및\n목욕실 세탁장\n건조장\n○ ○ ○ ○ ○ ○\n' +
-          '후속 내용\n'.repeat(40);
+          '1-3 인력현황\n시설장 사회복지사 간호사\n1 2 3\n' +
+          '후속 내용\n'.repeat(36);
         const citation = {
           document_id: doc,
           document_name: 'table.pdf',
@@ -262,6 +263,7 @@ test('low cost RAG: semantic retrieval, exact quotes, ownership, cache and atomi
             false,
           );
           const input = JSON.parse(body.contents[0].parts[0].text);
+          assert.ok(input.excerpts.every((p: { text: string }) => !p.text.includes('인력현황')));
           const selected = input.excerpts.find((p: { text: string }) => p.text.includes('○'));
           assert.ok(selected);
           assert.ok(

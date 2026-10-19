@@ -214,7 +214,7 @@ export async function ragAnswer(db: Database, userId: string, question: string, 
   const normalized = question.trim().replace(/\s+/g, ' ');
   const cacheKey = hash(
     JSON.stringify([
-      'rag-v4-structured-statements',
+      'rag-v5-section-statements',
       answerModel(),
       embeddingVersion,
       normalized,
