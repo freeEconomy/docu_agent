@@ -2,6 +2,7 @@ import { createServer, type IncomingMessage } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createHmac } from 'node:crypto';
+import { mockEmbedding, mockAnswer } from './mock-ai';
 import { PGlite } from '@electric-sql/pglite';
 export const testBlobToken = 'vercel_blob_rw_teststore_test-only-not-a-real-token';
 export const testDatabaseUrl = 'postgresql://test:test@ep-local.neon.tech/test?sslmode=require';
@@ -12,7 +13,7 @@ async function body(req: IncomingMessage) {
 }
 export async function startServices(directory: string, port = 0) {
   const db = new PGlite(path.join(directory, 'postgres'));
-  for (const file of ['001_neon.sql', '002_google_sso.sql']) {
+  for (const file of ['001_neon.sql', '002_google_sso.sql', '003_low_cost_rag.sql']) {
     await db.exec(await readFile(path.resolve('migrations', file), 'utf8'));
   }
   let blobContentLength = true;
@@ -59,6 +60,19 @@ export async function startServices(directory: string, port = 0) {
       res.end(JSON.stringify(value));
     }
     try {
+      if (url.pathname.endsWith(':batchEmbedContents') && req.method === 'POST') {
+        const input = JSON.parse((await body(req)).toString());
+        json({
+          embeddings: input.requests.map((r: { content: { parts: { text: string }[] } }) => ({
+            values: mockEmbedding(r.content.parts[0].text),
+          })),
+        });
+        return;
+      }
+      if (url.pathname.endsWith(':generateContent') && req.method === 'POST') {
+        json(mockAnswer(JSON.parse((await body(req)).toString())));
+        return;
+      }
       if (url.pathname === '/health') {
         json({ ok: true });
         return;

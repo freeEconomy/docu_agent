@@ -6,7 +6,7 @@ async function main() {
   const [row] = await db.query<{ version: number }>(
     'SELECT max(version)::integer version FROM documind_schema_versions',
   );
-  if (row?.version !== 2) throw new Error();
+  if (row?.version !== 3) throw new Error();
   const tables = await db.query<{ present: boolean }>(
     "SELECT to_regclass('public.'||name)::text IS NOT NULL AS present FROM unnest($1::text[]) t(name)",
     [
@@ -20,12 +20,15 @@ async function main() {
         'chat_turns',
         'sso_identities',
         'oauth_attempts',
+        'rag_embeddings',
+        'rag_answer_cache',
+        'rag_usage',
       ],
     ],
   );
-  if (tables.length !== 9 || tables.some((table) => !table.present)) throw new Error();
-  console.log('PASS Neon connection and schema version 2');
-  console.log('PASS all nine required application tables');
+  if (tables.length !== 12 || tables.some((table) => !table.present)) throw new Error();
+  console.log('PASS Neon connection and schema version 3');
+  console.log('PASS all twelve required application tables');
   if (process.argv.includes('--database-only')) {
     console.log('SKIP Blob checks (--database-only requested)');
     return;

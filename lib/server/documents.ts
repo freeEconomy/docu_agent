@@ -118,6 +118,11 @@ export async function deleteDocument(db: Database, userId: string, id: string) {
       text: 'DELETE FROM document_chunks WHERE document_id=$1 AND user_id=$2',
       params: [id, userId],
     },
+    { text: 'DELETE FROM rag_answer_cache WHERE user_id=$1', params: [userId] },
+    {
+      text: "DELETE FROM rag_embeddings e WHERE e.user_id=$1 AND NOT EXISTS(SELECT 1 FROM document_chunks c JOIN documents d ON d.id=c.document_id AND d.user_id=c.user_id WHERE c.user_id=e.user_id AND d.deleted_at IS NULL AND encode(sha256(convert_to(c.content,'UTF8')),'hex')=e.text_hash)",
+      params: [userId],
+    },
   ]);
   // Retain a hidden tombstone until issued upload tokens expire. Otherwise an
   // in-flight direct upload could recreate the original after deletion.

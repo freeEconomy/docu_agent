@@ -8,9 +8,16 @@ import { GoogleConnection } from './auth-ui';
 export function Settings() {
   const { session, connectionError, loading, refresh } = useWorkspace();
   const [aiEnabled, setAiEnabled] = useState(false);
+  const [limits, setLimits] = useState({ userQuestions: 10, globalQuestions: 20 });
   useEffect(() => {
-    void requestJson<{ aiEnabled: boolean }>('/api/settings')
-      .then((r) => setAiEnabled(r.aiEnabled))
+    void requestJson<{
+      aiEnabled: boolean;
+      ragLimits: { userQuestions: number; globalQuestions: number };
+    }>('/api/settings')
+      .then((r) => {
+        setAiEnabled(r.aiEnabled);
+        setLimits(r.ragLimits);
+      })
       .catch(() => {});
   }, []);
   return (
@@ -59,12 +66,21 @@ export function Settings() {
       <section className="card p-6 mt-6">
         <h2>문서 검색과 AI 답변</h2>
         <p className="mt-4">
-          현재 모드: <strong>{aiEnabled ? 'AI 생성' : '원문 발췌'}</strong>
+          현재 모드: <strong>{aiEnabled ? 'AI 생성' : 'AI 연결 필요'}</strong>
         </p>
         <p className="muted mt-4">
-          PostgreSQL 전문 검색과 한글 부분 일치로 실제 문서 청크를 검색합니다. 서버에 RAG_API_KEY를
-          설정하면 OpenAI가 검색된 근거로 답변을 생성합니다. API 키가 없으면 원문과 출처를
-          반환합니다.
+          의미 유사도와 키워드 검색을 결합해 근거를 찾고, 질문에 필요한 내용만 답합니다. 문서
+          임베딩과 반복 질문은 재사용하며 일일 사용 한도를 적용합니다. AI 연결이 없으면 답변 대신
+          설정 안내를 표시합니다.
+        </p>
+        <p className="muted mt-4">
+          새 질문은 하루 계정당 {limits.userQuestions}회, 전체 {limits.globalQuestions}회로
+          제한합니다. 캐시된 같은 질문은 추가 호출하지 않습니다. Google 무료 할당량이 먼저 소진되면
+          중단합니다.
+        </p>
+        <p className="muted mt-4">
+          Gemini 무료 API는 입력과 응답을 제품 개선에 사용할 수 있습니다. 개인정보·기밀정보가 없는
+          문서만 선택하세요.
         </p>
         <p className="row text-xs muted mt-5">
           <ShieldCheck size={17} />

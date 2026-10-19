@@ -92,6 +92,11 @@ export function Chat() {
     const question = input.trim();
     if (!question || requestLock.current || !ready.length || connectionError || historyLoading)
       return;
+    if (!context.length) {
+      setError('Gemini에 전달할 공개 가능한 문서를 먼저 선택해 주세요.');
+      setPicker(true);
+      return;
+    }
     requestLock.current = true;
     setBusy(true);
     setError('');
@@ -99,6 +104,18 @@ export function Chat() {
     setInput('');
     const current = generation.current;
     try {
+      let prepared = false;
+      for (let attempt = 0; attempt < 32; attempt++) {
+        const status = await apiRequest<{ hasMore: boolean }>('/api/rag/prepare', {
+          documentIds: context,
+        });
+        if (!status.hasMore) {
+          prepared = true;
+          break;
+        }
+      }
+      if (!prepared)
+        throw new Error('문서 검색 준비가 더 필요합니다. 다시 시도하면 이어서 진행합니다.');
       const turn = await apiRequest('/api/chat', {
         question,
         conversationId,
@@ -132,7 +149,7 @@ export function Chat() {
             <h1>문서 기반 AI 채팅</h1>
             <p className="muted text-xs mt-2">
               검색 가능한 문서 {ready.length}개 ·{' '}
-              {context.length ? `${context.length}개 선택` : '전체 문서에서 검색'}
+              {context.length ? `${context.length}개 선택` : '검색할 문서를 선택하세요'}
             </p>
           </div>
         </div>
@@ -233,6 +250,17 @@ export function Chat() {
                         </Link>
                       ))}
                     </div>
+                    {turn.citations.map((c, i) => (
+                      <details className="inset mt-3" key={c.chunk_id}>
+                        <summary>
+                          [{i + 1}] 원문 일부 · {c.document_name}
+                        </summary>
+                        <blockquote className="mt-3">
+                          {c.content.length > 220 ? c.content.slice(0, 220) + '…' : c.content}
+                        </blockquote>
+                        <Link href={`/documents/${c.document_id}`}>문서에서 확인</Link>
+                      </details>
+                    ))}
                     <div className="row mt-4">
                       <button
                         className="text-button"
@@ -280,7 +308,7 @@ export function Chat() {
           </div>
           <div className="composer-wrap">
             <div className="row flex-wrap text-xs muted mb-2">
-              검색 컨텍스트: {context.length ? `${context.length}개 문서 선택` : '전체 준비된 문서'}
+              검색 컨텍스트: {context.length ? `${context.length}개 문서 선택` : '문서 선택 필요'}
               <button className="text-button" onClick={() => setPicker(true)}>
                 문서 선택
               </button>
@@ -325,7 +353,8 @@ export function Chat() {
               </div>
             </form>
             <p className="muted text-xs mt-3">
-              답변의 근거를 확인하세요. AI 키를 설정하지 않으면 검색한 원문을 발췌합니다.
+              관련 문서를 찾아 간결하게 답하고 출처를 표시합니다. 처음 질문할 때는 문서 검색 준비에
+              시간이 걸릴 수 있습니다.
             </p>
           </div>
         </section>
@@ -358,7 +387,15 @@ export function Chat() {
                   </div>
                   <span className="tag mt-3">청크 #{c.position + 1}</span>
                   <blockquote>
-                    <p className="whitespace-pre-wrap">{c.content}</p>
+                    <p className="whitespace-pre-wrap">
+                      {c.content.length > 220 ? c.content.slice(0, 220) + '…' : c.content}
+                    </p>
+                    {c.content.length > 220 && (
+                      <details className="mt-3">
+                        <summary>발췌 전체 보기</summary>
+                        <p className="whitespace-pre-wrap mt-3">{c.content}</p>
+                      </details>
+                    )}
                   </blockquote>
                   <Link className="source-link" href={`/documents/${c.document_id}`}>
                     원본 문서 및 청크 확인
@@ -374,7 +411,10 @@ export function Chat() {
       </div>
       {picker && (
         <Modal title="검색 컨텍스트 선택" onClose={() => setPicker(false)}>
-          <p className="muted mb-4">선택하지 않으면 전체 준비된 문서에서 검색합니다.</p>
+          <p className="muted mb-4">
+            Gemini에 전달해도 되는 공개 가능한 문서만 선택하세요. 개인정보·기밀정보가 있는 문서는
+            제외하세요.
+          </p>
           <div className="context-picker">
             {ready.map((d) => (
               <label className="row p-3" key={d.id}>

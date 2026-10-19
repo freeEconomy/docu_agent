@@ -10,7 +10,7 @@
     "test": "playwright test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:backend": "tsx --test tests/backend.test.ts tests/google-sso.test.ts",
+    "test:backend": "tsx --test tests/backend.test.ts tests/google-sso.test.ts tests/rag.test.ts",
     "db:migrate": "tsx scripts/db-migrate.ts",
     "check:services": "tsx scripts/check-services.ts",
     "storage:cleanup": "tsx scripts/cleanup-storage.ts",

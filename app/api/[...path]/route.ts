@@ -28,7 +28,8 @@ import {
   cleanupDeleted,
 } from '@/lib/server/documents';
 import { readOriginal, requireBlob } from '@/lib/server/blob-store';
-import { answerQuestion } from '@/lib/server/answer';
+import { ragAnswer, prepareRag, ragLimits } from '@/lib/server/rag';
+import { aiConfigured } from '@/lib/server/rag-provider';
 import { googleConfig, startGoogle, finishGoogle } from '@/lib/server/google-sso';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -95,7 +96,8 @@ async function handle(request: Request, { params }: { params: Promise<{ path: st
       return json({
         storage: 'Neon PostgreSQL + Private Vercel Blob',
         schemaVersion: version?.version,
-        aiEnabled: !!process.env.RAG_API_KEY,
+        aiEnabled: aiConfigured(),
+        ragLimits: ragLimits(),
       });
     }
     if (endpoint === 'documents' && method === 'GET')
@@ -228,10 +230,23 @@ async function handle(request: Request, { params }: { params: Promise<{ path: st
       ]);
       return json({ count: count?.count || 0, recent });
     }
+    if (endpoint === 'rag/prepare' && method === 'POST') {
+      const body = await readJson(request);
+      const ids = body.documentIds;
+      if (!Array.isArray(ids) || !ids.length)
+        throw new ApiError('Gemini에 전달할 문서를 선택하세요.');
+      if (ids !== undefined && (!Array.isArray(ids) || ids.length > 100 || !ids.every(isUuid)))
+        throw new ApiError('선택 문서를 확인하세요.');
+      return json(
+        await prepareRag(db, user.id, Array.isArray(ids) && ids.length ? ids : undefined),
+      );
+    }
     if (endpoint === 'chat' && method === 'POST') {
       const body = await readJson(request);
       const question = textField(body.question, '질문', 2000);
       const ids = body.documentIds;
+      if (!Array.isArray(ids) || !ids.length)
+        throw new ApiError('Gemini에 전달할 문서를 선택하세요.');
       if (ids !== undefined && (!Array.isArray(ids) || ids.length > 100 || !ids.every(isUuid)))
         throw new ApiError('선택 문서를 확인하세요.');
       const conversationId = body.conversationId;
@@ -256,18 +271,16 @@ async function handle(request: Request, { params }: { params: Promise<{ path: st
         ).length
       )
         throw new ApiError('처리가 완료된 문서를 먼저 업로드하세요.', 409);
-      const citations = await searchChunks(
+      const result = await ragAnswer(
         db,
         user.id,
         question,
         Array.isArray(ids) && ids.length ? ids : undefined,
       );
-      const result = await answerQuestion(question, citations);
       return json(
         await saveTurn(db, user.id, {
           conversationId: conversationId as string | undefined,
           question,
-          citations,
           ...result,
         }),
       );

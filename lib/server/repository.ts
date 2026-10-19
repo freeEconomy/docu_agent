@@ -93,7 +93,7 @@ export async function finishProcessing(
       params: [id, userId, token, parts],
     },
     {
-      text: "UPDATE documents SET status='ready',extracted_text=$4,page_count=$5,chunk_count=$6,error_message=NULL,processing_token=NULL,processing_started_at=NULL WHERE id=$1 AND user_id=$2 AND processing_token=$3 AND deleted_at IS NULL RETURNING id",
+      text: "UPDATE documents SET status='ready',rag_revision=gen_random_uuid(),extracted_text=$4,page_count=$5,chunk_count=$6,error_message=NULL,processing_token=NULL,processing_started_at=NULL WHERE id=$1 AND user_id=$2 AND processing_token=$3 AND deleted_at IS NULL RETURNING id",
       params: [id, userId, token, text, pages, parts.length],
     },
   ];

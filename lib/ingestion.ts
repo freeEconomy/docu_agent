@@ -12,9 +12,15 @@ export function chunkText(text: string, size = 1200, overlap = 180): string[] {
   if (normalized.length > maxTextCharacters)
     throw new Error('텍스트가 40만 자를 초과합니다. 문서를 나누어 업로드하세요.');
   const chunks: string[] = [];
-  for (let start = 0; start < normalized.length; start += size - overlap) {
-    chunks.push(normalized.slice(start, start + size));
-    if (start + size >= normalized.length) break;
+  for (let start = 0; start < normalized.length; ) {
+    let end = Math.min(start + size, normalized.length);
+    if (end < normalized.length) {
+      const paragraph = normalized.lastIndexOf('\n', end - 1);
+      if (paragraph >= start + Math.max(overlap + 1, Math.floor(size * 0.6))) end = paragraph + 1;
+    }
+    chunks.push(normalized.slice(start, end));
+    if (end === normalized.length) break;
+    start = end - overlap;
   }
   return chunks;
 }
