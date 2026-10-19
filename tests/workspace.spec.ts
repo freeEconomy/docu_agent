@@ -254,22 +254,18 @@ test('Google SSO setup status and callback feedback are clear without credential
   page,
 }) => {
   await page.goto('/login?sso_error=account_exists');
-  await expect(
-    page.getByRole('button', { name: 'Google Workspace 계정으로 로그인' }),
-  ).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Google 계정으로 로그인' })).toBeDisabled();
   await expect(
     page.getByText(
       '이미 등록된 이메일입니다. 이메일·비밀번호로 로그인한 뒤 설정에서 Google 계정을 연결하세요.',
     ),
   ).toBeVisible();
-  await expect(
-    page.getByText('Google Workspace SSO는 관리자 설정 후 사용할 수 있습니다.'),
-  ).toBeVisible();
+  await expect(page.getByText('Google 로그인는 관리자 설정 후 사용할 수 있습니다.')).toBeVisible();
   await expect(page).toHaveURL(/\/login$/);
   await page.goto('/signup');
-  await expect(page.getByRole('button', { name: 'Google Workspace로 시작하기' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Google로 시작하기' })).toBeDisabled();
   await account(page);
   await page.goto('/settings');
-  await expect(page.getByRole('heading', { name: 'Google Workspace SSO' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Google 로그인' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Google 계정 연결', exact: true })).toBeDisabled();
 });

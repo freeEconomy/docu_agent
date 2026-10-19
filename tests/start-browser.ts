@@ -30,6 +30,7 @@ async function main() {
         GOOGLE_CLIENT_ID: '',
         GOOGLE_CLIENT_SECRET: '',
         GOOGLE_WORKSPACE_DOMAINS: '',
+        GOOGLE_ALLOW_PERSONAL_ACCOUNTS: 'false',
       },
     },
   );

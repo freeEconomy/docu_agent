@@ -24,7 +24,8 @@ export function googleConfig() {
     .split(',')
     .map((d) => d.trim().toLowerCase())
     .filter(Boolean);
-  if (!clientId || !clientSecret || !origin || !domains.length) return null;
+  const allowPersonal = process.env.GOOGLE_ALLOW_PERSONAL_ACCOUNTS === 'true';
+  if (!clientId || !clientSecret || !origin || (!domains.length && !allowPersonal)) return null;
   let url: URL;
   try {
     url = new URL(origin);
@@ -49,6 +50,7 @@ export function googleConfig() {
     clientSecret,
     origin,
     domains,
+    allowPersonal,
     redirectUri: origin + '/api/auth/sso/google/callback',
   };
 }
@@ -101,7 +103,7 @@ export async function startGoogle(db: Database, request: Request, link = false) 
     code_challenge: createHash('sha256').update(verifier).digest('base64url'),
     code_challenge_method: 'S256',
     prompt: 'select_account',
-    ...(config.domains.length === 1 ? { hd: config.domains[0] } : {}),
+    ...(config.domains.length === 1 && !config.allowPersonal ? { hd: config.domains[0] } : {}),
   }).toString();
   return link
     ? json({ url: url.href }, 200, { 'Set-Cookie': flowCookie(request, browser, 600) })
@@ -119,7 +121,7 @@ export async function verifyGoogleToken(
     algorithms: ['RS256'],
     issuer: ['https://accounts.google.com', 'accounts.google.com'],
     audience: config.clientId,
-    requiredClaims: ['exp', 'iat', 'sub', 'nonce', 'email', 'email_verified', 'hd'],
+    requiredClaims: ['exp', 'iat', 'sub', 'nonce', 'email', 'email_verified'],
     clockTolerance: 5,
     maxTokenAge: '10m',
   });
@@ -136,8 +138,13 @@ export async function verifyGoogleToken(
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)
   )
     throw new SSOError('invalid_identity');
-  if (typeof payload.hd !== 'string' || !config.domains.includes(payload.hd.toLowerCase()))
-    throw new SSOError('domain_denied');
+  const workspaceAllowed =
+    typeof payload.hd === 'string' && config.domains.includes(payload.hd.toLowerCase());
+  const personalAllowed =
+    config.allowPersonal &&
+    payload.hd === undefined &&
+    /@(gmail|googlemail)\.com$/i.test(payload.email);
+  if (!workspaceAllowed && !personalAllowed) throw new SSOError('domain_denied');
   return {
     subject: payload.sub,
     email: payload.email.toLowerCase(),

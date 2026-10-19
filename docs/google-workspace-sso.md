@@ -1,10 +1,10 @@
 # Google Workspace SSO
 
-Google OpenID Connect Authorization Code + PKCE 로그인을 지원합니다. Google Workspace 계정만 허용하며 개인 Gmail 계정, Microsoft Entra ID, Okta/SAML은 지원하지 않습니다. OAuth 설정이 없으면 로그인·가입 화면에 설정 필요 상태를 표시합니다. 기존 이메일·비밀번호 인증은 유지됩니다.
+Google OpenID Connect Authorization Code + PKCE 로그인을 지원합니다. 기본값은 지정한 Google Workspace 도메인만 허용합니다. `GOOGLE_ALLOW_PERSONAL_ACCOUNTS=true`를 추가하면 검증된 개인 Gmail/googlemail 계정도 허용합니다. Microsoft Entra ID와 Okta/SAML은 지원하지 않습니다. OAuth 설정이 없으면 로그인·가입 화면에 설정 필요 상태를 표시합니다. 기존 이메일·비밀번호 인증은 유지됩니다.
 
 ## 운영 설정
 
-1. Google Cloud Console → Google Auth Platform에서 프로젝트를 선택합니다. 사내 Workspace 전용 프로젝트라면 Audience를 Internal로 설정합니다. External 테스트 모드에서는 테스트 사용자를 등록해야 합니다. 요청 범위는 `openid email profile`이며 Google Drive 접근 권한은 요청하지 않습니다.
+1. Google Cloud Console → Google Auth Platform에서 프로젝트를 선택합니다. 사내 Workspace 전용 프로젝트라면 Audience를 Internal로 설정합니다. 개인 Gmail도 허용하려면 Audience를 External(외부)로 설정합니다. 기존 Internal 앱은 대상 화면의 Make external(외부로 전환)을 사용합니다. External 테스트 모드에서는 테스트 사용자를 등록해야 합니다. 요청 범위는 `openid email profile`이며 Google Drive 접근 권한은 요청하지 않습니다.
 2. Clients에서 **Web application** OAuth 클라이언트를 생성합니다. Authorized redirect URIs에 다음 주소를 정확히 등록합니다.
 
    ```text
@@ -20,7 +20,7 @@ Google OpenID Connect Authorization Code + PKCE 로그인을 지원합니다. Go
    | `GOOGLE_CLIENT_SECRET`     | Google OAuth 클라이언트 시크릿                           |
    | `GOOGLE_WORKSPACE_DOMAINS` | 허용할 회사 도메인. 예: `example.com,subsidiary.example` |
 
-   도메인은 이메일 접미사 대신 Google이 서명한 `hd` 클레임과 정확히 대조합니다. Workspace 기본·별칭 도메인이 다르면 실제 `hd` 값에 맞춰 설정하세요. 빈 목록이나 `*`는 허용하지 않습니다.
+   도메인은 이메일 접미사 대신 Google이 서명한 `hd` 클레임과 정확히 대조합니다. Workspace 기본·별칭 도메인이 다르면 실제 `hd` 값에 맞춰 설정하세요. `*`는 허용하지 않습니다. 개인 Gmail도 허용하려면 Vercel Production 환경 변수에 `GOOGLE_ALLOW_PERSONAL_ACCOUNTS=true`를 추가하세요. Workspace 도메인 목록은 유지하며 `gmail.com`을 넣지 않습니다. 목록이 비어 있으면 개인 Gmail만 허용합니다. 개인 계정 허용은 Workspace 도메인 제한을 해제하지 않습니다.
 
 4. `npm run db:migrate`로 스키마 버전 2를 설치한 뒤 재배포합니다. 기존 사용자·문서·대화는 삭제하지 않습니다. `npm run check:services -- --database-only`로 스키마와 필수 테이블 9개를 검사합니다.
 5. `/api/auth/sso/providers`가 `{"google":true}`를 반환하는지 확인하고 아래 실제 계정 검증을 수행합니다. 이 상태는 설정 존재 여부이며 Google의 클라이언트 유효성을 증명하지는 않습니다.
@@ -33,7 +33,7 @@ Preview에 Production OAuth 설정을 복사하지 마세요. Preview는 별도 
 - 기존 이메일 계정: 이메일·비밀번호로 로그인 → 설정 → **Google 계정 연결** → Google 동의 → 연결 완료. 이후 Google로 로그인해도 같은 문서·대화를 사용합니다. 이메일이 같아도 자동 병합하지 않습니다.
 - 이미 다른 DocuMind 계정에 연결된 Google 계정은 다시 연결하지 않습니다. 연결 해제·관리자 강제 병합은 구현하지 않았습니다.
 - Google로만 생성한 계정에는 비밀번호가 없습니다. Google로 로그인해야 하며 현재 비밀번호를 요구하는 변경 화면에서는 로컬 비밀번호를 설정할 수 없습니다.
-- 실제 허용 도메인 계정으로 신규 로그인·재로그인·기존 계정 연결을 확인하고, 다른 도메인과 개인 Gmail 거부, 동의 취소, 만료 콜백 거부도 확인하세요. 실제 Workspace 인증은 유효한 OAuth 앱과 사용자 참여가 있어야 완료할 수 있습니다.
+- 실제 허용 도메인 계정으로 신규 로그인·재로그인·기존 계정 연결을 확인하고, 다른 Workspace 도메인 거부와 개인 Gmail 허용 설정에 따른 승인·거부, 동의 취소, 만료 콜백 거부도 확인하세요. 실제 Workspace 인증은 유효한 OAuth 앱과 사용자 참여가 있어야 완료할 수 있습니다.
 
 ## 보안과 운영
 

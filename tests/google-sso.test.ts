@@ -22,6 +22,7 @@ test('Google Workspace SSO identity, browser binding and account ownership', asy
     'GOOGLE_CLIENT_ID',
     'GOOGLE_CLIENT_SECRET',
     'GOOGLE_WORKSPACE_DOMAINS',
+    'GOOGLE_ALLOW_PERSONAL_ACCOUNTS',
   ];
   const old = Object.fromEntries(envKeys.map((k) => [k, process.env[k]]));
   Object.assign(process.env, {
@@ -29,6 +30,7 @@ test('Google Workspace SSO identity, browser binding and account ownership', asy
     GOOGLE_CLIENT_ID: 'test-client',
     GOOGLE_CLIENT_SECRET: 'test-secret',
     GOOGLE_WORKSPACE_DOMAINS: 'example.com',
+    GOOGLE_ALLOW_PERSONAL_ACCOUNTS: 'false',
   });
   const pg = new PGlite();
   const db: Database = {
@@ -114,6 +116,53 @@ test('Google Workspace SSO identity, browser binding and account ownership', asy
         await assert.rejects(
           verifyGoogleToken(await sign(), 'expected-nonce', config, attacker.publicKey),
         );
+      },
+    );
+    await t.test(
+      'personal Gmail requires explicit opt-in and retains verified email and Workspace restrictions',
+      async () => {
+        const gmail = await sign({ email: 'member@gmail.com', hd: undefined });
+        await assert.rejects(verifyGoogleToken(gmail, 'expected-nonce', config, keys.publicKey));
+        const mixed = { ...config, allowPersonal: true };
+        assert.equal(
+          (await verifyGoogleToken(gmail, 'expected-nonce', mixed, keys.publicKey)).email,
+          'member@gmail.com',
+        );
+        await verifyGoogleToken(await sign(), 'expected-nonce', mixed, keys.publicKey);
+        await assert.rejects(
+          verifyGoogleToken(
+            await sign({ email: 'member@gmail.com', hd: undefined, email_verified: false }),
+            'expected-nonce',
+            mixed,
+            keys.publicKey,
+          ),
+        );
+        await assert.rejects(
+          verifyGoogleToken(
+            await sign({ hd: 'other.example' }),
+            'expected-nonce',
+            mixed,
+            keys.publicKey,
+          ),
+        );
+        await assert.rejects(
+          verifyGoogleToken(
+            await sign({ email: 'member@other.example', hd: undefined }),
+            'expected-nonce',
+            mixed,
+            keys.publicKey,
+          ),
+        );
+        process.env.GOOGLE_ALLOW_PERSONAL_ACCOUNTS = 'true';
+        try {
+          const response = await startGoogle(
+            db,
+            new Request(config.origin + '/api/auth/sso/google/start'),
+          );
+          assert.equal(new URL(response.headers.get('location')!).searchParams.has('hd'), false);
+        } finally {
+          process.env.GOOGLE_ALLOW_PERSONAL_ACCOUNTS = 'false';
+        }
       },
     );
     async function start() {

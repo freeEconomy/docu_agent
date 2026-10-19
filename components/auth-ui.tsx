@@ -51,8 +51,8 @@ export function SSOFeedback() {
     const errors: Record<string, string> = {
       cancelled: 'Google 로그인이 취소되었습니다.',
       expired: '로그인 요청이 만료되었거나 브라우저 세션이 다릅니다. 다시 시작하세요.',
-      not_configured: 'Google Workspace SSO 설정이 아직 완료되지 않았습니다.',
-      domain_denied: '이 워크스페이스에서 허용한 Google Workspace 도메인이 아닙니다.',
+      not_configured: 'Google 로그인 설정이 아직 완료되지 않았습니다.',
+      domain_denied: '이 워크스페이스에서 허용한 Google 계정이 아닙니다.',
       account_exists:
         '이미 등록된 이메일입니다. 이메일·비밀번호로 로그인한 뒤 설정에서 Google 계정을 연결하세요.',
       link_conflict: '이미 다른 계정에 연결된 Google 계정이거나 기존 연결과 다릅니다.',
@@ -103,14 +103,12 @@ export function SSOButtons({ signup = false }: { signup?: boolean }) {
         }}
       >
         <ProviderMark provider="google" />
-        {signup ? 'Google Workspace로 시작하기' : 'Google Workspace 계정으로 로그인'}
+        {signup ? 'Google로 시작하기' : 'Google 계정으로 로그인'}
         <ArrowRight size={16} />
       </button>
       {!enabled && (
         <p className="muted text-xs" role="status">
-          {checked
-            ? 'Google Workspace SSO는 관리자 설정 후 사용할 수 있습니다.'
-            : 'SSO 연결 확인 중…'}
+          {checked ? 'Google 로그인는 관리자 설정 후 사용할 수 있습니다.' : 'SSO 연결 확인 중…'}
         </p>
       )}
     </div>
@@ -145,7 +143,7 @@ export function GoogleConnection() {
   }
   return (
     <section className="card p-6 mt-6">
-      <h2>Google Workspace SSO</h2>
+      <h2>Google 로그인</h2>
       <SSOFeedback />
       <p className="muted mt-4">
         {email
@@ -153,9 +151,7 @@ export function GoogleConnection() {
           : 'Google 계정을 연결하면 기존 문서와 대화를 그대로 사용하며 Google로 로그인할 수 있습니다.'}
       </p>
       {!ready && (
-        <p className="muted mt-4">
-          관리자가 Google Workspace SSO 설정을 완료해야 사용할 수 있습니다.
-        </p>
+        <p className="muted mt-4">관리자가 Google 로그인 설정을 완료해야 사용할 수 있습니다.</p>
       )}
       {!email && (
         <button
