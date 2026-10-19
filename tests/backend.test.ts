@@ -145,6 +145,28 @@ test('PostgreSQL over Neon HTTP protocol and private Blob SDK lifecycle', async 
       },
     );
     await t.test(
+      'chunked Blob responses are indexed using actual bytes and truncated originals are rejected',
+      async () => {
+        services.setBlobContentLength(false);
+        try {
+          assert.equal((await readOriginal(doc.pathname)).blob.size, 0);
+          await processDocument(db, a.user.id, doc.id);
+          assert.equal((await ownedDocument(db, a.user.id, doc.id)).status, 'ready');
+          assert.equal((await searchChunks(db, a.user.id, '보안'))[0].content, text);
+          services.blobs.set(doc.pathname, {
+            data: bytes.subarray(0, bytes.length - 1),
+            type: 'text/plain',
+          });
+          await assert.rejects(processDocument(db, a.user.id, doc.id));
+          assert.equal((await ownedDocument(db, a.user.id, doc.id)).status, 'failed');
+          services.blobs.set(doc.pathname, { data: bytes, type: 'text/plain' });
+          await processDocument(db, a.user.id, doc.id);
+        } finally {
+          services.setBlobContentLength(true);
+        }
+      },
+    );
+    await t.test(
       'another account cannot read metadata, reprocess, delete or search the document',
       async () => {
         assert.equal((await listDocuments(db, b.user.id)).length, 0);

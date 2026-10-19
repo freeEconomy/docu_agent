@@ -56,8 +56,9 @@ export async function processDocument(db: Database, userId: string, id: string) 
   const token = await beginProcessing(db, userId, id);
   try {
     const original = await readOriginal(doc.blob_path);
-    if (original.blob.size !== doc.size_bytes || original.blob.size > maxFileBytes)
-      throw new Error('원본 파일 크기가 일치하지 않습니다.');
+    // Blob GET size comes from Content-Length, which may be absent for streamed
+    // responses or describe encoded bytes. Validate the bounded stream itself
+    // below against the provider metadata verified by completeUpload instead.
     const reader = original.stream.getReader();
     const pieces: Uint8Array[] = [];
     let size = 0;

@@ -15,6 +15,7 @@ export async function startServices(directory: string, port = 0) {
   for (const file of ['001_neon.sql', '002_google_sso.sql']) {
     await db.exec(await readFile(path.resolve('migrations', file), 'utf8'));
   }
+  let blobContentLength = true;
   const blobs = new Map<string, { data: Buffer; type: string }>();
   function metadata(name: string, entry: { data: Buffer; type: string }) {
     return {
@@ -157,7 +158,7 @@ export async function startServices(directory: string, port = 0) {
         }
         res.writeHead(200, {
           'Content-Type': entry.type,
-          'Content-Length': entry.data.length,
+          ...(blobContentLength ? { 'Content-Length': entry.data.length } : {}),
           etag: 'test-etag',
         });
         res.end(entry.data);
@@ -179,6 +180,9 @@ export async function startServices(directory: string, port = 0) {
   return {
     db,
     blobs,
+    setBlobContentLength(value: boolean) {
+      blobContentLength = value;
+    },
     url: `http://127.0.0.1:${address.port}`,
     async close() {
       await new Promise<void>((r) => server.close(() => r()));
