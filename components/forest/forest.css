@@ -2273,3 +2273,81 @@
     font-size: 11px;
   }
 }
+
+.run-progress {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 18px;
+  padding: 18px 22px;
+  margin: 18px 0 24px;
+  border: 1px solid #dce5d4;
+  border-radius: 20px;
+  background: #f0f5e9;
+}
+.run-progress > div {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+}
+.run-progress strong {
+  color: var(--green);
+  font-size: 22px;
+}
+.run-progress > div > span,
+.run-companion small {
+  font-size: 12px;
+  color: #66755e;
+}
+.run-companion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  text-align: left;
+  font-weight: 700;
+  color: var(--green);
+}
+.run-companion small {
+  display: block;
+  margin-top: 4px;
+  font-weight: 400;
+}
+.run-companion-face {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  font-size: 38px;
+  border-radius: 18px;
+  background: #fff;
+}
+.run-score-stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 0;
+  color: #a9b29e;
+}
+.run-score-stars svg {
+  width: 30px;
+  height: 30px;
+}
+.run-score-stars .earned {
+  color: #a37412;
+  fill: #f6ce69;
+}
+@media (max-width: 600px) {
+  .run-progress {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 16px;
+  }
+  .run-companion {
+    grid-column: 1 / -1;
+  }
+  .english-app .forest-brand {
+    font-size: 19px !important;
+  }
+}

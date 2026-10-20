@@ -60,7 +60,9 @@ test('English: local real photos, bilingual search, six situations, quiz, profil
     .click();
   await expect(page.getByRole('button', { name: '다음 문제', exact: true })).toBeDisabled();
   await complete(page);
-  await expect(page.locator('.forest-leaves')).toContainText('10개');
+  await expect(page.locator('.forest-leaves')).toContainText('10 P');
+  await expect(page.locator('.forest-result-stats')).toContainText('80점');
+  await expect(page.getByRole('img', { name: '별 4개, 전체 5개' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'bus, 내 말로 한 걸음!' })).toBeVisible();
   await page.getByRole('button', { name: '학습카드 꾸미기' }).click();
   await page.getByLabel('이름 또는 별명').fill('민우');
@@ -206,7 +208,7 @@ test('English: legacy Korean records are kept, repeated quiz does not mint point
       localStorage.setItem('wordforest-v1', JSON.stringify(p));
   }, legacy);
   await page.goto('/');
-  await expect(page.locator('.forest-leaves')).toContainText('20개');
+  await expect(page.locator('.forest-leaves')).toContainText('20 P');
   for (let run = 0; run < 2; run++) {
     await page.getByRole('button', { name: '퀴즈', exact: true }).click();
     await page.getByRole('button', { name: '복습 · 마지막에 확인' }).click();
@@ -217,17 +219,44 @@ test('English: legacy Korean records are kept, repeated quiz does not mint point
         .getByRole('button', { name: i === 4 ? '학습 결과 보기' : '다음 문제', exact: true })
         .click();
     }
-    await expect(page.locator('.forest-leaves')).toContainText('30개');
+    await expect(page.locator('.forest-leaves')).toContainText('30 P');
   }
   await parent(page);
   await page.getByRole('button', { name: '영어 프로필과 기록 삭제' }).click();
   await page.getByRole('button', { name: '취소', exact: true }).click();
-  await expect(page.locator('.forest-leaves')).toContainText('30개');
+  await expect(page.locator('.forest-leaves')).toContainText('30 P');
   await page.getByRole('button', { name: '영어 프로필과 기록 삭제' }).click();
   await page.getByRole('button', { name: '영어 기록 삭제', exact: true }).click();
   await page.reload();
-  await expect(page.locator('.forest-leaves')).toContainText('0개');
+  await expect(page.locator('.forest-leaves')).toContainText('0 P');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('wordforest-v1')!))).toEqual(
     legacy,
+  );
+});
+
+test('Fun To Run: title and chosen character persist without resetting learning points', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(page).toHaveTitle('Fun To Run — 사진으로 배우는 생활 영어');
+  await expect(page.getByRole('button', { name: 'Fun To Run 홈', exact: true })).toBeVisible();
+  await expect(page.locator('.run-companion-face')).toHaveText('🐰');
+  await page.getByRole('button', { name: '학습 친구 바꾸기' }).click();
+  await page.getByRole('button', { name: '고양이 캐릭터', exact: true }).click();
+  await page.getByRole('button', { name: '학습카드 저장', exact: true }).click();
+  await page.reload();
+  await expect(page.locator('.run-companion-face')).toHaveText('🐱');
+  await page.getByRole('button', { name: '퀴즈', exact: true }).click();
+  await complete(page);
+  await expect(page.locator('.forest-result-stats')).toContainText('100점');
+  await expect(page.locator('.forest-leaves')).toContainText('10 P');
+  await page.getByRole('button', { name: 'Fun To Run 홈', exact: true }).click();
+  await expect(page.getByLabel('나의 학습 현황')).toContainText('10 P');
+  await page.reload();
+  await expect(page.locator('.run-companion-face')).toHaveText('🐱');
+  await expect(page.locator('.forest-leaves')).toContainText('10 P');
+  await page.setViewportSize({ width: 320, height: 740 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
   );
 });

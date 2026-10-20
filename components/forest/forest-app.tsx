@@ -13,7 +13,7 @@ import {
   Lock,
   X,
   Palette,
-  Leaf,
+  Star,
   RotateCcw,
   ClipboardList,
 } from 'lucide-react';
@@ -50,11 +50,19 @@ type Profile = {
 };
 const storageKey = 'wordforest-english-v1';
 const colors = ['#dcebdc', '#e7e2f3', '#fae9cd'];
-const symbols = ['📘', '🧭', '✏️'];
+const symbols = ['📘', '🧭', '✏️', '🐶', '🐱', '🐰'];
+const symbolLabels = [
+  '책 표식',
+  '나침반 표식',
+  '연필 표식',
+  '강아지 캐릭터',
+  '고양이 캐릭터',
+  '토끼 캐릭터',
+];
 const initial: Profile = {
   name: '새싹',
   color: colors[0],
-  symbol: symbols[0],
+  symbol: '🐰',
   level: 1,
   rate: 0.85,
   goal: 10,
@@ -292,6 +300,8 @@ export function ForestApp() {
   }
   const lastRecords = [...new Map(profile.records.map((r) => [r.word, r])).values()],
     reviews = lastRecords.filter((r) => r.review);
+  const firstTryCount = answers.filter((answer) => answer.first).length;
+  const quizScore = Math.round((firstTryCount / quiz.length) * 100);
   const nav = [
     { id: 'home', name: '홈', Icon: Home },
     { id: 'word', name: '사진 단어', Icon: BookOpen },
@@ -308,10 +318,10 @@ export function ForestApp() {
   return (
     <div className="forest-app english-app">
       <header className="forest-header">
-        <button className="forest-brand" aria-label="단어숲 홈" onClick={() => go('home')}>
+        <button className="forest-brand" aria-label="Fun To Run 홈" onClick={() => go('home')}>
           <BookOpen />
           <span>
-            단어숲 <small>생활 영어</small>
+            Fun To Run <small>생활 영어</small>
           </span>
         </button>
         <div className="forest-header-tools">
@@ -325,9 +335,9 @@ export function ForestApp() {
           >
             {sound ? <Volume2 /> : <VolumeX />}
           </button>
-          <span className="forest-leaves">
-            <Leaf size={17} />
-            {profile.leaves}개
+          <span className="forest-leaves" aria-label={`누적 포인트 ${profile.leaves}점`}>
+            <Star size={17} />
+            {profile.leaves} P
           </span>
           <button className="forest-parent-link" aria-label="부모님" onClick={openParent}>
             <Lock size={17} />
@@ -362,6 +372,30 @@ export function ForestApp() {
                 <span className="forest-pill">7세 생활 영어 · 사진 단어 {words.length}개</span>
               </div>
               <Photo photoId="bus" alt="실제 전기 버스 사진" priority />
+            </section>
+            <section className="run-progress" aria-label="나의 학습 현황">
+              <button
+                className="run-companion"
+                onClick={() => go('card')}
+                aria-label="학습 친구 바꾸기"
+              >
+                <span className="run-companion-face" aria-hidden="true">
+                  {profile.symbol}
+                </span>
+                <span>
+                  나의 학습 친구<small>눌러서 바꿔요</small>
+                </span>
+              </button>
+              <div>
+                <strong>{profile.leaves} P</strong>
+                <span>모은 포인트</span>
+              </div>
+              <div>
+                <strong>
+                  {lastRecords.length} / {words.length}
+                </strong>
+                <span>배운 단어</span>
+              </div>
             </section>
             <form className="forest-search" onSubmit={searchWord}>
               <Search />
@@ -774,17 +808,29 @@ export function ForestApp() {
             <p>단어와 생활 속 표현을 함께 연습했어요.</p>
             <div className="forest-result-stats">
               <div>
-                <strong>
-                  {answers.filter((a) => a.first).length} / {quiz.length}
-                </strong>
-                <span>처음에 맞힌 문제</span>
+                <strong>{quizScore}점</strong>
+                <span>
+                  퀴즈 점수 · 처음에 {firstTryCount} / {quiz.length}문제 정답
+                </span>
               </div>
               <div>
-                <strong>{profile.leaves}</strong>
-                <span>모은 나뭇잎</span>
+                <strong>{profile.leaves} P</strong>
+                <span>누적 포인트</span>
               </div>
             </div>
-            <p className="forest-muted">단어별 하루 첫 퀴즈 완료 시 나뭇잎 10개를 받아요.</p>
+            <div
+              className="run-score-stars"
+              role="img"
+              aria-label={`별 ${firstTryCount}개, 전체 ${quiz.length}개`}
+            >
+              {quiz.map((_, i) => (
+                <Star key={i} className={i < firstTryCount ? 'earned' : ''} aria-hidden="true" />
+              ))}
+            </div>
+            <p className="forest-muted">
+              단어별 하루 첫 퀴즈를 마치면 10포인트를 받아요. 같은 날 같은 단어를 다시 풀어도 추가
+              포인트는 쌓이지 않아요.
+            </p>
             <div className="forest-review-list">
               {quiz.map((q, i) => (
                 <div key={q.question}>
@@ -814,13 +860,18 @@ export function ForestApp() {
               <div>
                 <span className="forest-eyebrow">MY ENGLISH CARD</span>
                 <h1>내 학습카드</h1>
-                <p>동물 캐릭터 대신 나만의 독서 카드를 만들어요.</p>
+                <p>
+                  학습 친구와 색깔을 골라 나만의 카드를 만들어요. 포인트 없이 자유롭게 고를 수
+                  있어요.
+                </p>
               </div>
             </div>
             <div className="forest-customize">
               <section className="english-card-preview" style={{ background: draft.color }}>
-                <span>{draft.symbol}</span>
-                <small>EVERYDAY ENGLISH</small>
+                <span role="img" aria-label={symbolLabels[symbols.indexOf(draft.symbol)]}>
+                  {draft.symbol}
+                </span>
+                <small>FUN TO RUN</small>
                 <h2>{draft.name || '새싹'}</h2>
                 <p>{lastRecords.length} words practiced</p>
               </section>
@@ -854,13 +905,13 @@ export function ForestApp() {
                     </button>
                   ))}
                 </div>
-                <h3>카드 표식</h3>
+                <h3>학습 친구와 카드 표식</h3>
                 <div className="forest-option-row">
                   {symbols.map((symbol, i) => (
                     <button
                       key={symbol}
                       className={draft.symbol === symbol ? 'selected' : ''}
-                      aria-label={['책 표식', '나침반 표식', '연필 표식'][i]}
+                      aria-label={symbolLabels[i]}
                       aria-pressed={draft.symbol === symbol}
                       onClick={() => {
                         setDraft((d) => ({ ...d, symbol }));
@@ -918,7 +969,7 @@ export function ForestApp() {
               </section>
               <section>
                 <strong>{profile.leaves}</strong>
-                <span>나뭇잎</span>
+                <span>누적 포인트</span>
               </section>
             </div>
             <section className="forest-panel">
@@ -1048,7 +1099,7 @@ export function ForestApp() {
           </p>
         )}
         <footer className="forest-footer">
-          실제 사진으로 시작하는 나의 생활 영어
+          Fun To Run · 실제 사진으로 시작하는 나의 생활 영어
           <br />
           <small>
             사진 단어 {words.length}개 · 영어 예문 {sentenceCount}개 · CC0 실사 사진
@@ -1122,7 +1173,7 @@ export function ForestApp() {
           >
             <h2 id="english-delete-title">영어 기록을 삭제할까요?</h2>
             <p>
-              영어 프로필, 학습 기록과 나뭇잎은 되돌릴 수 없습니다. 이전 한글 기록은 그대로
+              영어 프로필, 학습 기록과 포인트는 되돌릴 수 없습니다. 이전 한글 기록은 그대로
               남습니다.
             </p>
             <div className="forest-actions">
