@@ -9,8 +9,8 @@ import '@fontsource/noto-sans-kr/700.css';
 import './globals.css';
 import { RouteProvider } from '@/components/route-provider';
 export const metadata: Metadata = {
-  title: '단어숲 — 하루 한 단어, 즐거운 배움',
-  description: '단어와 문장, 동화와 퀴즈를 학습 친구와 함께 만나요.',
+  title: '단어숲 — 실제 사진으로 배우는 생활 영어',
+  description: 'CC0 실사 사진으로 사물 이름과 생활 영어 표현을 읽고 듣고 연습해요.',
 };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

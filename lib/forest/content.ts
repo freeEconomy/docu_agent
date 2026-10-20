@@ -1,858 +1,722 @@
 export type Question = {
   question: string;
-  visual: string;
-  sentence?: string;
   options: string[];
   answer: string;
   hint: string;
   explanation: string;
+  sentence?: string;
+  photo?: boolean;
 };
 export type Word = {
   id: string;
   name: string;
-  emoji: string;
-  category: '음식' | '동물' | '자연' | '생활';
+  korean: string;
+  category: '집에서' | '학교에서' | '밖에서';
   meaning: string;
-  related: string[];
+  photo: string;
+  photoId: string;
   sentences: [string, string, string];
+  translations: [string, string, string];
   alternate: [string, string, string];
+  alternateTranslations: [string, string, string];
   glossary: { term: string; meaning: string }[];
-  vocabulary: Question;
-  context: Question;
-  story: { title: string; pages: string[]; questions: Question[]; thinking: string };
+  story: { title: string; pages: string[]; translations: string[]; questions: Question[] };
 };
-function q(
-  question: string,
-  options: string[],
-  answer: string,
-  hint: string,
-  explanation: string,
-  visual = '📖',
-): Question {
-  return { question, options, answer, hint, explanation, visual };
-}
-const lessons = [
+const data = [
   {
-    id: 'apple',
-    name: '사과',
-    emoji: '🍎',
-    category: '음식',
-    meaning:
-      '사과나무의 꽃이 진 뒤 자라는 열매예요. 껍질 속 과육에는 즙이 있고, 가운데에는 씨앗이 들어 있어요. 품종에 따라 빛깔과 맛이 달라요.',
-    related: ['수확', '탐스럽다', '과수원'],
+    id: 'bus',
+    name: 'bus',
+    korean: '버스',
+    category: '밖에서',
+    photoId: 'bus',
+    meaning: '여러 사람이 함께 타는 버스예요. 기다릴 때, 목적지를 물을 때 쓸 수 있는 말을 배워요.',
     sentences: [
-      '농부가 잘 익은 사과를 바구니에 담았어요.',
-      '가을바람이 불자, 과수원에서 사과를 수확하던 친구들이 잠시 손을 멈추었어요.',
-      '탐스러운 사과를 먼저 따고 싶었지만, 친구는 가지가 부러지지 않도록 농부에게 방법을 물었어요.',
+      'I can see a bus.',
+      'We are waiting for the bus at the bus stop.',
+      'Excuse me. Does this bus go to the park?',
+    ],
+    translations: [
+      '버스가 보여요.',
+      '우리는 정류장에서 버스를 기다리고 있어요.',
+      '실례합니다. 이 버스는 공원에 가나요?',
     ],
     alternate: [
-      '나뭇가지에 탐스러운 사과가 주렁주렁 달렸어요.',
-      '사과를 세게 잡아당기면 가지가 상할 수 있어서, 농부는 열매를 조심스럽게 따 주었어요.',
-      '겉이 조금 울퉁불퉁한 사과도 맛있다는 것을 알게 되자, 친구들은 모양만 보고 고르지 않았어요.',
+      'The bus has big windows.',
+      'Please wait until the bus stops.',
+      'May I sit here, or is this seat taken?',
+    ],
+    alternateTranslations: [
+      '버스에는 큰 창문이 있어요.',
+      '버스가 멈출 때까지 기다려 주세요.',
+      '여기 앉아도 되나요, 아니면 누가 앉는 자리인가요?',
     ],
     glossary: [
-      { term: '수확', meaning: '농작물이 다 자란 뒤 거두어들이는 일.' },
-      { term: '탐스럽다', meaning: '모양이 알차고 좋아서 가지고 싶은 마음이 들다.' },
-      { term: '과수원', meaning: '과일나무를 가꾸는 곳.' },
+      { term: 'bus stop', meaning: '버스 정류장' },
+      { term: 'seat', meaning: '앉는 자리, 좌석' },
+      { term: 'wait', meaning: '기다리다' },
     ],
     story: {
-      title: '황금 사과나무와 빈 바구니',
+      title: '버스를 타고 공원에 가요',
       pages: [
-        '가을 축제 전날, {name} 탐험가는 숲 가장자리의 과수원을 찾았어요. 농부는 잘 익은 사과를 함께 수확해 달라고 부탁했지요. “노랗게 빛나는 저 나무의 열매가 가장 달단다.” 친구들은 누가 가장 탐스러운 사과를 딸지 이야기하며 빈 바구니를 들었어요.',
-        '그런데 나무 가까이 가 보니 높은 가지에만 사과가 남아 있었어요. 곰은 힘껏 가지를 흔들려 했고, 다람쥐는 가느다란 가지 끝으로 올라가려 했어요. {name} 탐험가는 둘을 멈추었어요. “가지가 부러지거나 우리가 다치면 축제를 즐길 수 없잖아.”',
-        '친구들은 농부에게 안전하게 딸 방법을 물었어요. 농부는 긴 손잡이에 작은 주머니가 달린 수확 도구를 가져왔어요. 농부가 열매를 따면 곰이 바구니를 받치고, 다람쥐는 바구니가 흔들리지 않게 도왔어요. {name} 탐험가는 딴 사과의 수를 기록했어요.',
-        '마지막 사과를 옮기다 바구니가 기울었어요. 사과 하나가 땅에 떨어져 껍질에 작은 흠집이 났지요. 다람쥐는 속상해서 그 사과를 뒤에 숨겼어요. {name} 탐험가는 농부에게 사과를 보여 주었어요. 농부는 “먹을 수 있는지 먼저 살펴보자”라고 말했어요.',
-        '농부는 사과를 씻고 상태를 확인한 뒤 흠집 난 부분을 잘라 냈어요. 남은 부분으로는 사과 조림을 만들기로 했지요. 친구들은 모양이 고운 사과는 접시에 놓고, 조림은 작은 그릇에 나누었어요. 버리려던 사과도 맛있는 음식이 되었어요.',
-        '축제 손님들은 사과도 조림도 맛있게 먹었어요. 농부가 누구 덕분이냐고 묻자, 친구들은 서로를 가리켰어요. {name} 탐험가는 빈 바구니를 보며 웃었어요. 오늘의 수확은 사과뿐이 아니었어요. 안전하게 돕고, 실수를 숨기지 않고, 함께 해결하는 방법도 배웠으니까요.',
+        'We are going to the park. We walk to the bus stop.',
+        'A bus is coming. We wait until it stops.',
+        'Excuse me. Does this bus go to the park? Yes, it does.',
+        'We get on the bus with an adult. We find two empty seats.',
+        'May I sit here? Yes, you may. Thank you.',
+        'This is our stop. We get off with an adult. The park is across the street.',
       ],
-      thinking: '친구가 실수한 물건을 숨기려 한다면, 어떤 말을 해 주고 싶나요?',
+      translations: [
+        '우리는 공원에 가요. 버스 정류장으로 걸어가요.',
+        '버스가 오고 있어요. 버스가 멈출 때까지 기다려요.',
+        '실례합니다. 이 버스는 공원에 가나요? 네, 가요.',
+        '어른과 함께 버스에 타요. 빈자리 두 개를 찾아요.',
+        '여기 앉아도 되나요? 네, 앉아도 돼요. 고마워요.',
+        '우리가 내릴 정류장이에요. 어른과 함께 내려요. 공원은 길 건너편에 있어요.',
+      ],
     },
   },
   {
-    id: 'banana',
-    name: '바나나',
-    emoji: '🍌',
-    category: '음식',
-    meaning:
-      '여러 열매가 한 덩이로 달리는 과일이에요. 익으면서 껍질의 색과 향, 과육의 단단함이 달라져요.',
-    related: ['배려', '분배', '공평하다'],
+    id: 'train',
+    name: 'train',
+    korean: '기차',
+    category: '밖에서',
+    photoId: 'train',
+    meaning: '철길을 따라 달리는 기차예요. 역에서 표와 출발 시간을 확인하는 말을 배워요.',
     sentences: [
-      '친구들이 바나나를 공평하게 나누었어요.',
-      '소풍에 늦은 친구의 몫을 남겨 두자, 모두가 함께 간식을 먹을 수 있었어요.',
-      '똑같이 나누는 것만 생각하던 친구들은 먹을 수 있는 양도 서로 다르다는 사실을 깨달았어요.',
+      'This is a train.',
+      'The train is waiting at the station.',
+      'Could you help me find the right platform, please?',
+    ],
+    translations: [
+      '이것은 기차예요.',
+      '기차가 역에서 기다리고 있어요.',
+      '맞는 승강장을 찾도록 도와주시겠어요?',
     ],
     alternate: [
-      '바나나가 익을수록 향이 진해졌어요.',
-      '껍질에 갈색 점이 생긴 바나나도 속의 상태를 살펴보고 먹을 수 있어요.',
-      '친구의 사정을 먼저 물어본 뒤 간식을 나누었더니, 남기거나 부족해하는 친구가 줄었어요.',
+      'The train has many doors.',
+      'Please keep your ticket in your bag.',
+      'We should check the time before we get on the train.',
+    ],
+    alternateTranslations: [
+      '기차에는 문이 많이 있어요.',
+      '표를 가방에 넣어 두세요.',
+      '기차에 타기 전에 시간을 확인해야 해요.',
     ],
     glossary: [
-      { term: '배려', meaning: '다른 사람의 처지나 마음을 생각하며 돕는 것.' },
-      { term: '분배', meaning: '몫을 나누어 주는 일.' },
-      { term: '공평하다', meaning: '어느 한쪽에만 치우치지 않고 고르다.' },
+      { term: 'station', meaning: '기차역' },
+      { term: 'ticket', meaning: '표, 승차권' },
+      { term: 'platform', meaning: '기차를 타고 내리는 승강장' },
     ],
     story: {
-      title: '소풍 바구니에 남겨 둔 한 몫',
+      title: '기차역에서 길을 물어요',
       pages: [
-        '{name} 탐험가와 친구들은 냇가로 소풍을 갔어요. 간식 바구니에는 바나나 여섯 개가 있었어요. 모인 친구는 다섯이었고, 고슴도치는 아직 오지 않았어요. 곰이 바나나를 하나씩 꺼내며 “남는 하나는 누가 먹을까?” 하고 물었어요.',
-        '다람쥐는 달리기 시합을 해서 이긴 친구가 먹자고 했어요. 곰은 자신이 바구니를 들었으니 먹고 싶다고 했지요. {name} 탐험가는 길을 돌아보았어요. 아직 도착하지 않은 고슴도치도 소풍에 오기로 약속했었어요.',
-        '“지금 여기 없는 친구에게도 몫이 있지 않을까?” {name} 탐험가가 말했어요. 친구들은 바나나 하나를 바구니에 남겨 두었어요. 잠시 뒤 고슴도치가 숨을 고르며 도착했어요. 길에서 넘어진 동생을 데려다주느라 늦었다고 했어요.',
-        '고슴도치는 남겨 둔 바나나를 보고 고마워했어요. 그런데 토끼는 아침을 늦게 먹어서 바나나 한 개를 다 먹기 어려웠어요. 곰은 배가 조금 더 고팠지만 아무 말도 하지 않았어요. 똑같이 한 개씩 나누어도 필요한 양은 달랐던 거예요.',
-        '친구들은 서로 얼마나 먹을지 물었어요. 토끼는 먹기 전에 자기 바나나의 반을 깨끗이 나누어 곰에게 주었어요. 누구도 억지로 양보하지 않았고, 각자 원하는 만큼 이야기했어요. 남은 껍질은 봉투에 모았어요.',
-        '돌아오는 길에 {name} 탐험가가 말했어요. “공평하게 나누려면 숫자뿐 아니라 친구의 사정도 살펴야 하는구나.” 고슴도치는 다음 소풍의 준비물을 맡겠다고 했어요. 작은 배려가 다음 약속까지 따뜻하게 이어졌어요.',
+        'We are at the station. We are going to visit Grandma.',
+        'Here are our tickets. We check the time with an adult.',
+        'Where is platform two? Let us ask a station worker.',
+        'Excuse me. Where is platform two? It is on your left.',
+        'We wait behind the safety line. We get on when the train stops.',
+        'We find our seats and put away our bags. Thank you for your help!',
       ],
-      thinking: '모두 똑같이 받는 것과 필요한 만큼 받는 것은 어떻게 다를까요?',
+      translations: [
+        '우리는 역에 있어요. 할머니를 만나러 가요.',
+        '여기 우리 표가 있어요. 어른과 시간을 확인해요.',
+        '2번 승강장은 어디일까요? 역 직원에게 물어봐요.',
+        '실례합니다. 2번 승강장은 어디인가요? 왼쪽에 있어요.',
+        '안전선 뒤에서 기다려요. 기차가 멈추면 타요.',
+        '자리를 찾고 가방을 정리해요. 도와주셔서 고마워요!',
+      ],
     },
   },
   {
-    id: 'rabbit',
-    name: '토끼',
-    emoji: '🐰',
-    category: '동물',
-    meaning:
-      '긴 귀와 튼튼한 뒷다리를 가진 포유류예요. 귀로 소리를 듣고, 뒷다리로 땅을 밀며 뛰어요.',
-    related: ['관찰', '단서', '신중하다'],
+    id: 'car',
+    name: 'car',
+    korean: '자동차',
+    category: '밖에서',
+    photoId: 'car',
+    meaning: '가족이나 친구와 이동할 때 타는 자동차예요. 안전벨트와 준비 상태를 말해 봐요.',
     sentences: [
-      '토끼가 낯선 발자국을 유심히 살폈어요.',
-      '풀잎이 눌린 방향을 관찰하자, 작은 동물이 지나간 길을 짐작할 수 있었어요.',
-      '소리만 듣고 위험하다고 생각했던 친구들은 직접 확인한 뒤에야 판단을 바꾸었어요.',
+      'The car is white.',
+      'Please put on your seat belt.',
+      'Are you ready to go, or do you need more time?',
+    ],
+    translations: [
+      '자동차가 하얀색이에요.',
+      '안전벨트를 매 주세요.',
+      '출발할 준비가 됐나요, 아니면 시간이 더 필요한가요?',
     ],
     alternate: [
-      '토끼가 소리에 귀를 기울였어요.',
-      '비슷해 보이는 발자국도 크기와 모양을 비교하면 차이를 찾을 수 있어요.',
-      '한 가지 단서만으로 답을 정하지 않고 여러 흔적을 살펴보았더니, 처음 생각과 다른 까닭을 찾았어요.',
+      'Our car has four wheels.',
+      'My bag is in the back of the car.',
+      'We wait for an adult before we open the car door.',
+    ],
+    alternateTranslations: [
+      '우리 자동차에는 바퀴가 네 개 있어요.',
+      '내 가방은 자동차 뒤쪽에 있어요.',
+      '자동차 문을 열기 전에 어른을 기다려요.',
     ],
     glossary: [
-      { term: '관찰', meaning: '모습이나 변화를 주의 깊게 살펴보는 일.' },
-      { term: '단서', meaning: '어떤 일을 알아내는 데 도움이 되는 실마리.' },
-      { term: '신중하다', meaning: '함부로 결정하지 않고 충분히 생각하다.' },
+      { term: 'seat belt', meaning: '안전벨트' },
+      { term: 'wheel', meaning: '바퀴' },
+      { term: 'ready', meaning: '준비가 된' },
     ],
     story: {
-      title: '토끼 탐정과 사라진 씨앗',
+      title: '자동차로 출발하기 전에',
       pages: [
-        '숲속 학교의 화분에서 씨앗 주머니가 사라졌어요. {name} 탐험가가 도착했을 때, 토끼는 흙바닥의 발자국을 살피고 있었어요. “큰 발자국이 있으니 곰이 가져갔을 거야.” 다람쥐가 말했어요. 곰은 깜짝 놀라 고개를 저었어요.',
-        '토끼는 바로 범인을 정하지 않았어요. 발자국의 가장자리는 말라 있었지만, 오늘 아침 흙은 물을 주어 촉촉했어요. “이 발자국은 오늘 생긴 게 아닐 수도 있어.” 곰은 어제 화분을 옮겨 주었다고 설명했어요.',
-        '{name} 탐험가는 창가에서 작은 씨앗 두 알을 찾았어요. 씨앗은 문이 아니라 열린 창문 쪽으로 이어져 있었어요. 토끼는 창문 아래에 떨어진 가느다란 끈도 발견했어요. 친구들은 보이는 단서를 종이에 그렸어요.',
-        '그때 바람이 불어 빈 주머니 하나가 창틀에서 펄럭였어요. 선생님은 아침에 씨앗 주머니를 창가에 놓았다고 했어요. 친구들은 바람이 주머니를 밀어 떨어뜨렸을 가능성을 생각했어요. 창밖 화단을 살피자 나머지 씨앗도 보였어요.',
-        '씨앗은 누가 훔친 것이 아니었어요. 묶음이 느슨해진 주머니가 바람에 넘어지며 쏟아진 거였지요. 친구들은 씨앗을 모으고 주머니를 단단히 묶었어요. 다람쥐는 곰에게 미안하다고 말했어요.',
-        '토끼는 단서 그림을 교실에 붙였어요. {name} 탐험가는 맨 아래에 한 줄을 적었어요. “확인하기 전에는 단정하지 않기.” 곰은 그림 옆에 새 화분을 놓았어요. 이번에는 모두 함께 씨앗을 심었어요.',
+        'We are going to the library by car. I bring my book.',
+        'Is your bag ready? Yes. My book is in my bag.',
+        'An adult helps me get into my car seat. I put on my seat belt.',
+        'Are you ready? Not yet. Let me check my seat belt.',
+        'Now we are ready. We keep our seat belts on during the ride.',
+        'We arrive at the library. We wait for an adult before getting out.',
       ],
-      thinking: '친구를 오해하지 않으려면 어떤 것을 먼저 확인해야 할까요?',
+      translations: [
+        '자동차로 도서관에 가요. 책을 챙겨요.',
+        '가방은 준비됐나요? 네. 책은 가방 안에 있어요.',
+        '어른이 어린이용 좌석에 앉도록 도와줘요. 안전벨트를 매요.',
+        '준비됐나요? 아직이요. 안전벨트를 확인할게요.',
+        '이제 준비됐어요. 이동하는 동안 안전벨트를 매고 있어요.',
+        '도서관에 도착해요. 내리기 전에 어른을 기다려요.',
+      ],
     },
   },
   {
-    id: 'bear',
-    name: '곰',
-    emoji: '🐻',
-    category: '동물',
-    meaning:
-      '두꺼운 털과 튼튼한 몸을 가진 포유류예요. 종류와 사는 곳에 따라 먹이와 생활 모습이 달라요.',
-    related: ['협력', '역할', '튼튼하다'],
+    id: 'airplane',
+    name: 'airplane',
+    korean: '비행기',
+    category: '밖에서',
+    photoId: 'airplane',
+    meaning: '하늘을 날아 먼 곳으로 이동하는 비행기예요. 공항과 기내에서 필요한 말을 배워요.',
     sentences: [
-      '곰이 친구들과 다리를 고쳤어요.',
-      '곰이 무거운 나무판을 받치는 동안, 친구들은 흔들리는 부분을 표시했어요.',
-      '힘이 센 친구 혼자서는 끝내지 못했던 일도 서로 역할을 나누자 안전하게 해결되었어요.',
+      'I see an airplane.',
+      'The airplane is waiting at the airport.',
+      'Could I have some water, please?',
     ],
+    translations: ['비행기가 보여요.', '비행기가 공항에서 기다리고 있어요.', '물 좀 주시겠어요?'],
     alternate: [
-      '친구들이 각자 잘하는 일을 맡았어요.',
-      '나무판의 길이를 먼저 재어 보았기 때문에 필요한 재료만 준비할 수 있었어요.',
-      '서로 다른 생각을 끝까지 들어 본 뒤 계획을 정하자, 친구들은 같은 목표를 향해 움직였어요.',
+      'The airplane has two wings.',
+      'We put our small bags under the seats.',
+      'Please keep your seat belt on while you are sitting.',
+    ],
+    alternateTranslations: [
+      '비행기에는 날개가 두 개 있어요.',
+      '작은 가방을 좌석 아래에 넣어요.',
+      '앉아 있는 동안 안전벨트를 매 주세요.',
     ],
     glossary: [
-      { term: '협력', meaning: '같은 목표를 이루려고 힘을 합하는 것.' },
-      { term: '역할', meaning: '어떤 일에서 각자가 맡아 하는 일.' },
-      { term: '튼튼하다', meaning: '쉽게 부서지거나 약해지지 않을 만큼 단단하다.' },
+      { term: 'airport', meaning: '공항' },
+      { term: 'wing', meaning: '비행기의 날개' },
+      { term: 'water', meaning: '물' },
     ],
     story: {
-      title: '곰 혼자 만들 수 없는 다리',
+      title: '비행기에서 정중하게 부탁해요',
       pages: [
-        '비가 그친 뒤 작은 개울의 징검다리가 물에 잠겼어요. {name} 탐험가와 곰은 건너편 도서관에 책을 돌려주어야 했어요. 곰은 긴 나무판 하나를 가져와 걸치려 했어요. “내가 힘이 세니까 금방 만들 수 있어!”',
-        '하지만 나무판은 개울보다 짧았어요. 곰이 다른 판을 얹자 가운데가 흔들렸어요. {name} 탐험가는 다가가지 않고 친구들을 불렀어요. 서둘러 건너기보다 먼저 안전한 방법을 생각해야 했어요.',
-        '비버가 와서 길이를 재고, 토끼는 미끄러운 곳을 표시했어요. 다람쥐는 필요한 재료를 종이에 적었어요. 곰은 잠시 부끄러웠지만 혼자 하겠다는 고집을 내려놓았어요. “나는 무거운 재료를 옮길게.”',
-        '친구들은 어른 비버의 안내를 받아 얕고 안전한 곳에서 작은 다리 모형을 만들었어요. 길이가 맞는 판을 고르고 받침을 더했어요. 물살이 센 실제 개울의 다리는 어른들이 고치기로 했어요.',
-        '모형에 돌을 올려 보니 한쪽이 기울었어요. 다람쥐가 받침의 높이가 다르다는 것을 알아냈어요. 곰이 판을 들어 주는 동안 토끼가 높이를 맞췄어요. 혼자서는 보지 못했던 부분을 다른 친구가 발견한 거예요.',
-        '도서관에는 어른과 안전한 길로 돌아갔어요. 늦었지만 책은 무사히 도착했어요. 곰은 말했어요. “힘만 센 것보다 함께 생각하는 게 더 든든하네.” {name} 탐험가는 다음 모험에도 역할을 나누어 보자고 했어요.',
+        'We are at the airport with our family. We can see an airplane.',
+        'We check our gate with an adult. We wait for our turn.',
+        'On the airplane, we find our seats. We put our bags away.',
+        'I am thirsty. Could I have some water, please?',
+        'Here you are. Thank you very much. You are welcome.',
+        'We keep our seat belts on. We look out of the window together.',
       ],
-      thinking: '함께 일할 때 내가 잘할 수 있는 역할은 무엇일까요?',
+      translations: [
+        '가족과 공항에 있어요. 비행기가 보여요.',
+        '어른과 탑승구를 확인해요. 차례를 기다려요.',
+        '비행기에서 자리를 찾아요. 가방을 정리해요.',
+        '목이 말라요. 물 좀 주시겠어요?',
+        '여기 있어요. 정말 고마워요. 천만에요.',
+        '안전벨트를 매고 있어요. 함께 창밖을 봐요.',
+      ],
     },
   },
   {
-    id: 'cat',
-    name: '고양이',
-    emoji: '🐱',
-    category: '동물',
+    id: 'laptop',
+    name: 'laptop',
+    korean: '노트북',
+    category: '학교에서',
+    photoId: 'laptop',
     meaning:
-      '주변의 소리와 움직임에 민감한 포유류예요. 수염은 가까운 곳의 물체를 느끼는 데 도움을 주어요.',
-    related: ['호기심', '예상', '비교'],
+      '화면과 키보드를 함께 접어 가지고 다니는 컴퓨터예요. 사진은 예전 노트북의 실제 모습이에요.',
     sentences: [
-      '고양이가 상자 속 소리를 궁금해했어요.',
-      '상자를 열기 전에 흔들리는 방향과 소리의 크기를 비교해 보았어요.',
-      '처음 예상한 답과 실제 결과가 달랐지만, 친구는 새로 알게 된 점을 기쁘게 기록했어요.',
+      'This is a laptop.',
+      'I use the keyboard to type my name.',
+      'May I use the laptop after you finish?',
+    ],
+    translations: [
+      '이것은 노트북이에요.',
+      '키보드로 내 이름을 입력해요.',
+      '다 쓰고 나면 제가 노트북을 사용해도 될까요?',
     ],
     alternate: [
-      '친구가 궁금한 점을 공책에 적었어요.',
-      '무엇이 들어 있는지 함부로 만지지 않고, 주인에게 먼저 물어보았어요.',
-      '호기심이 생길 때 안전하게 확인하는 방법을 찾으면, 뜻밖의 발견으로 이어질 수 있어요.',
+      'The screen is open.',
+      'Please keep your drink away from the laptop.',
+      'I will save my work before I close the laptop.',
+    ],
+    alternateTranslations: [
+      '화면이 열려 있어요.',
+      '노트북 가까이에 음료를 두지 마세요.',
+      '노트북을 닫기 전에 작업을 저장할게요.',
     ],
     glossary: [
-      { term: '호기심', meaning: '새롭거나 모르는 것을 알고 싶어 하는 마음.' },
-      { term: '예상', meaning: '앞으로 일어날 일이나 결과를 미리 생각하는 것.' },
-      { term: '비교', meaning: '둘 이상을 살펴 같은 점과 다른 점을 찾는 일.' },
+      { term: 'keyboard', meaning: '글자를 입력하는 키보드' },
+      { term: 'screen', meaning: '화면' },
+      { term: 'save', meaning: '저장하다' },
     ],
     story: {
-      title: '상자 안에서 들려온 소리',
+      title: '함께 쓰는 노트북',
       pages: [
-        '{name} 탐험가와 고양이는 도서관 앞에서 작은 상자를 보았어요. 안에서는 사각사각 소리가 났어요. 고양이는 생쥐가 있을 것 같다고 했어요. {name} 탐험가는 종이가 움직이는 소리일 수도 있다고 생각했어요.',
-        '둘은 바로 뚜껑을 열지 않았어요. 상자에는 “도서관 수업 준비물”이라는 이름표가 붙어 있었어요. 주인이 있는 물건이니 먼저 허락을 받아야 했지요. 사서 선생님은 함께 살펴보자고 했어요.',
-        '선생님이 상자를 탁자에 놓자 소리가 멈췄어요. 조금 기울이니 다시 사각사각 소리가 났어요. 고양이는 귀를 기울였어요. “상자가 움직일 때만 소리가 나네요.” {name} 탐험가는 그 사실을 적었어요.',
-        '뚜껑을 열자 작은 종이 조각과 씨앗이 든 통이 나왔어요. 통이 굴러가며 종이를 스쳤던 거예요. 고양이는 웃었어요. 생쥐라는 예상은 틀렸지만 소리가 나는 까닭은 제대로 알아냈어요.',
-        '선생님은 재료가 다른 통 두 개를 더 보여 주었어요. 친구들은 같은 방법으로 기울여 소리를 비교했어요. 씨앗 통은 자잘한 소리, 큰 구슬 통은 묵직한 소리가 났어요. 소리에도 여러 특징이 있었어요.',
-        '고양이는 공책에 “궁금할 때는 예상하고, 허락을 받고, 확인하기”라고 적었어요. {name} 탐험가는 그 옆에 “예상이 틀려도 발견은 남는다”라고 덧붙였어요. 둘은 다음 관찰 수업을 기다렸어요.',
+        'We are making a class picture book. We share a laptop.',
+        'My friend is typing a title. I wait for my turn.',
+        'May I use the laptop after you finish? Yes. Give me one minute.',
+        'It is my turn now. I type my name with the keyboard.',
+        'Please save your work before you close the laptop. All right.',
+        'We save the file and close the laptop. Thank you for sharing.',
       ],
-      thinking: '예상이 틀렸을 때도 배울 수 있는 것은 무엇일까요?',
+      translations: [
+        '학급 그림책을 만들고 있어요. 노트북을 함께 써요.',
+        '친구가 제목을 입력하고 있어요. 차례를 기다려요.',
+        '다 쓰고 나면 제가 써도 될까요? 네. 1분만 기다려 주세요.',
+        '이제 내 차례예요. 키보드로 내 이름을 입력해요.',
+        '노트북을 닫기 전에 작업을 저장해 주세요. 알겠어요.',
+        '파일을 저장하고 노트북을 닫아요. 함께 써 줘서 고마워요.',
+      ],
     },
   },
   {
-    id: 'tree',
-    name: '나무',
-    emoji: '🌳',
-    category: '자연',
+    id: 'chair',
+    name: 'chair',
+    korean: '의자',
+    category: '집에서',
+    photoId: 'chair',
     meaning:
-      '단단한 줄기와 가지를 가진 식물이에요. 뿌리로 물을 빨아들이고, 잎에서 햇빛을 이용해 살아가는 데 필요한 양분을 만들어요.',
-    related: ['생태계', '서식지', '보호'],
+      '앉을 때 쓰는 의자예요. 사진은 오래된 장식 의자지만, 집과 학교의 의자에도 chair라는 말을 써요.',
     sentences: [
-      '나무는 여러 생물의 보금자리예요.',
-      '나무 그늘 아래에는 작은 벌레가 살고, 가지에는 새가 둥지를 틀었어요.',
-      '보기에는 평범한 나무 한 그루였지만, 자세히 살펴보니 여러 생물이 서로 관계를 맺으며 살고 있었어요.',
+      'This is a chair.',
+      'Please put the chair next to the table.',
+      'Excuse me. May I sit in this chair?',
+    ],
+    translations: [
+      '이것은 의자예요.',
+      '의자를 탁자 옆에 놓아 주세요.',
+      '실례합니다. 이 의자에 앉아도 될까요?',
     ],
     alternate: [
-      '친구들이 나무 주변의 생물을 기록했어요.',
-      '떨어진 잎을 모두 치우기 전에 그 아래에서 무엇이 사는지 살펴보았어요.',
-      '우리에게 편리한 방법이 다른 생물에게도 좋은지 생각하며 공원을 가꾸기로 했어요.',
+      'The chair has four legs.',
+      'There is an empty chair by the window.',
+      'Please ask before you move someone else’s chair.',
+    ],
+    alternateTranslations: [
+      '의자에는 다리가 네 개 있어요.',
+      '창문 옆에 빈 의자가 있어요.',
+      '다른 사람의 의자를 옮기기 전에 물어보세요.',
     ],
     glossary: [
-      { term: '생태계', meaning: '생물과 주변 환경이 서로 영향을 주고받으며 이루는 체계.' },
-      { term: '서식지', meaning: '생물이 살면서 먹이를 구하고 자라는 곳.' },
-      { term: '보호', meaning: '위험하거나 해로운 것으로부터 지키는 일.' },
+      { term: 'sit', meaning: '앉다' },
+      { term: 'empty', meaning: '비어 있는' },
+      { term: 'next to', meaning: '바로 옆에' },
     ],
     story: {
-      title: '베어 내기 전에 해야 할 일',
+      title: '빈자리가 있는지 물어요',
       pages: [
-        '숲속 마을에 새 놀이터를 만들기로 했어요. {name} 탐험가는 그네를 탈 생각에 신났어요. 그런데 계획 그림에는 오래된 나무를 없애는 표시가 있었어요. 나무가 있던 곳에 미끄럼틀을 놓으려는 거였어요.',
-        '친구들은 나무를 살펴보기로 했어요. 가지에는 새 둥지가 있었고, 껍질 틈에는 작은 벌레가 움직였어요. 땅에 떨어진 잎 아래에는 지렁이도 있었어요. 그냥 오래된 나무라고만 생각했던 곳이 여러 생물의 집이었어요.',
-        '곰은 “나무를 두면 놀이터를 못 만드는 거 아냐?” 하고 물었어요. 토끼는 나무를 베지 않으면 그네를 놓을 자리가 있는지 재 보자고 했어요. {name} 탐험가는 그늘의 위치와 사람들이 지나는 길을 그림에 표시했어요.',
-        '친구들은 세 가지 배치도를 만들었어요. 한 그림은 통로가 너무 좁았고, 다른 그림은 둥지 바로 아래에 놀이 기구가 있었어요. 마지막 그림은 놀이 기구를 조금 옮겨 나무와 통로를 함께 남길 수 있었어요.',
-        '마을 어른들은 전문가에게 나무의 건강과 안전을 확인받았어요. 안전한 가지와 거리를 살핀 뒤, 마지막 배치도를 고쳤어요. 낙엽도 통로에서는 치우되 생물이 사는 구역에는 일부 남겼어요.',
-        '새 놀이터가 열리자 친구들은 나무 그늘에서 쉬었어요. 멀리 가지 위로 새가 날아왔어요. {name} 탐험가는 나무를 바라보았어요. 좋은 놀이터는 우리만 즐거운 곳이 아니라, 원래 살던 이웃도 함께 지내는 곳이었어요.',
+        'We are in the reading room. I would like to read a book.',
+        'There is a chair by the window. A bag is on the chair.',
+        'Excuse me. Is someone sitting here? Yes. My friend is coming.',
+        'All right. Is that chair free? Yes, it is.',
+        'May I sit here? Of course. Please take a seat.',
+        'Thank you. I put my bag under my chair and open my book.',
       ],
-      thinking: '우리 동네에서 사람과 다른 생물이 함께 지낼 방법은 무엇일까요?',
+      translations: [
+        '독서실에 있어요. 책을 읽고 싶어요.',
+        '창문 옆에 의자가 있어요. 가방이 의자 위에 있어요.',
+        '실례합니다. 누가 여기 앉나요? 네. 친구가 올 거예요.',
+        '알겠어요. 저 의자는 비어 있나요? 네, 비어 있어요.',
+        '여기 앉아도 될까요? 물론이죠. 앉으세요.',
+        '고마워요. 가방을 내 의자 아래에 놓고 책을 펼쳐요.',
+      ],
     },
   },
   {
-    id: 'sun',
-    name: '해',
-    emoji: '☀️',
-    category: '자연',
+    id: 'bowl',
+    name: 'bowl',
+    korean: '그릇',
+    category: '집에서',
+    photoId: 'bowl',
     meaning:
-      '지구에서 가장 가까운 별인 태양이에요. 빛과 열을 보내 주며, 지구의 물이 증발하고 식물이 자라는 데 영향을 주어요.',
-    related: ['증발', '햇빛', '기록'],
+      '음식을 담는 오목한 그릇이에요. 그릇과 식기를 준비하거나 건네 달라고 부탁하는 말을 배워요.',
     sentences: [
-      '햇빛을 받은 물웅덩이가 작아졌어요.',
-      '물은 눈에 보이지 않는 수증기가 되어 공기 중으로 이동할 수 있어요.',
-      '같은 양의 물을 서로 다른 곳에 놓고 변화를 기록하면, 어떤 조건에서 물이 더 빨리 줄어드는지 비교할 수 있어요.',
+      'This is a bowl.',
+      'Please put the bowl on the table.',
+      'Could you pass me the empty bowl, please?',
+    ],
+    translations: [
+      '이것은 그릇이에요.',
+      '그릇을 탁자 위에 놓아 주세요.',
+      '빈 그릇을 저에게 건네주시겠어요?',
     ],
     alternate: [
-      '친구가 물의 높이를 선으로 표시했어요.',
-      '물이 줄어든 까닭을 알아보려고 쏟아졌거나 새어 나온 흔적도 확인했어요.',
-      '한 번 본 결과만으로 답을 정하지 않고 같은 실험을 다시 해 보며 생각을 점검했어요.',
+      'The bowl is white.',
+      'I need a bowl and a spoon.',
+      'Let us wash our hands before we set the table.',
+    ],
+    alternateTranslations: [
+      '그릇이 하얀색이에요.',
+      '그릇과 숟가락이 필요해요.',
+      '식탁을 차리기 전에 손을 씻어요.',
     ],
     glossary: [
-      { term: '증발', meaning: '액체의 표면에서 물질이 기체로 바뀌는 현상.' },
-      { term: '햇빛', meaning: '해에서 나와 지구에 닿는 빛.' },
-      { term: '기록', meaning: '나중에 살펴볼 수 있도록 보고 들은 것을 적거나 남기는 일.' },
+      { term: 'spoon', meaning: '숟가락' },
+      { term: 'pass', meaning: '건네주다' },
+      { term: 'table', meaning: '탁자, 식탁' },
     ],
     story: {
-      title: '사라진 물의 행방',
+      title: '함께 식탁을 준비해요',
       pages: [
-        '비 온 다음 날, {name} 탐험가는 운동장의 물웅덩이 옆에 돌을 놓았어요. 점심을 먹고 돌아오니 물웅덩이가 작아져 있었어요. 곰은 땅이 모두 마셨다고 했고, 토끼는 햇빛 때문일 수도 있다고 했어요.',
-        '친구들은 어느 생각이 맞는지 알아보고 싶었어요. 선생님은 같은 모양의 접시 두 개에 같은 양의 물을 담아 주었어요. 하나는 햇볕이 드는 창가에, 다른 하나는 그늘에 놓았어요. 물의 높이도 표시했어요.',
-        '처음에는 차이가 거의 보이지 않았어요. 다람쥐가 실험이 실패한 것 같다고 말했어요. {name} 탐험가는 조금 더 기다리자고 했어요. 변화를 알아보려면 시간이 필요한 일도 있으니까요.',
-        '오후에 보니 햇볕 쪽 접시의 물이 더 많이 줄어 있었어요. 접시 아래에는 샌 물도 없었어요. 선생님은 물이 눈에 보이지 않는 수증기로 바뀌어 공기 중으로 이동하는 것을 증발이라고 설명했어요.',
-        '그렇다고 물웅덩이의 물이 모두 증발했다고 단정할 수는 없었어요. 흙으로 스며든 물도 있을 수 있었지요. 친구들은 접시 실험으로 알게 된 점과 아직 확인하지 못한 점을 나누어 적었어요.',
-        '다음 날에는 물의 양과 놓는 시간을 다시 맞추어 관찰했어요. {name} 탐험가는 처음의 돌 옆에 작은 안내판을 세웠어요. “작아진 물웅덩이에도 이야기가 있어요.” 친구들은 익숙한 풍경을 더 자세히 보게 되었어요.',
+        'It is time to set the table. Let us wash our hands first.',
+        'What do we need? We need bowls and spoons.',
+        'Could you pass me a bowl, please? Here you are.',
+        'Thank you. I put the bowl on the table carefully.',
+        'An adult brings the hot soup. I keep my hands away from the pot.',
+        'The table is ready. After we eat, we help clean up.',
       ],
-      thinking: '실험에서 알게 된 점과 아직 모르는 점을 구별하는 까닭은 무엇일까요?',
+      translations: [
+        '식탁을 차릴 시간이에요. 먼저 손을 씻어요.',
+        '무엇이 필요하죠? 그릇과 숟가락이 필요해요.',
+        '그릇 하나 건네주시겠어요? 여기 있어요.',
+        '고마워요. 조심스럽게 그릇을 식탁 위에 놓아요.',
+        '어른이 뜨거운 수프를 가져와요. 냄비에 손을 대지 않아요.',
+        '식탁이 준비됐어요. 식사 뒤에는 정리도 도와요.',
+      ],
     },
   },
   {
-    id: 'rainbow',
-    name: '무지개',
-    emoji: '🌈',
-    category: '자연',
+    id: 'sign',
+    name: 'sign',
+    korean: '표지판',
+    category: '밖에서',
+    photoId: 'sign',
     meaning:
-      '햇빛이 공기 중 물방울을 지나며 꺾이고 물방울 안에서 반사되어 여러 색의 띠로 보이는 현상이에요.',
-    related: ['굴절', '현상', '발견'],
+      '글자나 그림으로 정보를 알려 주는 표지판이에요. 사진은 제한 속도를 알려 주는 표지판이며 정지 표지판은 아니에요.',
     sentences: [
-      '친구들이 물컵 속 빨대를 관찰했어요.',
-      '빨대가 물속에서 꺾여 보였지만, 꺼내 보니 실제 모양은 그대로였어요.',
-      '눈에 보이는 모습이 물체의 실제 모양과 다를 수 있다는 것을 알고, 친구들은 관찰한 사실을 다시 확인했어요.',
+      'Look at the sign.',
+      'The sign tells us the speed limit.',
+      'Let us look for a crossing before we cross the street.',
+    ],
+    translations: [
+      '표지판을 보세요.',
+      '표지판이 제한 속도를 알려 줘요.',
+      '길을 건너기 전에 횡단보도를 찾아봐요.',
     ],
     alternate: [
-      '비가 그친 하늘에 무지개가 나타났어요.',
-      '햇빛과 물방울이 만나는 조건에 따라 무지개를 볼 수 있는 위치가 달라져요.',
-      '보기만 해서는 알기 어려운 현상도 조건을 바꾸어 살펴보면 새로운 단서를 찾을 수 있어요.',
+      'There is a number on the sign.',
+      'We read the signs with an adult.',
+      'If you do not understand a sign, ask an adult for help.',
+    ],
+    alternateTranslations: [
+      '표지판에 숫자가 있어요.',
+      '어른과 함께 표지판을 읽어요.',
+      '표지판을 이해하지 못하면 어른에게 도움을 요청하세요.',
     ],
     glossary: [
-      {
-        term: '굴절',
-        meaning: '빛이 물이나 공기처럼 서로 다른 물질을 지날 때 진행 방향이 꺾이는 현상.',
-      },
-      { term: '현상', meaning: '우리가 보고 알아차릴 수 있게 나타나는 모습이나 변화.' },
-      { term: '발견', meaning: '미처 알지 못했던 것을 찾아내는 일.' },
+      { term: 'street', meaning: '거리, 길' },
+      { term: 'crossing', meaning: '횡단보도, 길을 건너는 곳' },
+      { term: 'help', meaning: '도움, 돕다' },
     ],
     story: {
-      title: '꺾이지 않은 빨대의 비밀',
+      title: '길에서 정보를 찾아요',
       pages: [
-        '무지개가 뜬 날, {name} 탐험가는 하늘의 색을 공책에 그렸어요. 곁에 있던 물컵을 보다가 손을 멈추었어요. 컵에 꽂힌 빨대가 물 표면에서 꺾여 보였어요. “아까까지 멀쩡했는데 왜 이럴까?”',
-        '곰은 빨대를 새것으로 바꾸자고 했어요. 토끼는 먼저 꺼내 보자고 했지요. 물 밖으로 꺼낸 빨대는 곧았어요. 다시 넣으면 같은 자리에서 꺾인 것처럼 보였어요. 빨대 자체가 부러진 것은 아니었어요.',
-        '선생님은 빛이 물과 공기 사이를 지날 때 방향이 달라질 수 있다고 알려 주었어요. 이 현상을 굴절이라고 했어요. 친구들은 빨대를 옆에서 볼 때와 위에서 볼 때 모습을 비교해 그림으로 남겼어요.',
-        '{name} 탐험가는 하늘의 무지개도 떠올렸어요. 선생님은 햇빛이 물방울을 지날 때 여러 색으로 나뉘고, 그 안에서 반사되어 나오는 빛이 우리 눈에 닿는다고 설명했어요. 빨대와 무지개는 같지는 않지만 빛이 가는 길과 관련이 있었어요.',
-        '친구들은 그림만 보고 “빨대가 부러졌다”고 쓰지 않기로 했어요. 대신 “물속에서 꺾여 보였지만 꺼내면 곧았다”고 적었어요. 보이는 모습과 확인한 사실을 나누어 쓰니 설명이 더 정확해졌어요.',
-        '집으로 돌아갈 때 무지개는 사라져 있었어요. 그래도 {name} 탐험가의 공책에는 두 가지 발견이 남았어요. 빛이 가는 길은 달라질 수 있다는 것, 그리고 처음 보인 모습만으로 결론을 내리지 않아야 한다는 것이었어요.',
+        'We are walking with an adult. We see a sign beside the road.',
+        'Look at the sign. What does the number mean?',
+        'It tells drivers the speed limit. It is not a stop sign.',
+        'We want to cross the street. Let us find a crossing.',
+        'We stop and look carefully with an adult. We cross when it is safe.',
+        'Signs give us information. If we are not sure, we ask for help.',
       ],
-      thinking: '눈으로 본 것과 실제가 달랐던 경험이 있나요?',
+      translations: [
+        '어른과 함께 걸어요. 도로 옆에 표지판이 보여요.',
+        '표지판을 보세요. 숫자는 무슨 뜻일까요?',
+        '운전자에게 제한 속도를 알려 줘요. 정지 표지판은 아니에요.',
+        '길을 건너고 싶어요. 횡단보도를 찾아봐요.',
+        '어른과 함께 멈춰서 주의 깊게 살펴요. 안전할 때 건너요.',
+        '표지판은 정보를 알려 줘요. 잘 모르겠으면 도움을 구해요.',
+      ],
     },
   },
   {
-    id: 'hat',
-    name: '모자',
-    emoji: '🧢',
-    category: '생활',
-    meaning: '머리에 쓰는 물건이에요. 챙이나 재료에 따라 햇빛·추위·비를 막는 쓰임이 달라져요.',
-    related: ['대비', '예보', '선택'],
+    id: 'building',
+    name: 'building',
+    korean: '건물',
+    category: '학교에서',
+    photoId: 'building',
+    meaning:
+      '사람들이 살거나 공부하거나 일하는 건물이에요. 건물에서 입구를 찾고 길을 묻는 표현을 배워요.',
     sentences: [
-      '친구가 날씨에 알맞은 모자를 골랐어요.',
-      '오후에 비가 온다는 예보를 듣고, 모자뿐 아니라 비옷도 챙겼어요.',
-      '지금 맑다고 준비를 생략하기보다 앞으로 달라질 상황을 생각하면 곤란한 일을 줄일 수 있어요.',
+      'That is a tall building.',
+      'The entrance is next to the big window.',
+      'Excuse me. Could you show me the way to the entrance?',
+    ],
+    translations: [
+      '저것은 높은 건물이에요.',
+      '입구는 큰 창문 옆에 있어요.',
+      '실례합니다. 입구로 가는 길을 알려 주시겠어요?',
     ],
     alternate: [
-      '넓은 챙이 얼굴에 그늘을 만들었어요.',
-      '바람이 강해지자 모자의 끈을 조절하고 안전한 곳에서 쉬었어요.',
-      '필요한 물건을 모두 가져갈 수 없을 때는 목적과 날씨를 살펴 우선순위를 정했어요.',
+      'The building has many windows.',
+      'We meet our teacher at the entrance.',
+      'We stay together when we visit a new building.',
+    ],
+    alternateTranslations: [
+      '건물에는 창문이 많이 있어요.',
+      '입구에서 선생님을 만나요.',
+      '새로운 건물에 갈 때는 함께 다녀요.',
     ],
     glossary: [
-      { term: '대비', meaning: '앞으로 생길 일을 생각해 미리 준비하는 것.' },
-      { term: '예보', meaning: '앞으로의 날씨 등을 미리 알려 주는 것.' },
-      { term: '선택', meaning: '여럿 가운데 필요한 것이나 원하는 것을 고르는 일.' },
+      { term: 'entrance', meaning: '입구' },
+      { term: 'floor', meaning: '건물의 층, 바닥' },
+      { term: 'together', meaning: '함께' },
     ],
     story: {
-      title: '맑은 아침에 챙긴 비옷',
+      title: '처음 가는 건물에서',
       pages: [
-        '산책을 나서는 아침, 하늘은 파랬어요. {name} 탐험가는 챙 넓은 모자를 골랐어요. 곰은 비옷을 보고 웃었어요. “구름도 없는데 무거운 비옷을 왜 가져가?” 친구도 잠깐 망설였어요.',
-        '출발 전에 날씨 예보를 다시 보았어요. 오후에는 소나기가 올 수 있다고 했어요. {name} 탐험가는 가벼운 비옷과 물을 가방에 넣고, 장난감은 집에 두었어요. 모두 가져갈 수 없으니 필요한 것을 고른 거예요.',
-        '숲길에서는 햇빛이 강했어요. 친구들은 모자를 쓰고 그늘에서 쉬었어요. 점심 무렵 서쪽 하늘에 짙은 구름이 모였어요. 곰은 아침과 달라진 하늘을 보고 놀랐어요.',
-        '어른 안내자가 비가 오기 전에 가까운 쉼터로 이동하자고 했어요. 친구들은 서둘러 뛰지 않고 줄지어 걸었어요. 곧 빗방울이 떨어졌고, {name} 탐험가는 비옷을 꺼냈어요. 곰에게는 안내자가 준비한 여벌 비옷이 있었어요.',
-        '쉼터에서 비를 기다리며 곰이 물었어요. “아침 하늘만 보고 결정했으면 어땠을까?” {name} 탐험가는 비옷 대신 장난감을 넣었을 모습을 떠올렸어요. 지금 보이는 날씨와 앞으로의 날씨는 다를 수 있었어요.',
-        '비가 그친 뒤 친구들은 어른과 안전한 길로 돌아왔어요. 곰은 다음 산책 준비 목록에 “예보 확인”을 적었어요. {name} 탐험가는 모자를 벗으며 웃었어요. 준비는 겁내는 일이 아니라 모험을 오래 즐기는 방법이었어요.',
+        'We visit a new building with our teacher. We stay together.',
+        'The building has many windows. Where is the entrance?',
+        'Excuse me. Where is the entrance? It is around the corner.',
+        'Thank you. We walk around the corner with our teacher.',
+        'Here is the entrance. Please wait here while I check in.',
+        'We wait together. Then we follow our teacher inside.',
       ],
-      thinking: '내일의 일을 위해 오늘 미리 준비할 수 있는 것은 무엇인가요?',
+      translations: [
+        '선생님과 새로운 건물에 가요. 함께 다녀요.',
+        '건물에 창문이 많이 있어요. 입구는 어디일까요?',
+        '실례합니다. 입구는 어디인가요? 모퉁이를 돌면 있어요.',
+        '고마워요. 선생님과 모퉁이를 돌아가요.',
+        '여기가 입구예요. 제가 접수하는 동안 여기서 기다리세요.',
+        '함께 기다려요. 그런 다음 선생님을 따라 안으로 들어가요.',
+      ],
     },
   },
   {
-    id: 'bag',
-    name: '가방',
-    emoji: '🎒',
-    category: '생활',
-    meaning:
-      '필요한 물건을 넣어 들거나 메는 도구예요. 쓰임과 크기에 맞게 물건을 정리하면 꺼내기 편하고 무게도 조절할 수 있어요.',
-    related: ['계획', '우선순위', '점검'],
+    id: 'window',
+    name: 'window',
+    korean: '창문',
+    category: '집에서',
+    photoId: 'building',
+    meaning: '빛이 들어오고 밖을 볼 수 있는 창문이에요. 사진 속 건물의 유리창을 찾아보세요.',
     sentences: [
-      '준비물 목록을 보고 가방을 챙겼어요.',
-      '자주 쓰는 물건은 꺼내기 쉬운 주머니에 넣고, 무거운 물건은 몸 가까이에 두었어요.',
-      '챙길 물건이 너무 많아지자 꼭 필요한 것부터 골라 적고, 빠진 것이 없는지 마지막으로 점검했어요.',
+      'I can see a window.',
+      'The room is bright because the window is big.',
+      'Could you open the window a little, please?',
     ],
+    translations: ['창문이 보여요.', '창문이 커서 방이 밝아요.', '창문을 조금 열어 주시겠어요?'],
     alternate: [
-      '친구들이 출발 전에 가방의 무게를 확인했어요.',
-      '어제 세운 계획을 그대로 따르기보다 바뀐 일정에 맞추어 준비물을 고쳤어요.',
-      '계획대로 되지 않는 일이 생겨도 목표를 다시 살피면 다른 방법을 찾을 수 있어요.',
+      'There are many windows.',
+      'Please ask an adult to help with the window.',
+      'I would like to sit by the window so I can see outside.',
+    ],
+    alternateTranslations: [
+      '창문이 많이 있어요.',
+      '어른에게 창문 여는 것을 도와 달라고 하세요.',
+      '밖을 볼 수 있도록 창문 옆에 앉고 싶어요.',
     ],
     glossary: [
-      { term: '계획', meaning: '앞으로 할 일과 방법, 순서 등을 미리 정하는 것.' },
-      { term: '우선순위', meaning: '여러 일 가운데 먼저 해야 할 차례.' },
-      { term: '점검', meaning: '빠지거나 잘못된 것이 없는지 살펴보는 일.' },
+      { term: 'open', meaning: '열다' },
+      { term: 'close', meaning: '닫다' },
+      { term: 'outside', meaning: '바깥, 바깥에' },
     ],
     story: {
-      title: '가방에서 꺼낸 두 번째 계획',
+      title: '창문을 열어 달라고 부탁해요',
       pages: [
-        '숲속 전시회에 가는 날, {name} 탐험가는 그림책과 물, 손수건을 챙겼어요. 보여 주고 싶은 돌멩이와 장난감도 넣었지요. 가방을 메자 어깨가 아래로 쑥 내려갔어요. 출발도 하기 전에 무거웠어요.',
-        '친구는 준비물 목록을 다시 보았어요. 전시회에는 직접 그린 그림 한 장만 가져오면 되었어요. 그림책과 장난감은 꼭 필요하지 않았어요. {name} 탐험가는 필요한 것과 가져가고 싶은 것을 나누어 놓았어요.',
-        '가방이 가벼워진 뒤에는 물건을 쓸 순서를 생각했어요. 입장권은 앞주머니에, 물병은 세워 넣었어요. 그림은 구겨지지 않게 단단한 파일에 넣었어요. 찾는 데 오래 걸리지 않도록 자리를 정한 거예요.',
-        '그런데 출발 직전 전시회장이 잠시 닫혔다는 소식이 왔어요. 곰은 오늘 계획이 모두 엉망이 되었다며 실망했어요. {name} 탐험가도 속상했지만, 그림을 함께 보고 싶었던 까닭을 다시 생각했어요.',
-        '친구들은 어른에게 허락을 받고 마을 쉼터에서 작은 전시회를 열었어요. 종이와 집게를 빌려 그림을 걸고, 돌아가며 설명했어요. 원래 장소에는 못 갔지만 서로의 그림을 감상하려던 목표는 이룰 수 있었어요.',
-        '집에 돌아온 {name} 탐험가는 목록 아래에 메모했어요. “계획은 준비를 돕고, 다른 방법은 목표를 돕는다.” 가방 속 물건만 줄어든 것이 아니었어요. 계획이 달라지면 실패라는 걱정도 조금 가벼워졌어요.',
+        'We are reading in a room. The room feels warm.',
+        'I would like some fresh air. I ask an adult for help.',
+        'Could you open the window a little, please? Yes, I can.',
+        'The adult checks the window and opens it safely. We stay away from the edge.',
+        'Fresh air comes in. Thank you. That feels better.',
+        'It starts to rain. Could you close the window, please?',
       ],
-      thinking: '계획이 바뀌었을 때도 지킬 수 있는 중요한 목표는 무엇일까요?',
+      translations: [
+        '방에서 책을 읽고 있어요. 방이 따뜻해요.',
+        '신선한 공기가 있으면 좋겠어요. 어른에게 도움을 구해요.',
+        '창문을 조금 열어 주시겠어요? 네, 그럴게요.',
+        '어른이 창문을 확인하고 안전하게 열어요. 우리는 창가 끝에 가까이 가지 않아요.',
+        '신선한 공기가 들어와요. 고마워요. 한결 좋아졌어요.',
+        '비가 오기 시작해요. 창문을 닫아 주시겠어요?',
+      ],
     },
   },
 ] as const;
-const comprehension: Record<
+const details: Record<
   string,
-  { question: string; options: string[]; correct: number; page: number; explanation: string }[]
+  {
+    question: string;
+    options: string[];
+    answer: number;
+    hint: string;
+    explanation: string;
+    order: [string, string, string];
+  }
 > = {
-  apple: [
-    {
-      question: '친구들이 가지를 흔들지 않고 농부를 부른 까닭은 무엇일까요?',
-      options: [
-        '사과의 색을 바꾸려고',
-        '나무와 친구들을 안전하게 지키려고',
-        '사과를 더 오래 숨기려고',
-      ],
-      correct: 1,
-      page: 1,
-      explanation: '가지가 부러지거나 친구가 다칠 수 있어서 안전한 수확 방법을 물었어요.',
-    },
-    {
-      question: '흠집 난 사과를 발견한 뒤의 순서로 알맞은 것은?',
-      options: [
-        '상태 확인 → 조림 만들기 → 손님과 나누기',
-        '조림 만들기 → 사과 숨기기 → 수확하기',
-        '손님과 나누기 → 상태 확인 → 사과 씻기',
-      ],
-      correct: 0,
-      page: 4,
-      explanation: '먹을 수 있는지 먼저 확인하고, 조림을 만든 뒤 축제 손님과 나누었어요.',
-    },
-    {
-      question: '마지막의 “수확은 사과뿐이 아니었다”는 무슨 뜻일까요?',
-      options: [
-        '사과 대신 다른 과일만 땄다는 뜻',
-        '친구들이 축제에 오지 않았다는 뜻',
-        '함께 문제를 해결하는 방법도 배웠다는 뜻',
-      ],
-      correct: 2,
-      page: 5,
-      explanation: '수확은 열매를 거두는 일이지만, 여기에서는 경험으로 얻은 배움까지 나타내요.',
-    },
-  ],
-  banana: [
-    {
-      question: '바나나 하나를 남겨 둔 까닭은 무엇인가요?',
-      options: [
-        '아직 오지 않은 친구의 몫이어서',
-        '맛없는 바나나였기 때문에',
-        '달리기 시합에 쓸 것이어서',
-      ],
-      correct: 0,
-      page: 2,
-      explanation: '아직 도착하지 않은 고슴도치도 소풍에 오기로 약속했어요.',
-    },
-    {
-      question: '이야기의 순서로 알맞은 것은 무엇인가요?',
-      options: [
-        '간식 나누기 → 소풍 준비 → 고슴도치 기다리기',
-        '한 몫 남기기 → 고슴도치 도착 → 먹을 양 묻기',
-        '껍질 치우기 → 바나나 나누기 → 소풍 출발',
-      ],
-      correct: 1,
-      page: 3,
-      explanation: '고슴도치를 기다리며 몫을 남겼고, 도착한 뒤 각자 필요한 양을 물었어요.',
-    },
-    {
-      question: '친구들이 새롭게 알게 된 공평한 나눔은 무엇일까요?',
-      options: [
-        '목소리가 큰 친구에게 더 주기',
-        '언제나 힘센 친구가 먼저 먹기',
-        '같은 수뿐 아니라 서로의 사정도 살피기',
-      ],
-      correct: 2,
-      page: 5,
-      explanation: '한 개씩 받아도 배고픈 정도가 달랐어요. 필요한 양을 묻고 자발적으로 나누었어요.',
-    },
-  ],
-  rabbit: [
-    {
-      question: '곰의 발자국만 보고 결론을 내릴 수 없었던 까닭은?',
-      options: [
-        '발자국이 마른 상태여서 어제 흔적일 수 있었어요.',
-        '곰은 발자국을 전혀 남기지 않아요.',
-        '씨앗은 발자국 안에서 자라요.',
-      ],
-      correct: 0,
-      page: 1,
-      explanation:
-        '오늘 흙은 젖어 있었지만 발자국 가장자리는 말라 있었어요. 시간 차이를 살펴야 했어요.',
-    },
-    {
-      question: '친구들이 확인한 순서는 무엇인가요?',
-      options: [
-        '씨앗 심기 → 창가 살피기 → 발자국 발견',
-        '바람 확인 → 씨앗 심기 → 곰 의심',
-        '발자국 살피기 → 창가 단서 찾기 → 화단 확인',
-      ],
-      correct: 2,
-      page: 3,
-      explanation: '발자국을 살핀 뒤 씨앗과 끈을 발견했고, 창밖에서 나머지 씨앗을 찾았어요.',
-    },
-    {
-      question: '다람쥐가 곰에게 사과한 이유를 가장 잘 설명한 것은?',
-      options: [
-        '곰의 화분을 깨뜨려서',
-        '충분히 확인하지 않고 곰을 의심해서',
-        '곰의 씨앗을 모두 가져가서',
-      ],
-      correct: 1,
-      page: 4,
-      explanation: '다람쥐는 큰 발자국 하나만 보고 곰이 가져갔다고 단정했어요.',
-    },
-  ],
-  bear: [
-    {
-      question: '곰 혼자서는 해결하기 어려웠던 까닭은 무엇인가요?',
-      options: [
-        '재료를 옮길 힘이 전혀 없어서',
-        '힘 외에도 길이 측정과 안전 점검이 필요해서',
-        '친구들이 다리를 건너기 싫어해서',
-      ],
-      correct: 1,
-      page: 2,
-      explanation: '곰에게는 힘이 있었지만, 길이와 받침의 높이 등을 함께 살펴야 했어요.',
-    },
-    {
-      question: '이야기 속 문제 해결 순서는?',
-      options: [
-        '흔들림 발견 → 역할 나누기 → 모형 점검',
-        '모형 점검 → 물에 뛰어들기 → 책 찾기',
-        '책 반납 → 나무판 걸치기 → 길이 재기',
-      ],
-      correct: 0,
-      page: 4,
-      explanation: '나무판의 문제를 발견하고 각자 역할을 맡은 뒤 모형을 만들어 확인했어요.',
-    },
-    {
-      question: '곰이 “함께 생각하는 게 더 든든하다”고 한 까닭은?',
-      options: [
-        '다른 친구가 모든 일을 대신해 주어서',
-        '협력하면 안전 확인을 안 해도 되어서',
-        '서로 다른 장점으로 놓친 부분을 도울 수 있어서',
-      ],
-      correct: 2,
-      page: 5,
-      explanation:
-        '재기, 기록, 받치기처럼 서로 다른 역할이 모였고, 받침 높이의 차이도 함께 고쳤어요.',
-    },
-  ],
-  cat: [
-    {
-      question: '친구들이 상자를 바로 열지 않은 까닭은 무엇인가요?',
-      options: [
-        '주인이 있는 물건이라 허락이 필요해서',
-        '상자에서 아무 소리도 안 나서',
-        '도서관에는 상자를 둘 수 없어서',
-      ],
-      correct: 0,
-      page: 1,
-      explanation: '수업 준비물이라는 이름표를 보고 사서 선생님께 먼저 물었어요.',
-    },
-    {
-      question: '상자 속 소리를 알아낸 순서는?',
-      options: [
-        '통 꺼내기 → 소리 예상 → 이름표 붙이기',
-        '소리 예상 → 주인 허락 → 움직임 관찰 → 열어 확인',
-        '상자 버리기 → 종이 넣기 → 생쥐 찾기',
-      ],
-      correct: 1,
-      page: 3,
-      explanation: '예상하고 허락을 받은 뒤 움직일 때 나는 소리를 살피고 안을 확인했어요.',
-    },
-    {
-      question: '생쥐라는 예상이 틀렸는데도 고양이가 웃은 까닭은?',
-      options: [
-        '결과를 숨길 수 있어서',
-        '관찰을 더 하지 않아도 되어서',
-        '소리가 나는 진짜 까닭을 알아냈기 때문에',
-      ],
-      correct: 2,
-      page: 3,
-      explanation: '예상과 달라도 확인을 통해 새로운 사실을 배우는 것은 가치 있는 발견이에요.',
-    },
-  ],
-  tree: [
-    {
-      question: '친구들이 나무를 베기 전에 살펴본 까닭은?',
-      options: [
-        '놀이 기구의 색을 고르려고',
-        '나무 주변 생물에게도 영향을 주기 때문에',
-        '나뭇잎을 모두 가져가려고',
-      ],
-      correct: 1,
-      page: 1,
-      explanation: '둥지, 벌레, 지렁이처럼 그 나무를 보금자리로 삼는 생물이 있었어요.',
-    },
-    {
-      question: '놀이터를 만든 순서로 알맞은 것은?',
-      options: [
-        '생물 관찰 → 배치도 비교 → 전문가 안전 확인',
-        '나무 베기 → 새 찾기 → 계획 취소',
-        '기구 설치 → 안전 확인 → 통로 없애기',
-      ],
-      correct: 0,
-      page: 4,
-      explanation: '생물을 관찰하고 여러 배치도를 비교한 뒤 전문가의 확인을 받아 계획을 고쳤어요.',
-    },
-    {
-      question: '마지막 배치도의 가장 중요한 장점은 무엇인가요?',
-      options: [
-        '사람들이 지나는 길을 없앤 것',
-        '새 둥지 바로 아래에 그네를 놓은 것',
-        '놀이 공간과 생물의 보금자리를 함께 남긴 것',
-      ],
-      correct: 2,
-      page: 3,
-      explanation: '놀이 기구를 조금 옮겨 나무도 통로도 남길 수 있었어요.',
-    },
-  ],
-  sun: [
-    {
-      question: '실험에서 같은 모양의 접시에 같은 양의 물을 담은 이유는?',
-      options: [
-        '물의 맛을 같게 만들려고',
-        '놓인 곳에 따른 차이를 비교하기 위해서',
-        '그늘의 물만 없애려고',
-      ],
-      correct: 1,
-      page: 1,
-      explanation: '다른 조건을 비슷하게 해야 햇볕과 그늘에서 생기는 차이를 살펴보기 좋아요.',
-    },
-    {
-      question: '실험 순서로 알맞은 것은?',
-      options: [
-        '결과 적기 → 물 담기 → 높이 표시',
-        '접시 치우기 → 물 비교 → 물 담기',
-        '같은 양 담기 → 높이 표시 → 기다리며 비교',
-      ],
-      correct: 2,
-      page: 3,
-      explanation: '처음 양을 맞추고 표시한 뒤 시간이 지난 후 줄어든 정도를 비교했어요.',
-    },
-    {
-      question: '접시 실험 뒤에도 물웅덩이에 관해 단정하지 않은 까닭은?',
-      options: [
-        '흙으로 스며드는 등 다른 원인도 있을 수 있어서',
-        '접시에서는 물이 전혀 줄지 않아서',
-        '눈에 안 보이는 변화는 모두 거짓이어서',
-      ],
-      correct: 0,
-      page: 4,
-      explanation: '접시와 흙바닥은 조건이 달라요. 실험으로 확인한 범위를 넘어 단정하지 않았어요.',
-    },
-  ],
-  rainbow: [
-    {
-      question: '빨대가 부러진 것이 아님을 어떻게 확인했나요?',
-      options: [
-        '빨대의 색을 바꾸었어요.',
-        '물 밖으로 꺼내 곧은 모습을 보았어요.',
-        '컵에 이름을 썼어요.',
-      ],
-      correct: 1,
-      page: 1,
-      explanation: '물속에서 꺾여 보였지만 꺼냈을 때 곧았으므로 실제로 부러진 것은 아니었어요.',
-    },
-    {
-      question: '관찰한 순서로 알맞은 것은?',
-      options: [
-        '꺾여 보임 발견 → 꺼내 확인 → 보는 방향 비교',
-        '빨대 버리기 → 물 마시기 → 무지개 찾기',
-        '결론 적기 → 실험 시작 → 컵 고르기',
-      ],
-      correct: 0,
-      page: 2,
-      explanation: '이상한 모습을 발견한 뒤 꺼내 보았고, 다시 넣어 여러 방향에서 비교했어요.',
-    },
-    {
-      question: '공책에 적기에 더 정확한 문장은 무엇일까요?',
-      options: [
-        '물컵은 모든 물건을 부러뜨린다.',
-        '빨대는 물속에서 꺾여 보였지만 꺼내면 곧았다.',
-        '무지개와 빨대는 완전히 같은 물건이다.',
-      ],
-      correct: 1,
-      page: 4,
-      explanation:
-        '관찰한 모습과 확인한 사실을 모두 쓰면 추측을 사실처럼 적는 일을 줄일 수 있어요.',
-    },
-  ],
-  hat: [
-    {
-      question: '맑은 아침에도 비옷을 챙긴 까닭은 무엇인가요?',
-      options: [
-        '오후 날씨가 달라질 수 있다는 예보를 보아서',
-        '모자는 비를 전혀 맞지 않아서',
-        '장난감보다 색이 예뻐서',
-      ],
-      correct: 0,
-      page: 1,
-      explanation: '현재 날씨뿐 아니라 오후 소나기 가능성까지 생각해 준비했어요.',
-    },
-    {
-      question: '산책 중 일어난 일의 순서는?',
-      options: [
-        '비옷 챙기기 → 구름 관찰 → 쉼터 이동',
-        '비 맞기 → 출발 준비 → 예보 확인',
-        '쉼터 도착 → 집에서 출발 → 모자 고르기',
-      ],
-      correct: 0,
-      page: 3,
-      explanation: '출발 전에 대비하고, 구름이 모인 뒤 어른의 안내로 쉼터에 갔어요.',
-    },
-    {
-      question: '“준비는 모험을 오래 즐기는 방법”의 뜻은?',
-      options: [
-        '걱정되면 언제나 집에만 있어야 해요.',
-        '필요한 대비를 하면 달라진 상황에도 대처할 수 있어요.',
-        '많이 가져갈수록 어떤 물건이든 좋아요.',
-      ],
-      correct: 1,
-      page: 5,
-      explanation:
-        '필요한 물건과 정보를 준비해 두니 날씨가 바뀌어도 안전하게 일정을 마칠 수 있었어요.',
-    },
-  ],
-  bag: [
-    {
-      question: '필요한 물건과 가져가고 싶은 물건을 나눈 까닭은?',
-      options: [
-        '가방을 더 무겁게 만들려고',
-        '친구의 물건까지 모두 넣으려고',
-        '목적에 맞게 무게와 준비물을 조절하려고',
-      ],
-      correct: 2,
-      page: 1,
-      explanation: '전시회에 필요한 물건부터 골라 불필요한 짐을 줄였어요.',
-    },
-    {
-      question: '이야기의 순서로 알맞은 것은?',
-      options: [
-        '전시회 변경 소식 → 작은 전시회 열기 → 그림 준비',
-        '무거운 가방 점검 → 준비물 정리 → 장소 변경에 대처',
-        '가방 버리기 → 그림 구기기 → 집으로 돌아가기',
-      ],
-      correct: 1,
-      page: 4,
-      explanation: '짐을 점검하고 정리한 뒤, 바뀐 일정에 맞추어 다른 전시회를 열었어요.',
-    },
-    {
-      question: '장소가 바뀌어도 이룰 수 있었던 목표는 무엇인가요?',
-      options: [
-        '서로의 그림을 보고 이야기 나누기',
-        '반드시 원래 건물에 들어가기',
-        '준비물 목록을 없애기',
-      ],
-      correct: 0,
-      page: 5,
-      explanation: '원래 계획의 장소와 방법은 달라졌지만 그림을 함께 감상하려던 목적은 지켰어요.',
-    },
-  ],
+  bus: {
+    question: '대화 속 버스는 어디로 가나요?',
+    options: ['To the park.', 'To the airport.', 'To the library.'],
+    answer: 0,
+    hint: 'Does this bus go to the park? Yes, it does.',
+    explanation: '공원으로 가는 버스인지 묻자 그렇다고 대답했어요.',
+    order: ['버스가 멈추기를 기다리기', '어른과 함께 타기', '자리 찾아 앉기'],
+  },
+  train: {
+    question: '2번 승강장은 어느 쪽에 있나요?',
+    options: ['On your right.', 'On your left.', 'Behind the train.'],
+    answer: 1,
+    hint: 'Where is platform two? It is on your left.',
+    explanation: 'on your left는 왼쪽에 있다는 뜻이에요.',
+    order: ['어른과 표·시간 확인하기', '역 직원에게 승강장 묻기', '안전선 뒤에서 기다리기'],
+  },
+  car: {
+    question: '이동하는 동안 계속 해야 하는 것은?',
+    options: ['Open the door.', 'Take off the seat belt.', 'Keep the seat belt on.'],
+    answer: 2,
+    hint: 'We keep our seat belts on during the ride.',
+    explanation: 'keep ... on은 계속 착용하고 있다는 뜻이에요.',
+    order: ['가방에 책 챙기기', '어린이용 좌석과 안전벨트 확인하기', '어른과 출발하기'],
+  },
+  airplane: {
+    question: '목이 마를 때 무엇을 부탁했나요?',
+    options: ['Some water.', 'A new bag.', 'A book.'],
+    answer: 0,
+    hint: 'I am thirsty. Could I have some water, please?',
+    explanation: 'thirsty는 목마른 상태이고, some water는 물을 뜻해요.',
+    order: ['어른과 탑승구 확인하기', '기내에서 자리 찾아 앉기', '물 정중하게 부탁하기'],
+  },
+  laptop: {
+    question: '노트북을 닫기 전에 무엇을 해야 하나요?',
+    options: ['Move the table.', 'Save your work.', 'Open the window.'],
+    answer: 1,
+    hint: 'Please save your work before you close the laptop.',
+    explanation: 'before는 ~하기 전에, save your work는 작업을 저장하라는 뜻이에요.',
+    order: ['친구 차례 기다리기', '키보드로 이름 입력하기', '작업 저장하고 닫기'],
+  },
+  chair: {
+    question: '처음 본 의자에 바로 앉지 않은 까닭은?',
+    options: ['It has no legs.', 'It is raining.', 'Someone else is coming.'],
+    answer: 2,
+    hint: 'Is someone sitting here? Yes. My friend is coming.',
+    explanation: '친구가 올 자리라고 해서 다른 빈 의자를 물었어요.',
+    order: ['자리 주인이 있는지 묻기', '다른 빈 의자 확인하기', '허락을 받고 앉기'],
+  },
+  bowl: {
+    question: '식탁을 차리기 전에 먼저 하는 것은?',
+    options: ['Wash our hands.', 'Touch the hot pot.', 'Put bags on the table.'],
+    answer: 0,
+    hint: 'Let us wash our hands first.',
+    explanation: 'first는 먼저라는 뜻이에요. 식탁을 준비하기 전에 손을 씻어요.',
+    order: ['손 씻기', '그릇과 숟가락 준비하기', '식사 뒤 정리 돕기'],
+  },
+  sign: {
+    question: '사진 속 표지판이 알려 주는 것은?',
+    options: ['A bus timetable.', 'The speed limit.', 'The name of a book.'],
+    answer: 1,
+    hint: 'It tells drivers the speed limit. It is not a stop sign.',
+    explanation: '속도 제한을 알려 주는 표지판이에요. stop sign과 구별해요.',
+    order: ['어른과 표지판 살펴보기', '횡단보도 찾기', '안전한지 함께 확인하고 건너기'],
+  },
+  building: {
+    question: '새 건물에 도착한 아이들은 누구와 함께 움직이나요?',
+    options: ['A bus driver.', 'A pilot.', 'Their teacher.'],
+    answer: 2,
+    hint: 'We visit a new building with our teacher. We stay together.',
+    explanation: 'with our teacher는 우리 선생님과 함께라는 뜻이에요.',
+    order: ['선생님과 건물 방문하기', '입구로 가는 길 묻기', '함께 기다렸다가 안으로 들어가기'],
+  },
+  window: {
+    question: '창문을 안전하게 연 사람은 누구인가요?',
+    options: ['An adult.', 'A child alone.', 'A train driver.'],
+    answer: 0,
+    hint: 'The adult checks the window and opens it safely.',
+    explanation: 'an adult는 어른 한 명이에요. 아이 혼자 창문을 열지 않았어요.',
+    order: [
+      '신선한 공기를 원해서 도움 청하기',
+      '어른이 창문 열기',
+      '비가 오자 닫아 달라고 부탁하기',
+    ],
+  },
 };
-function storyCast(text: string): string {
-  return text
-    .replaceAll('곰은', '준호는')
-    .replaceAll('곰이', '준호가')
-    .replaceAll('곰을', '준호를')
-    .replaceAll('곰의', '준호의')
-    .replaceAll('곰에게', '준호에게')
-    .replaceAll('곰과', '준호와')
-    .replaceAll('곰 혼자', '혼자')
-    .replaceAll('토끼는', '하린이는')
-    .replaceAll('토끼가', '하린이가')
-    .replaceAll('토끼를', '하린이를')
-    .replaceAll('토끼의', '하린이의')
-    .replaceAll('토끼 탐정', '어린이 탐정')
-    .replaceAll('다람쥐는', '지우는')
-    .replaceAll('다람쥐가', '지우가')
-    .replaceAll('다람쥐의', '지우의')
-    .replaceAll('다람쥐에게', '지우에게')
-    .replaceAll('고슴도치는', '도윤이는')
-    .replaceAll('고슴도치가', '도윤이가')
-    .replaceAll('고슴도치도', '도윤이도')
-    .replaceAll('고슴도치를', '도윤이를')
-    .replaceAll('고양이는', '한서가')
-    .replaceAll('고양이가', '한서가')
-    .replaceAll('고양이와', '한서와')
-    .replaceAll('고양이를', '한서를')
-    .replaceAll('비버가', '목공 선생님이')
-    .replaceAll('어른 비버의', '목공 선생님의');
-}
-export const words: Word[] = lessons.map((lesson, index) => {
-  const other = lessons[(index + 1) % lessons.length];
-  const vocabulary = q(
-    `‘${lesson.glossary[0].term}’의 뜻으로 가장 알맞은 것은?`,
-    [lesson.glossary[0].meaning, other.glossary[0].meaning, other.glossary[1].meaning],
-    lesson.glossary[0].meaning,
-    `이 단어는 ‘${lesson.name}’ 이야기에서 만났어요.`,
-    lesson.glossary[0].meaning,
-    '🔎',
-  );
-  const context = q(
-    `설명에 어울리는 낱말을 골라 문장을 완성해요.`,
-    [other.glossary[0].term, lesson.glossary[0].term, other.glossary[1].term],
-    lesson.glossary[0].term,
-    lesson.glossary[0].meaning,
-    `‘${lesson.glossary[0].term}’은 ${lesson.glossary[0].meaning}`,
-    '✏️',
-  );
-  context.sentence = [
-    '농부는 다 자란 사과를 거두어들이는 ____을 시작했어요.',
-    '늦게 오는 친구의 간식을 남겨 두는 것은 따뜻한 ____예요.',
-    '토끼는 발자국을 자세히 살피는 ____을 통해 단서를 찾았어요.',
-    '같은 목표를 이루려고 힘을 합하는 것을 ____이라고 해요.',
-    '상자 안에 무엇이 있을지 알고 싶은 ____이 생겼어요.',
-    '나무와 새, 벌레와 주변 환경은 서로 영향을 주는 ____를 이루어요.',
-    '접시의 물이 수증기로 바뀌어 줄어든 것은 ____ 때문이에요.',
-    '빛이 물과 공기 사이에서 방향을 바꾸는 현상을 ____이라고 해요.',
-    '오후의 비에 미리 ____하기 위해 비옷을 챙겼어요.',
-    '앞으로 할 일과 순서를 미리 정한 ____을 상황에 맞게 고쳤어요.',
-  ][index];
+export const words: Word[] = data.map((d) => {
+  const detail = details[d.id];
+  const rotated = [detail.order[1], detail.order[0], detail.order[2]];
   return {
-    ...lesson,
-    related: [...lesson.related],
-    sentences: [...lesson.sentences],
-    alternate: [...lesson.alternate],
-    glossary: lesson.glossary.map((g) => ({ ...g })),
-    vocabulary,
-    context,
+    ...d,
+    photo: `/english-photos/${d.photoId}.jpg`,
+    sentences: [...d.sentences],
+    translations: [...d.translations],
+    alternate: [...d.alternate],
+    alternateTranslations: [...d.alternateTranslations],
+    glossary: d.glossary.map((g) => ({ ...g })),
     story: {
-      ...lesson.story,
-      title: storyCast(lesson.story.title),
-      pages: lesson.story.pages.map(storyCast),
-      questions: comprehension[lesson.id].map((c) =>
-        q(
-          storyCast(c.question),
-          c.options.map(storyCast),
-          storyCast(c.options[c.correct]),
-          `${c.page + 1}쪽에서 단서를 찾아보세요.\n${storyCast(lesson.story.pages[c.page]).replaceAll('{name}', '우리')}`,
-          storyCast(c.explanation),
-        ),
-      ),
+      ...d.story,
+      pages: [...d.story.pages],
+      translations: [...d.story.translations],
+      questions: [
+        {
+          question: detail.question,
+          options: detail.options,
+          answer: detail.options[detail.answer],
+          hint: detail.hint,
+          explanation: detail.explanation,
+        },
+        {
+          question: '대화 상황의 순서로 알맞은 것은?',
+          options: [
+            detail.order.join(' → '),
+            rotated.join(' → '),
+            [...detail.order].reverse().join(' → '),
+          ],
+          answer: detail.order.join(' → '),
+          hint: '대화의 처음부터 마지막까지 다시 읽어 보세요.',
+          explanation: detail.order.join(' → '),
+        },
+      ],
     },
   };
 });
-export const categories = ['전체', '동물', '음식', '자연', '생활'] as const;
+export const categories = ['전체', '집에서', '학교에서', '밖에서'] as const;
 export function findWord(input: string) {
-  const name = input.normalize('NFKC').trim().replace(/\s/g, '');
+  const normalized = input.normalize('NFKC').trim().toLowerCase().replace(/\s+/g, ' ');
   return words.find(
     (w) =>
-      w.name === name ||
-      w.related.includes(name) ||
-      (w.id === 'sun' && ['햇님', '태양'].includes(name)),
+      w.name === normalized ||
+      w.korean === normalized ||
+      w.glossary.some((g) => g.term === normalized),
   );
 }
 export function makeQuiz(word: Word): Question[] {
-  return [word.vocabulary, word.context, ...word.story.questions].map((question, i) => {
-    const offset = (word.id.length + i) % question.options.length;
-    return {
-      ...question,
-      options: [...question.options.slice(offset), ...question.options.slice(0, offset)],
-    };
+  const others = words.filter((w) => w.id !== word.id);
+  const choices = [word.name, ...others.slice(0, 2).map((w) => w.name)];
+  const questions: Question[] = [
+    {
+      question: '사진 속 사물을 영어로 골라 보세요.',
+      options: choices,
+      answer: word.name,
+      hint: word.meaning,
+      explanation: `${word.name}는 ‘${word.korean}’라는 뜻이에요.`,
+      photo: true,
+    },
+    {
+      question: '빈칸에 알맞은 영어 낱말을 골라 보세요.',
+      sentence: word.sentences[0].replace(new RegExp(word.name, 'i'), '____'),
+      options: choices,
+      answer: word.name,
+      hint: word.translations[0],
+      explanation: `${word.sentences[0]} — ${word.translations[0]}`,
+    },
+    {
+      question: '이 영어 표현의 뜻은 무엇일까요?',
+      sentence: word.sentences[2],
+      options: [word.translations[2], others[0].translations[0], others[1].translations[1]],
+      answer: word.translations[2],
+      hint: '상황 영어에서 배운 표현을 떠올려 보세요.',
+      explanation: `${word.sentences[2]} — ${word.translations[2]}`,
+    },
+    ...word.story.questions,
+  ];
+  return questions.map((q, i) => {
+    const offset = (i + word.id.length) % q.options.length;
+    return { ...q, options: [...q.options.slice(offset), ...q.options.slice(0, offset)] };
   });
 }
