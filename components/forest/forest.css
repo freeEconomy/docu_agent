@@ -2124,3 +2124,9 @@
     transform: rotate(5deg);
   }
 }
+/* Keep Korean words together for beginning readers. */
+.forest-story-copy > p,
+.forest-sentence > p {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
