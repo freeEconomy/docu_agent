@@ -76,10 +76,10 @@ test('English: local real photos, bilingual search, six situations, quiz, profil
     true,
   );
 });
-test('English: all ten words have static licensed photographs and no animal or animated content', async ({
+test('English: every word has a static licensed photograph without animated content', async ({
   page,
 }) => {
-  test.setTimeout(60000);
+  test.setTimeout(120000);
   await page.goto('/');
   for (const w of words) {
     await page.getByRole('button', { name: '홈', exact: true }).click();
@@ -95,20 +95,42 @@ test('English: all ten words have static licensed photographs and no animal or a
     await expect(page.getByRole('button', { name: '장면 재생', exact: true })).toHaveCount(0);
   }
   await page.screenshot({
-    path: `/workspace/work/english-word-${test.info().project.name}.png`,
+    path: test.info().outputPath('english-word.png'),
     fullPage: true,
   });
   await page.getByRole('button', { name: '홈', exact: true }).click();
   await page.screenshot({
-    path: `/workspace/work/english-home-${test.info().project.name}.png`,
+    path: test.info().outputPath('english-home.png'),
     fullPage: true,
   });
-  expect(await page.locator('body').innerText()).not.toMatch(/토끼|고양이|사과나무|동화마을/);
+  await expect(page.getByRole('button', { name: '동물', exact: true })).toBeVisible();
+  await expect(page.locator('footer')).toContainText(`영어 예문 ${words.length * 6}개`);
   expect(
     await page.evaluate(
       () => document.getAnimations().filter((a) => a.playState === 'running').length,
     ),
   ).toBe(0);
+});
+
+test('English: kindergarten topics filter six lessons each and open the matching word', async ({
+  page,
+}) => {
+  await page.goto('/');
+  for (const category of ['스포츠', '놀이', '놀이터', '음식', '동물'] as const) {
+    await page.getByRole('button', { name: category, exact: true }).click();
+    await expect(page.locator('.english-word-card')).toHaveCount(6);
+    const first = words.find((word) => word.category === category)!;
+    await page.locator('.english-word-card').first().click();
+    await expect(page.getByRole('heading', { name: first.name, exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '부탁·질문', exact: true }).click();
+    await expect(page.getByText(first.sentences[2], { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '상황에서 써 보기' }).click();
+    await expect(page.getByText(first.story.pages[0], { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '홈', exact: true }).click();
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
 });
 test('English: voices use en-US, narration follows the current scene and survives no-voice fallback', async ({
   page,

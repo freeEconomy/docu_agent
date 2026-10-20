@@ -227,6 +227,10 @@
   color: #7c9670;
   flex-shrink: 0;
 }
+.forest-search .forest-button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
 .forest-search input {
   border: none;
   background: transparent;
