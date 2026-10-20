@@ -416,7 +416,7 @@ export function ForestApp() {
                 </button>
               </div>
               <div className="forest-hero-expedition">
-                <StoryStage lesson={word.id} />
+                <StoryStage lesson={word.id} preview />
                 <span className="forest-expedition-tag">7세 · 이야기 탐험대</span>
               </div>
             </section>
@@ -668,7 +668,19 @@ export function ForestApp() {
               />
             </div>
             <section className="forest-story">
-              <StoryStage lesson={word.id} chapter={profile.storyPage} />
+              <StoryStage
+                key={`${word.id}-${profile.storyPage}`}
+                lesson={word.id}
+                chapter={profile.storyPage}
+                narrating={speaking}
+                onRead={() =>
+                  speak(word.story.pages[profile.storyPage].replaceAll('{name}', profile.name))
+                }
+                onStop={() => {
+                  window.speechSynthesis?.cancel();
+                  setSpeaking(false);
+                }}
+              />
               <div className="forest-story-copy">
                 <span className="forest-chapter">
                   {

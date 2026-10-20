@@ -173,3 +173,121 @@ test('forest: expanded vocabulary, six-page resume and legacy three-question rec
   await expect(page.locator('.forest-records')).toContainText('5/5');
   await expect(page.locator('.forest-records')).toContainText('2/3');
 });
+
+test('forest: animated chapters play, pause, reset and hide without AI or video requests', async ({
+  page,
+}) => {
+  const api: string[] = [];
+  page.on('request', (r) => {
+    if (/\/api\/|\.mp4|generativelanguage|openai/.test(r.url())) api.push(r.url());
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: '동화마을', exact: true }).click();
+  const stage = page.locator('.forest-story .picture-book');
+  await expect(stage).toHaveAttribute('data-playing', 'false');
+  const first = await stage.locator('svg[role=img]').getAttribute('aria-label');
+  await page.getByRole('button', { name: '장면 재생', exact: true }).click();
+  await expect(stage).toHaveAttribute('data-playing', 'true');
+  await expect
+    .poll(() =>
+      stage
+        .locator('.picture-canopy')
+        .first()
+        .evaluate((el) => getComputedStyle(el).animationPlayState),
+    )
+    .toBe('running');
+  await page.getByRole('button', { name: '장면 넘기기', exact: true }).click();
+  await expect(stage).toHaveAttribute('data-beat', '1');
+  await page.getByRole('button', { name: '장면 멈춤', exact: true }).click();
+  await expect(stage).toHaveAttribute('data-playing', 'false');
+  await expect
+    .poll(() =>
+      stage
+        .locator('.picture-canopy')
+        .first()
+        .evaluate((el) => getComputedStyle(el).animationPlayState),
+    )
+    .toBe('paused');
+  await page.getByRole('button', { name: '처음 장면', exact: true }).click();
+  await expect(stage).toHaveAttribute('data-beat', '0');
+  await page.getByRole('button', { name: '장면 재생', exact: true }).click();
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { value: true, configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect(stage).toHaveAttribute('data-playing', 'false');
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { value: false, configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect(stage).toHaveAttribute('data-playing', 'true');
+  await page.getByRole('button', { name: '다음 쪽 읽기' }).click();
+  await expect(stage).toHaveAttribute('data-chapter', '2');
+  await expect(stage).toHaveAttribute('data-playing', 'false');
+  expect(await stage.locator('svg[role=img]').getAttribute('aria-label')).not.toBe(first);
+  await page.screenshot({
+    path: `/workspace/work/forest-moving-book-${test.info().project.name}.png`,
+    fullPage: true,
+  });
+  expect(api).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+});
+test('forest: reduced motion allows manual scenes and narration uses the current chapter', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.addInitScript(() => {
+    let utterance: any;
+    Object.defineProperty(window, 'SpeechSynthesisUtterance', {
+      value: class {
+        text: string;
+        constructor(text: string) {
+          this.text = text;
+        }
+      },
+      configurable: true,
+    });
+    (window as any).__spoken = [];
+    Object.defineProperty(window, 'speechSynthesis', {
+      value: {
+        getVoices: () => [{ lang: 'ko-KR', name: '테스트 한국어', localService: true }],
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        cancel: () => {
+          utterance?.onend?.();
+          utterance = null;
+        },
+        speak: (u: any) => {
+          utterance = u;
+          (window as any).__spoken.push(u.text);
+          u.onstart?.();
+        },
+      },
+      configurable: true,
+    });
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: '동화마을', exact: true }).click();
+  const stage = page.locator('.forest-story .picture-book');
+  await expect(page.getByRole('button', { name: '장면 재생', exact: true })).toBeDisabled();
+  await expect(page.getByText(/동작 줄이기 설정에 따라/)).toBeVisible();
+  await page.getByRole('button', { name: '장면 넘기기', exact: true }).click();
+  await expect(stage).toHaveAttribute('data-beat', '1');
+  await expect(stage).toHaveAttribute('data-playing', 'false');
+  await page.getByRole('button', { name: '함께 듣기', exact: true }).click();
+  expect(await page.evaluate(() => (window as any).__spoken)).toEqual([
+    words[0].story.pages[0].replaceAll('{name}', '새싹'),
+  ]);
+  await expect(stage).toHaveAttribute('data-playing', 'false');
+  await page.getByRole('button', { name: '동화 읽기 정지', exact: true }).click();
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.getByRole('button', { name: '다음 쪽 읽기' }).click();
+  await page.getByRole('button', { name: '함께 듣기', exact: true }).click();
+  await expect(stage).toHaveAttribute('data-playing', 'true');
+  const spoken = await page.evaluate(() => (window as any).__spoken);
+  expect(spoken.at(-1)).toBe(words[0].story.pages[1].replaceAll('{name}', '새싹'));
+  await page.getByRole('button', { name: '동화 읽기 정지', exact: true }).click();
+  await expect(stage).toHaveAttribute('data-playing', 'false');
+});
