@@ -246,12 +246,12 @@ const data = [
       '다 쓰고 나면 제가 노트북을 사용해도 될까요?',
     ],
     alternate: [
-      'The screen is open.',
+      'The laptop is open.',
       'Please keep your drink away from the laptop.',
       'I will save my work before I close the laptop.',
     ],
     alternateTranslations: [
-      '화면이 열려 있어요.',
+      '노트북이 열려 있어요.',
       '노트북 가까이에 음료를 두지 마세요.',
       '노트북을 닫기 전에 작업을 저장할게요.',
     ],
