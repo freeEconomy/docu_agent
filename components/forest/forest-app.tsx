@@ -21,8 +21,15 @@ import {
 } from 'lucide-react';
 import { categories, findWord, makeQuiz, words, type Word } from '@/lib/forest/content';
 import './forest.css';
+import { StoryStage } from './story-stage';
 type View = 'home' | 'word' | 'story' | 'quiz' | 'result' | 'character' | 'parent';
-type RecordEntry = { word: string; date: string; firstTry: number; review: boolean };
+type RecordEntry = {
+  word: string;
+  date: string;
+  firstTry: number;
+  total?: number;
+  review: boolean;
+};
 type Profile = {
   name: string;
   animal: 'rabbit' | 'bear' | 'cat';
@@ -43,7 +50,7 @@ const initial: Profile = {
   animal: 'rabbit',
   color: '#b9dca8',
   hat: '없음',
-  level: 0,
+  level: 1,
   rate: 0.85,
   goal: 10,
   leaves: 0,
@@ -71,7 +78,7 @@ function loadProfile(value: unknown): Profile {
     !words.some((w) => w.id === p.selected) ||
     !Number.isInteger(p.storyPage) ||
     p.storyPage < 0 ||
-    p.storyPage > 3
+    p.storyPage >= (words.find((w) => w.id === p.selected)?.story.pages.length || 0)
   )
     throw Error('invalid');
   const records = p.records
@@ -82,7 +89,8 @@ function loadProfile(value: unknown): Profile {
         typeof r.date === 'string' &&
         Number.isInteger(r.firstTry) &&
         r.firstTry >= 0 &&
-        r.firstTry <= 3 &&
+        r.firstTry <= (r.total ?? 3) &&
+        [3, 5].includes(r.total ?? 3) &&
         typeof r.review === 'boolean',
     )
     .slice(-300);
@@ -179,12 +187,15 @@ export function ForestApp() {
     [confirm, setConfirm] = useState(false);
   const [draft, setDraft] = useState(initial),
     [saved, setSaved] = useState(false);
+  const [sentenceVariant, setSentenceVariant] = useState(false);
+  const [focusTerm, setFocusTerm] = useState('');
   const completed = useRef(false);
   const lastNameCode = profile.name.charCodeAt(profile.name.length - 1);
   const callName = `${profile.name}${lastNameCode >= 0xac00 && lastNameCode <= 0xd7a3 && (lastNameCode - 0xac00) % 28 !== 0 ? '아' : '야'}`;
   const word = words.find((w) => w.id === profile.selected) || words[0];
   const questions = makeQuiz(word);
   const question = questions[quizIndex];
+  const sentence = (sentenceVariant ? word.alternate : word.sentences)[profile.level];
   useEffect(() => {
     try {
       const raw = localStorage.getItem(key);
@@ -252,6 +263,8 @@ export function ForestApp() {
   function selectWord(w: Word, next: View = 'word') {
     setProfile((p) => ({ ...p, selected: w.id, storyPage: 0 }));
     setMissing('');
+    setFocusTerm('');
+    setSentenceVariant(false);
     setSearch('');
     setView(next);
     if (next === 'quiz') startQuiz();
@@ -259,8 +272,10 @@ export function ForestApp() {
   function searchWord(e: React.FormEvent) {
     e.preventDefault();
     const found = findWord(search);
-    if (found) selectWord(found);
-    else
+    if (found) {
+      selectWord(found);
+      setFocusTerm(found.glossary.find((g) => g.term === search.trim())?.term || '');
+    } else
       setMissing(
         search.trim()
           ? '이 단어는 아직 준비 중이야. 아래 단어를 만나 볼까?'
@@ -284,7 +299,7 @@ export function ForestApp() {
     if (!choice || (!exam && choice !== question.answer)) return;
     const next = [...answers, { answer: choice, first: !wrong && choice === question.answer }];
     setAnswers(next);
-    if (quizIndex < 2) {
+    if (quizIndex < questions.length - 1) {
       setQuizIndex((i) => i + 1);
       setChoice('');
       setWrong(false);
@@ -295,7 +310,7 @@ export function ForestApp() {
       completed.current = true;
       const firstTry = next.filter((a) => a.first).length;
       const date = new Date().toISOString();
-      const review = firstTry < 3;
+      const review = firstTry < questions.length;
       setProfile((p) => {
         const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' });
         const rewarded = p.records.some(
@@ -307,7 +322,10 @@ export function ForestApp() {
           ...p,
           leaves: p.leaves + (rewarded ? 0 : 10),
           learned: [...new Set([...p.learned, word.id])],
-          records: [...p.records, { word: word.id, date, firstTry, review }].slice(-300),
+          records: [
+            ...p.records,
+            { word: word.id, date, firstTry, total: questions.length, review },
+          ].slice(-300),
         };
       });
     }
@@ -383,13 +401,13 @@ export function ForestApp() {
             </div>
             <section className="forest-hero">
               <div className="forest-hero-copy">
-                <span className="forest-eyebrow">하루 한 단어, 쑥쑥 자라는 마음</span>
+                <span className="forest-eyebrow">7세 읽기 탐험 · 어휘에서 생각까지</span>
                 <h1>
                   안녕 {callName}! 🌿
                   <br />
                   어떤 <em>단어</em>랑 놀아볼까?
                 </h1>
-                <p>작은 단어 하나에서 시작하는 커다란 모험!</p>
+                <p>낱말을 넓히고, 이야기 속 까닭을 찾아봐!</p>
                 <button
                   className="forest-listen"
                   onClick={() => speak(`안녕 ${profile.name}! 오늘은 어떤 단어와 놀까?`)}
@@ -397,10 +415,9 @@ export function ForestApp() {
                   <Volume2 size={19} /> 인사 듣기
                 </button>
               </div>
-              <div className="forest-hero-friend">
-                <span className="forest-spark">✦</span>
-                <Avatar profile={profile} large />
-                <span className="forest-friend-label">{profile.name}의 숲속 친구</span>
+              <div className="forest-hero-expedition">
+                <StoryStage lesson={word.id} />
+                <span className="forest-expedition-tag">7세 · 이야기 탐험대</span>
               </div>
             </section>
             <form className="forest-search" onSubmit={searchWord}>
@@ -438,13 +455,13 @@ export function ForestApp() {
             <div className="forest-heading">
               <div>
                 <span className="forest-eyebrow">TODAY'S LITTLE DISCOVERY</span>
-                <h2>오늘의 숲속 단어</h2>
+                <h2>오늘의 어휘 탐험</h2>
               </div>
               <span className="forest-pill yellow">✨ 새로운 발견</span>
             </div>
             <section className="forest-daily">
               <div className="forest-word-picture">
-                🍎<span>과일 친구</span>
+                🍎<span>수확 · 탐스럽다</span>
               </div>
               <div>
                 <h2>사과</h2>
@@ -534,14 +551,36 @@ export function ForestApp() {
               </button>
               <div className="forest-related">
                 {word.related.map((r) => (
-                  <span key={r}>🌱 {r}</span>
+                  <button key={r} onClick={() => setFocusTerm(r)} aria-pressed={focusTerm === r}>
+                    🌱 {r}
+                  </button>
                 ))}
               </div>
+            </section>
+            <section className="forest-glossary" aria-label="확장 어휘 사전">
+              <div className="forest-heading">
+                <h2>함께 넓히는 어휘 가지</h2>
+                <span className="forest-pill">7세 생각 국어</span>
+              </div>
+              {word.glossary.map((g) => (
+                <button
+                  key={g.term}
+                  className={focusTerm === g.term ? 'selected' : ''}
+                  onClick={() => {
+                    setFocusTerm(g.term);
+                    speak(`${g.term}. ${g.meaning}`);
+                  }}
+                >
+                  <strong>{g.term}</strong>
+                  <span>{g.meaning}</span>
+                  <Volume2 size={18} />
+                </button>
+              ))}
             </section>
             <div className="forest-heading">
               <h2>문장으로 만나 볼까?</h2>
               <div className="forest-category-tabs">
-                {['쉬움', '보통', '도전'].map((l, i) => (
+                {['탄탄 읽기', '생각 읽기', '도전 읽기'].map((l, i) => (
                   <button
                     key={l}
                     aria-pressed={profile.level === i}
@@ -555,15 +594,22 @@ export function ForestApp() {
             </div>
             <section className="forest-sentence">
               <span className="forest-pill">
-                {['짧게 읽어요', '조금 더 읽어요', '길게 읽어요'][profile.level]}
+                {['꾸밈말을 살펴요', '일의 원인과 결과', '조건과 마음을 생각해요'][profile.level]}
               </span>
-              <p>{word.sentences[profile.level]}</p>
+              <p>{sentence}</p>
               <div className="forest-actions">
-                <button
-                  className="forest-button"
-                  onClick={() => speak(word.sentences[profile.level])}
-                >
+                <button className="forest-button" onClick={() => speak(sentence)}>
                   <Volume2 size={19} /> 문장 듣기
+                </button>
+                <button
+                  className="forest-button secondary"
+                  onClick={() => {
+                    window.speechSynthesis?.cancel();
+                    setSpeaking(false);
+                    setSentenceVariant((v) => !v);
+                  }}
+                >
+                  다른 문장 <RotateCcw size={16} />
                 </button>
                 <button
                   className="forest-button secondary"
@@ -615,19 +661,27 @@ export function ForestApp() {
               aria-label="동화 읽기 진행"
               aria-valuenow={profile.storyPage + 1}
               aria-valuemin={0}
-              aria-valuemax={4}
+              aria-valuemax={word.story.pages.length}
             >
-              <span style={{ width: `${((profile.storyPage + 1) / 4) * 100}%` }} />
+              <span
+                style={{ width: `${((profile.storyPage + 1) / word.story.pages.length) * 100}%` }}
+              />
             </div>
             <section className="forest-story">
-              <div className="forest-story-scene">
-                <span className="forest-scene-sun">☀️</span>
-                <span className="forest-scene-tree">🌳</span>
-                <Avatar profile={profile} large />
-                <span className="forest-scene-word">{word.emoji}</span>
-                <span className="forest-scene-flower">🌼 🌱 🌼</span>
-              </div>
+              <StoryStage lesson={word.id} chapter={profile.storyPage} />
               <div className="forest-story-copy">
+                <span className="forest-chapter">
+                  {
+                    [
+                      '발단 · 모험의 시작',
+                      '문제 · 무슨 일이 생겼을까?',
+                      '탐색 · 단서를 찾아서',
+                      '전환 · 다른 방법을 생각해',
+                      '해결 · 함께 풀어 가요',
+                      '성장 · 달라진 마음',
+                    ][profile.storyPage]
+                  }
+                </span>
                 <span className="forest-pill">🌱 주인공: {profile.name}</span>
                 <p>{word.story.pages[profile.storyPage].replaceAll('{name}', profile.name)}</p>
                 <div className="forest-actions">
@@ -660,7 +714,7 @@ export function ForestApp() {
               >
                 <ArrowLeft size={18} /> 이전 쪽
               </button>
-              {profile.storyPage < 3 ? (
+              {profile.storyPage < word.story.pages.length - 1 ? (
                 <button
                   className="forest-button"
                   onClick={() => setProfile((p) => ({ ...p, storyPage: p.storyPage + 1 }))}
@@ -673,6 +727,13 @@ export function ForestApp() {
                 </button>
               )}
             </div>
+            {profile.storyPage === word.story.pages.length - 1 && (
+              <section className="forest-thinking">
+                <span>💭 정답이 하나가 아닌 질문</span>
+                <h2>{word.story.thinking}</h2>
+                <p>내 생각을 말해 보고, 왜 그렇게 생각했는지도 이야기해 보세요.</p>
+              </section>
+            )}
             <aside className="forest-tip">
               💡 마지막 쪽까지 읽으면 이야기 퀴즈를 풀 수 있어요. 모르는 단어는 다시 만나도
               괜찮아요!
@@ -686,7 +747,9 @@ export function ForestApp() {
                 <span className="forest-eyebrow">틀려도 괜찮아, 같이 생각해 보자!</span>
                 <h1>{exam ? '복습 도전' : '오늘의 놀이 퀴즈'}</h1>
               </div>
-              <span className="forest-pill">{quizIndex + 1} / 3문제</span>
+              <span className="forest-pill">
+                {quizIndex + 1} / {questions.length}문제
+              </span>
             </div>
             {quizIndex === 0 && answers.length === 0 && (
               <div className="forest-category-tabs">
@@ -711,12 +774,12 @@ export function ForestApp() {
               </div>
             )}
             <div className="forest-progress">
-              <span style={{ width: `${(quizIndex / 3) * 100}%` }} />
+              <span style={{ width: `${(quizIndex / questions.length) * 100}%` }} />
             </div>
             <section className="forest-quiz-question">
               <span className="forest-big-emoji">{question.visual}</span>
               <span className="forest-pill">
-                {['단어 찾기', '빈칸 채우기', '이야기 생각하기'][quizIndex]}
+                {['어휘 뜻', '문맥 속 낱말', '이유 찾기', '사건 순서', '생각과 추론'][quizIndex]}
               </span>
               <h2>{question.question}</h2>
               {question.sentence && <p className="forest-blank">{question.sentence}</p>}
@@ -750,7 +813,7 @@ export function ForestApp() {
                     role="status"
                   >
                     {choice === question.answer
-                      ? '✨ 딩동댕! 잘 생각했어요.'
+                      ? `✨ 잘 생각했어요! ${question.explanation}`
                       : '🌱 괜찮아! 힌트를 보고 다시 생각해 보자.'}
                   </div>
                 )}
@@ -763,7 +826,8 @@ export function ForestApp() {
                 disabled={!choice || (!exam && choice !== question.answer)}
                 onClick={nextQuiz}
               >
-                {quizIndex === 2 ? '학습 결과 보기' : '다음 문제'} <ArrowRight size={18} />
+                {quizIndex === questions.length - 1 ? '학습 결과 보기' : '다음 문제'}{' '}
+                <ArrowRight size={18} />
               </button>
             </div>
           </>
@@ -779,7 +843,9 @@ export function ForestApp() {
               </p>
               <div className="forest-result-stats">
                 <div>
-                  <strong>{answers.filter((a) => a.first).length} / 3</strong>
+                  <strong>
+                    {answers.filter((a) => a.first).length} / {questions.length}
+                  </strong>
                   <span>처음에 맞힌 문제</span>
                 </div>
                 <div>
@@ -795,6 +861,7 @@ export function ForestApp() {
                     <div>
                       <strong>{q.question}</strong>
                       <p>정답: {q.answer}</p>
+                      <p className="forest-answer-explanation">{q.explanation}</p>
                       {!answers[i]?.first && <small>다시 만나며 익혀 봐요.</small>}
                     </div>
                   </div>
@@ -982,9 +1049,9 @@ export function ForestApp() {
                     value={profile.level}
                     onChange={(e) => setProfile((p) => ({ ...p, level: Number(e.target.value) }))}
                   >
-                    <option value={0}>쉬움</option>
-                    <option value={1}>보통</option>
-                    <option value={2}>도전</option>
+                    <option value={0}>탄탄 읽기</option>
+                    <option value={1}>생각 읽기</option>
+                    <option value={2}>도전 읽기</option>
                   </select>
                 </label>
                 <label className="forest-field">
@@ -1053,7 +1120,7 @@ export function ForestApp() {
                       <li key={r.date + i}>
                         <strong>{words.find((w) => w.id === r.word)?.name}</strong>
                         <span>
-                          {r.firstTry}/3 · {r.review ? '복습 추천' : '잘 익혔어요'}
+                          {r.firstTry}/{r.total ?? 3} · {r.review ? '복습 추천' : '잘 익혔어요'}
                         </span>
                         <time>
                           {new Date(r.date).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })}

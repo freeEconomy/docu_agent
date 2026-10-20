@@ -1403,3 +1403,337 @@
     scroll-behavior: auto !important;
   }
 }
+/* Revised Stitch: richer vocabulary cards and longer, readable story chapters. */
+.forest-related button {
+  background: #edf4e6;
+  border: 1px solid #dbe7d1;
+  border-radius: 24px;
+  padding: 8px 14px;
+  font-size: 14px;
+  min-height: 44px;
+  color: #386433;
+}
+.forest-related button[aria-pressed='true'] {
+  background: #d5e8be;
+  border-color: #699e48;
+}
+.forest-glossary {
+  margin: 30px 0;
+}
+.forest-glossary > button {
+  display: grid;
+  grid-template-columns: 120px 1fr 22px;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  text-align: left;
+  background: white;
+  border: 1px solid #e4e8d6;
+  border-radius: 18px;
+  padding: 19px 22px;
+  margin: 12px 0;
+  min-height: 76px;
+}
+.forest-glossary > button.selected {
+  background: #eff7e4;
+  border-color: #70a44d;
+}
+.forest-glossary strong {
+  font-size: 21px;
+  color: #306b33;
+}
+.forest-glossary span {
+  font-size: 16px;
+  color: #59654f;
+  line-height: 1.75;
+}
+.forest-glossary svg {
+  color: #658550;
+}
+.forest-chapter {
+  display: block;
+  color: #7c805b;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+}
+.forest-story-copy > p {
+  font-size: 24px;
+  line-height: 2.05;
+  max-width: 780px;
+  margin: 25px auto;
+  text-align: left;
+}
+.forest-story-copy {
+  padding: 32px 50px 38px;
+}
+.forest-story-scene {
+  height: 220px;
+}
+.forest-thinking {
+  background: #fff1d4;
+  border: 1px solid #e5d6ae;
+  border-radius: 22px;
+  padding: 26px;
+  margin: 25px 0;
+}
+.forest-thinking > span {
+  font-size: 13px;
+  color: #8a6f28;
+}
+.forest-thinking h2 {
+  font-size: 23px;
+  margin: 12px 0;
+}
+.forest-thinking p {
+  font-size: 14px;
+  color: #796e4e;
+}
+.forest-choice strong {
+  font-size: 18px;
+  line-height: 1.8;
+}
+.forest-choice > span {
+  font-size: 24px;
+}
+.forest-quiz-question > .forest-big-emoji {
+  font-size: 53px;
+}
+.forest-answer-explanation {
+  font-size: 14px !important;
+  color: #77745d !important;
+  line-height: 1.8;
+}
+.forest-hint + .forest-tip {
+  white-space: pre-line;
+}
+.forest-hero-copy > p {
+  max-width: 400px;
+}
+.forest-blank {
+  font-size: 23px;
+  line-height: 1.9;
+}
+.forest-sentence > p {
+  font-size: 27px;
+  line-height: 1.95;
+}
+.forest-daily {
+  grid-template-columns: 175px 1fr 45px;
+}
+.forest-daily p {
+  max-width: 580px;
+}
+@media (max-width: 760px) {
+  .forest-glossary > button {
+    grid-template-columns: 1fr 22px;
+    gap: 5px;
+    padding: 17px 19px;
+  }
+  .forest-glossary strong {
+    font-size: 20px;
+  }
+  .forest-glossary span {
+    grid-row: 2;
+    grid-column: 1/3;
+    font-size: 15px;
+  }
+  .forest-glossary svg {
+    grid-row: 1;
+    grid-column: 2;
+  }
+  .forest-story-copy {
+    padding: 25px 24px 30px;
+  }
+  .forest-story-copy > p {
+    font-size: 21px;
+    line-height: 2;
+    word-break: normal;
+  }
+  .forest-story-scene {
+    height: 185px;
+  }
+  .forest-story-scene .forest-avatar {
+    width: 140px;
+    height: 160px;
+  }
+  .forest-scene-tree {
+    font-size: 110px;
+  }
+  .forest-choice {
+    min-height: 90px;
+    flex-direction: row;
+    justify-content: start;
+    text-align: left;
+    padding: 20px 18px;
+  }
+  .forest-choices {
+    grid-template-columns: 1fr;
+  }
+  .forest-choice strong {
+    font-size: 17px;
+    padding-right: 15px;
+  }
+  .forest-choice > span {
+    font-size: 25px;
+  }
+  .forest-choice > svg {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .forest-thinking {
+    padding: 22px;
+  }
+  .forest-thinking h2 {
+    font-size: 21px;
+  }
+  .forest-sentence > p {
+    font-size: 23px;
+    text-align: left;
+    word-break: normal;
+  }
+  .forest-daily {
+    grid-template-columns: 95px 1fr;
+    gap: 14px;
+  }
+  .forest-daily p {
+    font-size: 13px;
+  }
+  .forest-daily > .forest-icon {
+    top: 8px;
+    right: 8px;
+  }
+  .forest-daily h2 {
+    padding-right: 24px;
+  }
+  .forest-word-picture {
+    font-size: 53px;
+  }
+  .forest-word-picture span {
+    font-size: 9px;
+  }
+  .forest-blank {
+    font-size: 20px;
+  }
+}
+.forest-hero-expedition {
+  position: relative;
+  padding: 20px 0 20px 20px;
+}
+.forest-hero-expedition .forest-landscape {
+  border-radius: 130px 130px 22px 22px;
+  overflow: hidden;
+  min-height: 230px;
+}
+.forest-expedition-tag {
+  display: block;
+  width: fit-content;
+  padding: 7px 15px;
+  background: #fffdf5;
+  border: 1px solid #e1e3d4;
+  border-radius: 8px;
+  color: #667959;
+  font-size: 12px;
+  position: relative;
+  margin: -20px auto 0;
+}
+.forest-landscape {
+  position: relative;
+  background: #e4ebdf;
+  overflow: hidden;
+}
+.forest-landscape svg {
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+}
+.forest-landscape > span {
+  position: absolute;
+  left: 24px;
+  bottom: 20px;
+  letter-spacing: 0.2em;
+  font-size: 10px;
+  color: #eaf1df;
+  font-weight: 700;
+}
+.forest-landscape > p {
+  padding: 15px;
+  background: #fff2d8;
+  color: #745d32;
+  font-size: 14px;
+}
+.forest-film {
+  background: #1f302b;
+}
+.forest-film video {
+  width: 100%;
+  max-height: 480px;
+  display: block;
+}
+.forest-film p {
+  color: #e7ecdc;
+  font-size: 13px;
+  padding: 12px 20px;
+}
+.forest-app {
+  --cream: #fbfaf5;
+}
+.forest-banner {
+  background: #edf1e8;
+}
+.forest-nav button.active {
+  border-radius: 10px;
+}
+.forest-word-card {
+  border-radius: 15px;
+}
+.forest-hero h1 {
+  font-size: 40px;
+}
+.forest-word-detail {
+  border-radius: 22px;
+}
+.forest-story {
+  border-radius: 20px;
+}
+@media (max-width: 760px) {
+  .forest-hero {
+    grid-template-columns: 1.15fr 1fr;
+  }
+  .forest-hero-expedition {
+    padding: 5px 0 5px 10px;
+  }
+  .forest-hero-expedition .forest-landscape {
+    min-height: 205px;
+    border-radius: 90px 90px 15px 15px;
+  }
+  .forest-hero-expedition .forest-landscape svg {
+    height: 230px;
+    width: 100%;
+    min-height: 0;
+    object-fit: cover;
+  }
+  .forest-hero-expedition .forest-landscape > span {
+    display: none;
+  }
+  .forest-expedition-tag {
+    font-size: 9px;
+    padding: 5px 9px;
+    white-space: nowrap;
+  }
+  .forest-hero h1 {
+    font-size: 28px;
+  }
+  .forest-landscape svg {
+    max-height: 200px;
+  }
+  .forest-story > .forest-landscape > span {
+    font-size: 9px;
+    left: 20px;
+    bottom: 16px;
+  }
+}
