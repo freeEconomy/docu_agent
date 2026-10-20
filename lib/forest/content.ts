@@ -1,3 +1,5 @@
+import { additionalWords } from './extended-content';
+
 export type Question = {
   question: string;
   options: string[];
@@ -11,7 +13,7 @@ export type Word = {
   id: string;
   name: string;
   korean: string;
-  category: '집에서' | '학교에서' | '밖에서';
+  category: '집에서' | '학교에서' | '밖에서' | '스포츠' | '놀이' | '놀이터' | '음식' | '동물';
   meaning: string;
   photo: string;
   photoId: string;
@@ -637,7 +639,7 @@ const details: Record<
     ],
   },
 };
-export const words: Word[] = data.map((d) => {
+const existingWords: Word[] = data.map((d) => {
   const detail = details[d.id];
   const rotated = [detail.order[1], detail.order[0], detail.order[2]];
   return {
@@ -675,14 +677,27 @@ export const words: Word[] = data.map((d) => {
     },
   };
 });
-export const categories = ['전체', '집에서', '학교에서', '밖에서'] as const;
+export const words: Word[] = [...existingWords, ...additionalWords];
+export const sentenceCount = words.reduce(
+  (count, word) => count + word.sentences.length + word.alternate.length,
+  0,
+);
+export const categories = [
+  '전체',
+  '집에서',
+  '학교에서',
+  '밖에서',
+  '스포츠',
+  '놀이',
+  '놀이터',
+  '음식',
+  '동물',
+] as const;
 export function findWord(input: string) {
   const normalized = input.normalize('NFKC').trim().toLowerCase().replace(/\s+/g, ' ');
-  return words.find(
-    (w) =>
-      w.name === normalized ||
-      w.korean === normalized ||
-      w.glossary.some((g) => g.term === normalized),
+  return (
+    words.find((w) => w.name === normalized || w.korean === normalized) ||
+    words.find((w) => w.glossary.some((g) => g.term === normalized))
   );
 }
 export function makeQuiz(word: Word): Question[] {
@@ -690,7 +705,7 @@ export function makeQuiz(word: Word): Question[] {
   const choices = [word.name, ...others.slice(0, 2).map((w) => w.name)];
   const questions: Question[] = [
     {
-      question: '사진 속 사물을 영어로 골라 보세요.',
+      question: '사진에 맞는 영어 낱말을 골라 보세요.',
       options: choices,
       answer: word.name,
       hint: word.meaning,

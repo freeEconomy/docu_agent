@@ -17,7 +17,14 @@ import {
   RotateCcw,
   ClipboardList,
 } from 'lucide-react';
-import { words, categories, findWord, makeQuiz, type Word } from '@/lib/forest/content';
+import {
+  words,
+  categories,
+  sentenceCount,
+  findWord,
+  makeQuiz,
+  type Word,
+} from '@/lib/forest/content';
 import photoCredits from '@/lib/forest/photo-credits.json';
 import { Photo } from './photo';
 import './forest.css';
@@ -348,7 +355,7 @@ export function ForestApp() {
                   어떤 <em>영어</em>를 써 볼까?
                 </h1>
                 <p>
-                  집에서, 학교에서, 밖에서.
+                  집과 유치원, 놀이터에서 만나는 영어.
                   <br />
                   실제 사진으로 만나고 내 말로 연습해요.
                 </p>
@@ -360,7 +367,7 @@ export function ForestApp() {
               <Search />
               <input
                 aria-label="단어 찾기"
-                placeholder="bus, chair 또는 버스, 의자"
+                placeholder="dog, slide 또는 강아지, 미끄럼틀"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 maxLength={40}
@@ -384,7 +391,7 @@ export function ForestApp() {
             )}
             <div className="forest-quick">
               <span>바로 만나기</span>
-              {['bus', 'chair', 'laptop', 'window'].map((id) => {
+              {['soccer', 'slide', 'apple', 'dog'].map((id) => {
                 const w = words.find((w) => w.id === id)!;
                 return (
                   <button key={id} onClick={() => select(w)} lang="en">
@@ -415,9 +422,9 @@ export function ForestApp() {
             <div className="forest-heading">
               <div>
                 <h2>내 생활 속 영어</h2>
-                <p>실제 사물을 보고, 이름과 쓰임을 함께 익혀요.</p>
+                <p>운동과 놀이, 맛있는 음식과 동물까지 함께 배워요.</p>
               </div>
-              <span className="forest-muted">동물·영상 없는 사진 학습</span>
+              <span className="forest-muted">실제 사진 · 짧은 생활 문장</span>
             </div>
             <div className="forest-category-tabs">
               {categories.map((c) => (
@@ -629,7 +636,7 @@ export function ForestApp() {
                   </button>
                 </div>
                 <small>
-                  사진은 낱말을 보여 주는 참고 사진이며, 장면마다 같은 사물 사진을 사용해요.
+                  사진은 낱말을 보여 주는 참고 사진이며, 장면마다 같은 참고 사진을 사용해요.
                 </small>
               </div>
             </section>
@@ -695,7 +702,12 @@ export function ForestApp() {
             )}
             <section className="forest-quiz-question">
               {question.photo && (
-                <Photo key={word.photoId} photoId={word.photoId} alt="문제의 사물 사진" priority />
+                <Photo
+                  key={word.photoId}
+                  photoId={word.photoId}
+                  alt="문제의 단어를 보여 주는 사진"
+                  priority
+                />
               )}
               <span className="forest-pill">
                 {['사진과 낱말', '문장 완성', '표현의 뜻', '대화 이해', '상황 순서'][index]}
@@ -759,7 +771,7 @@ export function ForestApp() {
           <section className="forest-result">
             <span className="forest-pill">EVERYDAY ENGLISH</span>
             <h1>{word.name}, 내 말로 한 걸음!</h1>
-            <p>사물 이름과 생활 속 표현을 함께 연습했어요.</p>
+            <p>단어와 생활 속 표현을 함께 연습했어요.</p>
             <div className="forest-result-stats">
               <div>
                 <strong>
@@ -1036,9 +1048,11 @@ export function ForestApp() {
           </p>
         )}
         <footer className="forest-footer">
-          실제 사물에서 시작하는 나의 생활 영어
+          실제 사진으로 시작하는 나의 생활 영어
           <br />
-          <small>사진 단어 {words.length}개 · 영어 예문 60개 · CC0 실사 사진</small>
+          <small>
+            사진 단어 {words.length}개 · 영어 예문 {sentenceCount}개 · CC0 실사 사진
+          </small>
         </footer>
       </main>
       <nav className="forest-nav" aria-label="학습 메뉴">
