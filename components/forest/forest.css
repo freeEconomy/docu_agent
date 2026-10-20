@@ -1,0 +1,1405 @@
+.forest-app {
+  --fg: #2b3929;
+  --green: #17662a;
+  --cream: #fff8f6;
+  --line: #e9e9dd;
+  background: var(--cream);
+  min-height: 100dvh;
+  color: var(--fg);
+  font-size: 16px;
+  line-height: 1.65;
+  letter-spacing: -0.035em;
+  padding-bottom: 104px;
+}
+.forest-app * {
+  box-sizing: border-box;
+}
+.forest-app button,
+.forest-app input,
+.forest-app select {
+  font: inherit;
+}
+.forest-app button {
+  cursor: pointer;
+}
+.forest-app button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.forest-app button:focus-visible,
+.forest-app input:focus-visible,
+.forest-app select:focus-visible {
+  outline: 3px solid #a65a18;
+  outline-offset: 4px;
+}
+.forest-app h1,
+.forest-app h2,
+.forest-app h3,
+.forest-app p {
+  margin: 0;
+}
+.forest-app h1 {
+  font-size: 32px;
+  line-height: 1.4;
+  font-weight: 800;
+}
+.forest-app h2 {
+  font-size: 24px;
+  line-height: 1.45;
+  font-weight: 750;
+}
+.forest-app h3 {
+  font-size: 19px;
+  font-weight: 700;
+}
+.forest-app em {
+  font-style: normal;
+  color: var(--green);
+}
+.forest-header {
+  height: 86px;
+  background: #fffdfb;
+  border-bottom: 1px solid #eeeee5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 max(24px, calc((100% - 1080px) / 2));
+  gap: 16px;
+}
+.forest-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 29px !important;
+  font-weight: 850;
+  color: var(--green);
+  white-space: nowrap;
+}
+.forest-header-tools {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.forest-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f4e9;
+  color: var(--green);
+  flex-shrink: 0;
+}
+.forest-leaves {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 30px;
+  padding: 8px 15px;
+  background: #edf6e6;
+  color: #356a2a;
+  font-weight: 700;
+  font-size: 14px;
+}
+.forest-parent-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px !important;
+  color: #6b6b5d;
+}
+.forest-main {
+  max-width: 1080px;
+  margin: auto;
+  padding: 26px 24px 0;
+}
+.forest-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: #edf4e7;
+  border: 1px solid #e0e8d6;
+  border-radius: 16px;
+  padding: 10px 18px;
+  font-size: 13px;
+  color: #426344;
+}
+.forest-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 30px;
+  padding: 5px 12px;
+  background: #eaf2e0;
+  color: #386433;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.forest-pill.yellow {
+  background: #ffefb7;
+  color: #795c10;
+}
+.forest-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  align-items: center;
+  min-height: 335px;
+  padding: 26px 36px 10px;
+}
+.forest-eyebrow {
+  display: block;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 750;
+  color: #63816b;
+  margin-bottom: 10px;
+}
+.forest-hero h1 {
+  font-size: 43px;
+  line-height: 1.5;
+  letter-spacing: -0.06em;
+  margin-bottom: 12px;
+}
+.forest-hero p {
+  color: #74776b;
+  font-size: 15px;
+}
+.forest-listen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--green);
+  font-weight: 700;
+  font-size: 14px !important;
+  min-height: 44px;
+  margin-top: 12px;
+}
+.forest-hero-friend {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  background: radial-gradient(ellipse, #edf5df 0%, #edf5df 48%, transparent 69%);
+  padding: 10px;
+}
+.forest-avatar {
+  width: 170px;
+  height: 185px;
+  overflow: visible;
+}
+.forest-avatar.large {
+  width: 230px;
+  height: 250px;
+}
+.forest-friend-label {
+  font-size: 12px;
+  background: white;
+  border: 1px solid #e9eadf;
+  padding: 5px 15px;
+  border-radius: 30px;
+  transform: rotate(-3deg);
+  color: #697352;
+}
+.forest-spark {
+  position: absolute;
+  right: 22px;
+  top: 36px;
+  color: #e5ab24;
+  font-size: 35px;
+}
+.forest-search {
+  background: white;
+  border: 2px solid #dde8d3;
+  box-shadow: 0 5px 0 #e9eddf;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px 10px 22px;
+}
+.forest-search > svg {
+  color: #7c9670;
+  flex-shrink: 0;
+}
+.forest-search input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 19px;
+  color: var(--fg);
+  min-width: 0;
+  height: 48px;
+}
+.forest-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--green);
+  color: white;
+  min-height: 48px;
+  border-radius: 15px;
+  padding: 12px 21px;
+  font-size: 15px !important;
+  font-weight: 700;
+  white-space: normal;
+  border: 1px solid transparent;
+  box-shadow: 0 3px 0 #0b4d1c;
+  line-height: 1.5;
+}
+.forest-button:hover {
+  filter: brightness(0.97);
+}
+.forest-button.secondary {
+  background: white;
+  border-color: #dce5d4;
+  color: var(--green);
+  box-shadow: 0 2px 0 #e3e9db;
+}
+.forest-button.danger {
+  background: #a33c2e;
+  box-shadow: 0 3px 0 #7c2b22;
+}
+.forest-quick {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin: 19px 5px 28px;
+}
+.forest-quick > span {
+  color: #8d8a7c;
+  font-size: 12px;
+  margin-right: 5px;
+}
+.forest-quick button {
+  background: white;
+  border: 1px solid #ece9de;
+  border-radius: 24px;
+  padding: 7px 13px;
+  font-size: 13px;
+  min-height: 40px;
+}
+.forest-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 30px 0 18px;
+  flex-wrap: wrap;
+}
+.forest-heading p {
+  color: #818176;
+  font-size: 13px;
+  margin-top: 6px;
+}
+.forest-daily {
+  position: relative;
+  display: grid;
+  grid-template-columns: 195px 1fr 45px;
+  align-items: center;
+  gap: 32px;
+  background: white;
+  border: 1px solid #ede7d9;
+  border-radius: 28px;
+  padding: 26px;
+  box-shadow: 0 5px 0 #f1eadd;
+}
+.forest-word-picture {
+  background: #fff0cf;
+  border-radius: 23px;
+  min-height: 178px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+  line-height: 1.25;
+}
+.forest-word-picture span {
+  font-size: 11px;
+  color: #907531;
+  margin-top: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.forest-daily h2 {
+  font-size: 38px;
+}
+.forest-daily p {
+  color: #7b776b;
+  font-size: 15px;
+  margin: 10px 0 18px;
+  max-width: 420px;
+}
+.forest-daily > .forest-icon {
+  align-self: start;
+}
+.forest-muted {
+  color: #777d6d;
+  font-size: 13px;
+}
+.forest-category-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 15px 0;
+}
+.forest-category-tabs button {
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-size: 13px;
+  background: #fff;
+  border: 1px solid #e5e7db;
+  min-height: 40px;
+  color: #6e7666;
+}
+.forest-category-tabs button.selected {
+  color: white;
+  background: var(--green);
+  border-color: var(--green);
+}
+.forest-word-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 15px;
+}
+.forest-word-card {
+  text-align: left;
+  border-radius: 22px;
+  border: 1px solid #e5e9d9;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s;
+}
+.forest-word-card:hover {
+  transform: translateY(-4px);
+}
+.forest-word-card > span {
+  font-size: 41px;
+  margin-bottom: 16px;
+}
+.forest-word-card strong {
+  font-size: 19px;
+}
+.forest-word-card small {
+  font-size: 11px;
+  color: #777363;
+  margin-top: 4px;
+}
+.forest-word-card.peach {
+  background: #fff0e6;
+}
+.forest-word-card.yellow {
+  background: #fff5d6;
+}
+.forest-word-card.green {
+  background: #edf4e5;
+}
+.forest-word-card.purple {
+  background: #f0ebf8;
+}
+.forest-continue {
+  margin-top: 28px;
+  padding: 25px;
+  background: #edeedc;
+  border: 1px solid #e0e3cb;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.forest-continue > span {
+  font-size: 37px;
+}
+.forest-continue > div {
+  flex: 1;
+}
+.forest-continue small {
+  font-size: 11px;
+  color: #6e794d;
+}
+.forest-continue p {
+  font-size: 13px;
+  color: #7b7d65;
+  margin-top: 5px;
+}
+.forest-footer {
+  text-align: center;
+  color: #8b8c79;
+  font-size: 12px;
+  padding: 38px 0 12px;
+}
+.forest-footer small {
+  font-size: 10px;
+}
+.forest-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  background: #fffefbef;
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #e7e6dc;
+  z-index: 30;
+  padding: 8px 10px max(8px, env(safe-area-inset-bottom));
+  gap: 18px;
+  min-height: 80px;
+}
+.forest-nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 104px;
+  color: #939486;
+  font-size: 12px;
+  position: relative;
+  border-radius: 17px;
+  padding: 8px 14px;
+}
+.forest-nav button.active {
+  background: #eaf2e1;
+  color: var(--green);
+  font-weight: 750;
+}
+.forest-nav i {
+  position: absolute;
+  top: 4px;
+  right: 14px;
+  border-radius: 50%;
+  background: #ebbd37;
+  width: 5px;
+  height: 5px;
+}
+.forest-notice {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #fff0cf;
+  border-bottom: 1px solid #e2cea0;
+  color: #6b5126;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  font-size: 14px;
+}
+.forest-notice button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.forest-empty {
+  padding: 15px;
+  margin-top: 15px !important;
+  border-radius: 14px;
+  background: #fff0cf;
+  color: #725f29;
+}
+.forest-word-detail {
+  background: #fff;
+  border: 1px solid #ede8dc;
+  border-radius: 30px;
+  text-align: center;
+  padding: 35px;
+  box-shadow: 0 5px 0 #f0eadd;
+}
+.forest-big-emoji {
+  display: block;
+  font-size: 85px;
+  line-height: 1.5;
+}
+.forest-word-detail h2 {
+  font-size: 51px;
+  margin: 6px 0;
+}
+.forest-word-detail p {
+  font-size: 19px;
+  color: #69715f;
+  margin: 12px auto 20px;
+  max-width: 600px;
+}
+.forest-related {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 25px;
+  font-size: 13px;
+}
+.forest-related span {
+  background: #f0f5e8;
+  padding: 7px 13px;
+  border-radius: 30px;
+}
+.forest-sentence {
+  background: #fff9e7;
+  border: 1px solid #eadfbd;
+  border-radius: 25px;
+  text-align: center;
+  padding: 30px;
+}
+.forest-sentence > p {
+  font-size: 30px;
+  line-height: 1.7;
+  margin: 25px 0;
+  color: #4c5135;
+  word-break: keep-all;
+}
+.forest-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.forest-bottom-actions,
+.forest-story-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin: 27px 0;
+  flex-wrap: wrap;
+}
+.forest-progress {
+  height: 10px;
+  border-radius: 20px;
+  background: #e9ecdc;
+  overflow: hidden;
+  margin: 20px 0 25px;
+}
+.forest-progress > span {
+  height: 100%;
+  display: block;
+  border-radius: 20px;
+  background: #83af52;
+  transition: width 0.2s;
+}
+.forest-story {
+  background: white;
+  border: 1px solid #ece7d9;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 5px 0 #efe8d9;
+}
+.forest-story-scene {
+  position: relative;
+  height: 285px;
+  background: linear-gradient(#e7f1d9 65%, #d9e6bb 65%);
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  overflow: hidden;
+}
+.forest-story-scene .forest-avatar {
+  position: relative;
+  z-index: 2;
+  width: 180px;
+  height: 210px;
+  margin-bottom: 8px;
+}
+.forest-scene-sun {
+  position: absolute;
+  left: 14%;
+  top: 20px;
+  font-size: 55px;
+}
+.forest-scene-tree {
+  position: absolute;
+  right: 13%;
+  top: 10px;
+  font-size: 170px;
+}
+.forest-scene-word {
+  font-size: 62px;
+  position: absolute;
+  right: 30%;
+  bottom: 25px;
+  z-index: 3;
+  transform: rotate(-12deg);
+}
+.forest-scene-flower {
+  position: absolute;
+  bottom: 15px;
+  left: 8%;
+  font-size: 28px;
+}
+.forest-story-copy {
+  padding: 32px 45px;
+}
+.forest-story-copy > p {
+  font-size: 28px;
+  line-height: 1.95;
+  word-break: keep-all;
+  margin: 24px 0 22px;
+  white-space: pre-wrap;
+}
+.forest-story-copy .forest-actions {
+  justify-content: start;
+}
+.forest-tip {
+  padding: 18px 22px;
+  border-radius: 18px;
+  background: #f0f2e3;
+  color: #67704f;
+  font-size: 14px;
+  margin: 20px 0 !important;
+  line-height: 1.8;
+}
+.forest-quiz-question {
+  border: 1px solid #e9dfc7;
+  background: #fff9e9;
+  border-radius: 26px;
+  padding: 28px;
+  text-align: center;
+}
+.forest-quiz-question h2 {
+  font-size: 26px;
+  max-width: 650px;
+  margin: 18px auto 0;
+  word-break: keep-all;
+}
+.forest-blank {
+  font-size: 26px;
+  margin: 20px 0 !important;
+  color: #527139;
+}
+.forest-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.forest-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border-radius: 24px;
+  background: white;
+  border: 2px solid #e8e5da;
+  min-height: 180px;
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  word-break: keep-all;
+}
+.forest-choice > span {
+  font-size: 44px;
+}
+.forest-choice strong {
+  font-size: 20px;
+}
+.forest-choice > svg {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: var(--green);
+}
+.forest-choice.correct,
+.forest-choice.chosen {
+  border-color: #438c3d;
+  background: #f0f7e7;
+  box-shadow: 0 3px 0 #c5d9ad;
+}
+.forest-choice.try-again {
+  border-color: #d1a545;
+  background: #fff8dd;
+}
+.forest-hint {
+  padding: 12px;
+  font-size: 14px;
+  color: #7a642b;
+  min-height: 44px;
+}
+.forest-feedback {
+  text-align: center;
+  border-radius: 18px;
+  background: #fff0cf;
+  color: #795b21;
+  padding: 18px;
+  font-weight: 700;
+  margin: 18px 0;
+}
+.forest-feedback.success {
+  background: #e9f3df;
+  color: #32632c;
+}
+.forest-result {
+  text-align: center;
+  background: white;
+  border: 1px solid #ede8dc;
+  border-radius: 28px;
+  padding: 35px 40px;
+}
+.forest-result-icon {
+  font-size: 80px;
+}
+.forest-result h1 {
+  margin: 20px 0 12px;
+}
+.forest-result > p {
+  color: #737968;
+  margin: 15px 0;
+}
+.forest-result-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  max-width: 530px;
+  margin: 30px auto;
+}
+.forest-result-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 20px;
+  background: #f0f5e7;
+  border-radius: 20px;
+}
+.forest-result-stats strong {
+  font-size: 30px;
+  color: var(--green);
+}
+.forest-result-stats span {
+  font-size: 12px;
+  color: #79836d;
+}
+.forest-review-list {
+  text-align: left;
+  margin: 30px 0;
+}
+.forest-review-list > div {
+  display: flex;
+  gap: 15px;
+  padding: 18px;
+  border-top: 1px solid #eaece1;
+}
+.forest-review-list p {
+  font-size: 15px;
+  color: #567344;
+  margin-top: 6px;
+}
+.forest-review-list small {
+  color: #877c5e;
+}
+.forest-customize {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 24px;
+}
+.forest-character-preview {
+  background: #edf3df;
+  border: 1px solid #dfe7cf;
+  border-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  align-self: start;
+  position: sticky;
+  top: 20px;
+  min-height: 460px;
+}
+.forest-character-preview .forest-avatar.large {
+  width: 260px;
+  height: 280px;
+}
+.forest-character-preview h2 {
+  font-size: 30px;
+  margin-top: 12px;
+}
+.forest-character-preview p {
+  font-size: 13px;
+  color: #7a8269;
+}
+.forest-customize-options {
+  background: white;
+  border: 1px solid #eee6dc;
+  padding: 28px;
+  border-radius: 26px;
+}
+.forest-customize-options h3 {
+  margin: 27px 0 12px;
+}
+.forest-option-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 15px 0;
+}
+.forest-option-row button {
+  background: #fffaf1;
+  border: 2px solid #eae5d8;
+  border-radius: 17px;
+  padding: 12px 16px;
+  min-height: 48px;
+  font-size: 14px;
+}
+.forest-option-row button.selected {
+  background: #eff6e6;
+  border-color: #52884d;
+  color: #32632c;
+}
+.forest-option-row small {
+  display: block;
+  font-size: 10px;
+  color: #857d6a;
+  margin-top: 5px;
+}
+.forest-option-row .forest-swatch {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.forest-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #526148;
+  margin: 18px 0;
+}
+.forest-field input,
+.forest-field select {
+  border: 1px solid #dce3d2;
+  background: #fffefb;
+  border-radius: 13px;
+  padding: 12px 15px;
+  color: var(--fg);
+  min-height: 48px;
+  width: 100%;
+}
+.forest-parent-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 25px 0;
+}
+.forest-parent-stats section {
+  background: white;
+  border: 1px solid #e4e8d8;
+  border-radius: 22px;
+  padding: 23px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  color: var(--green);
+}
+.forest-parent-stats strong {
+  font-size: 35px;
+}
+.forest-parent-stats span {
+  font-size: 13px;
+  color: #78816a;
+}
+.forest-panel {
+  background: white;
+  border: 1px solid #ece7dc;
+  padding: 27px;
+  border-radius: 23px;
+  margin: 20px 0;
+}
+.forest-panel > p {
+  margin: 15px 0;
+}
+.forest-settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 25px;
+}
+.forest-records {
+  list-style: none;
+  padding: 0;
+}
+.forest-records li {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid #eceee4;
+  font-size: 14px;
+}
+.forest-records strong {
+  flex: 1;
+}
+.forest-records time {
+  color: #869078;
+  font-size: 12px;
+}
+.forest-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #24312480;
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 22px;
+}
+.forest-modal {
+  background: #fffdf6;
+  border-radius: 27px;
+  position: relative;
+  padding: 35px;
+  width: 100%;
+  max-width: 470px;
+  max-height: 90dvh;
+  overflow: auto;
+  box-shadow: 0 20px 100px #24312433;
+}
+.forest-modal h2 {
+  margin-bottom: 12px;
+}
+.forest-modal p {
+  font-size: 14px;
+  color: #7a7b68;
+}
+.forest-modal .forest-button {
+  margin-top: 10px;
+}
+.forest-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 8px;
+  display: flex;
+}
+.forest-modal-emoji {
+  font-size: 50px;
+}
+.forest-modal form > .forest-button {
+  width: 100%;
+}
+@media (min-width: 1300px) {
+  .forest-hero {
+    padding-left: 40px;
+    padding-right: 65px;
+  }
+  .forest-hero h1 {
+    font-size: 47px;
+  }
+}
+@media (max-width: 760px) {
+  .forest-header {
+    height: 70px;
+    padding: 0 18px;
+  }
+  .forest-brand {
+    font-size: 24px !important;
+    gap: 6px;
+  }
+  .forest-header-tools {
+    gap: 9px;
+  }
+  .forest-header-tools .forest-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .forest-parent-link span {
+    display: none;
+  }
+  .forest-leaves {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .forest-leaves > span {
+    display: none;
+  }
+  .forest-main {
+    padding: 18px 18px 0;
+  }
+  .forest-banner {
+    font-size: 11px;
+    padding: 10px 13px;
+  }
+  .forest-banner > .forest-pill {
+    display: none;
+  }
+  .forest-hero {
+    grid-template-columns: 1.2fr 1fr;
+    min-height: 255px;
+    padding: 20px 0 15px;
+    gap: 0;
+  }
+  .forest-hero h1 {
+    font-size: 29px;
+    line-height: 1.55;
+  }
+  .forest-hero p {
+    font-size: 12px;
+    max-width: 185px;
+  }
+  .forest-eyebrow {
+    font-size: 9px;
+  }
+  .forest-hero .forest-avatar.large {
+    width: 160px;
+    height: 180px;
+  }
+  .forest-hero-friend {
+    padding: 8px 0;
+  }
+  .forest-friend-label {
+    font-size: 9px;
+    padding: 3px 8px;
+  }
+  .forest-spark {
+    font-size: 23px;
+    right: 2px;
+    top: 25px;
+  }
+  .forest-search {
+    padding: 6px 7px 6px 14px;
+    gap: 10px;
+    border-radius: 19px;
+  }
+  .forest-search input {
+    font-size: 15px;
+  }
+  .forest-search .forest-button {
+    padding: 10px 15px;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+  .forest-quick {
+    gap: 7px;
+    margin-bottom: 23px;
+  }
+  .forest-quick > span {
+    width: 100%;
+    font-size: 11px;
+  }
+  .forest-quick button {
+    font-size: 12px;
+    padding: 5px 11px;
+  }
+  .forest-heading {
+    margin: 27px 0 16px;
+    gap: 10px;
+  }
+  .forest-app h1 {
+    font-size: 27px;
+  }
+  .forest-app h2 {
+    font-size: 21px;
+  }
+  .forest-hero h1 {
+    font-size: 29px;
+  }
+  .forest-heading .forest-pill {
+    font-size: 10px;
+  }
+  .forest-daily {
+    grid-template-columns: 110px 1fr;
+    gap: 18px;
+    padding: 18px;
+    border-radius: 23px;
+  }
+  .forest-word-picture {
+    min-height: 140px;
+    font-size: 63px;
+    border-radius: 18px;
+  }
+  .forest-word-picture span {
+    font-size: 9px;
+  }
+  .forest-daily h2 {
+    font-size: 31px;
+  }
+  .forest-daily p {
+    font-size: 12px;
+    margin: 7px 0 13px;
+  }
+  .forest-daily .forest-button {
+    font-size: 12px !important;
+    padding: 10px 12px;
+    min-height: 43px;
+    gap: 7px;
+  }
+  .forest-daily > .forest-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 30px;
+    height: 30px;
+  }
+  .forest-daily > .forest-icon svg {
+    width: 17px;
+  }
+  .forest-word-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .forest-word-card {
+    padding: 20px;
+    border-radius: 20px;
+  }
+  .forest-word-card > span {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
+  .forest-word-card strong {
+    font-size: 18px;
+  }
+  .forest-continue {
+    padding: 20px 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .forest-continue > span {
+    font-size: 30px;
+  }
+  .forest-continue > div {
+    min-width: 190px;
+  }
+  .forest-continue h3 {
+    font-size: 17px;
+  }
+  .forest-continue > .forest-button {
+    margin-left: 42px;
+    font-size: 12px !important;
+    min-height: 42px;
+  }
+  .forest-nav {
+    gap: 0;
+    padding: 6px 8px max(8px, env(safe-area-inset-bottom));
+    min-height: 76px;
+  }
+  .forest-nav button {
+    min-width: 0;
+    flex: 1;
+    padding: 9px 3px;
+    font-size: 10px;
+    gap: 5px;
+    border-radius: 15px;
+  }
+  .forest-nav button svg {
+    width: 21px;
+    height: 21px;
+  }
+  .forest-app {
+    padding-bottom: 95px;
+  }
+  .forest-muted {
+    font-size: 11px;
+  }
+  .forest-word-detail {
+    padding: 28px 19px;
+  }
+  .forest-word-detail h2 {
+    font-size: 47px;
+  }
+  .forest-word-detail p {
+    font-size: 17px;
+  }
+  .forest-related {
+    gap: 7px;
+  }
+  .forest-related span {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+  .forest-sentence {
+    padding: 25px 18px;
+  }
+  .forest-sentence > p {
+    font-size: 25px;
+    margin: 22px 0;
+  }
+  .forest-actions {
+    gap: 9px;
+  }
+  .forest-button {
+    font-size: 13px !important;
+    padding: 11px 16px;
+    gap: 8px;
+  }
+  .forest-bottom-actions {
+    justify-content: center;
+  }
+  .forest-story-scene {
+    height: 230px;
+  }
+  .forest-story-scene .forest-avatar {
+    width: 160px;
+    height: 180px;
+  }
+  .forest-scene-tree {
+    font-size: 130px;
+    right: 0;
+    top: 12px;
+  }
+  .forest-scene-word {
+    font-size: 45px;
+    right: 19%;
+    bottom: 21px;
+  }
+  .forest-scene-sun {
+    font-size: 38px;
+    left: 8%;
+    top: 18px;
+  }
+  .forest-scene-flower {
+    font-size: 20px;
+    left: 3%;
+  }
+  .forest-story-copy {
+    padding: 24px;
+  }
+  .forest-story-copy > p {
+    font-size: 23px;
+    line-height: 1.9;
+    margin: 22px 0;
+  }
+  .forest-tip {
+    font-size: 12px;
+    padding: 16px 18px;
+  }
+  .forest-quiz-question {
+    padding: 24px 18px;
+  }
+  .forest-quiz-question h2 {
+    font-size: 22px;
+  }
+  .forest-big-emoji {
+    font-size: 70px;
+  }
+  .forest-choices {
+    gap: 10px;
+  }
+  .forest-choice {
+    padding: 20px 10px;
+    min-height: 155px;
+    border-radius: 18px;
+  }
+  .forest-choice > span {
+    font-size: 32px;
+  }
+  .forest-choice strong {
+    font-size: 15px;
+  }
+  .forest-choice > svg {
+    width: 18px;
+    top: 8px;
+    right: 8px;
+  }
+  .forest-blank {
+    font-size: 23px;
+  }
+  .forest-result {
+    padding: 28px 18px;
+  }
+  .forest-result h1 {
+    font-size: 25px;
+  }
+  .forest-result > p {
+    font-size: 14px;
+  }
+  .forest-result-stats {
+    gap: 10px;
+  }
+  .forest-result-stats > div {
+    padding: 17px 10px;
+  }
+  .forest-result-stats strong {
+    font-size: 25px;
+  }
+  .forest-review-list > div {
+    padding: 15px 5px;
+    gap: 10px;
+  }
+  .forest-review-list strong {
+    font-size: 14px;
+  }
+  .forest-review-list p {
+    font-size: 13px;
+  }
+  .forest-customize {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .forest-character-preview {
+    position: static;
+    min-height: 300px;
+    padding: 20px;
+  }
+  .forest-character-preview .forest-avatar.large {
+    width: 190px;
+    height: 205px;
+  }
+  .forest-character-preview h2 {
+    font-size: 24px;
+    margin: 0;
+  }
+  .forest-customize-options {
+    padding: 23px;
+  }
+  .forest-parent-stats {
+    gap: 9px;
+  }
+  .forest-parent-stats section {
+    padding: 18px 8px;
+  }
+  .forest-parent-stats strong {
+    font-size: 28px;
+  }
+  .forest-parent-stats span {
+    font-size: 10px;
+    text-align: center;
+  }
+  .forest-panel {
+    padding: 22px;
+  }
+  .forest-settings-grid {
+    gap: 0 15px;
+  }
+  .forest-records li {
+    gap: 8px;
+    font-size: 12px;
+    flex-wrap: wrap;
+  }
+  .forest-records time {
+    font-size: 10px;
+  }
+  .forest-modal {
+    padding: 30px 24px;
+  }
+  .forest-footer {
+    padding-top: 30px;
+  }
+  .forest-notice {
+    font-size: 12px;
+    padding: 10px 16px;
+    gap: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .forest-app * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

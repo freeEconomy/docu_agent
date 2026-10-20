@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { ForestApp } from '@/components/forest/forest-app';
 export default function Home() {
-  redirect('/chat');
+  return <ForestApp />;
 }

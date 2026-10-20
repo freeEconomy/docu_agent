@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;family=Gaegu:wght@700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24..48,400..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#fff8f6;color:#2b1613;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;user-select:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}.material-symbols-outlined{font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 32;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"secondary":"#795900","on-background":"#2b1613","on-tertiary-fixed":"#3a0a00","surface-container-high":"#ffe2dd","secondary-fixed":"#ffdfa0","on-secondary-fixed-variant":"#5c4300","inverse-surface":"#422a26","on-primary":"#ffffff","on-tertiary":"#ffffff","primary-fixed-dim":"#88d982","background":"#fff8f6","tertiary":"#9f2c00","on-error":"#ffffff","tertiary-fixed":"#ffdbd0","on-error-container":"#93000a","inverse-primary":"#88d982","error":"#ba1a1a","on-primary-fixed-variant":"#005312","surface-container-low":"#fff0ee","surface-tint":"#1b6d24","secondary-fixed-dim":"#f8bd2a","on-secondary-fixed":"#261a00","tertiary-container":"#c1441a","outline-variant":"#bfcaba","surface-container-highest":"#ffdad4","surface-container":"#ffe9e5","tertiary-fixed-dim":"#ffb59f","on-primary-fixed":"#002204","on-secondary-container":"#6f5100","primary-fixed":"#a3f69c","primary":"#0d631b","surface-container-lowest":"#ffffff","surface-dim":"#f8d1cb","on-tertiary-fixed-variant":"#852300","surface-bright":"#fff8f6","on-primary-container":"#cbffc2","secondary-container":"#fec330","surface":"#fff8f6","surface-variant":"#ffdad4","outline":"#707a6c","on-surface-variant":"#40493d","on-surface":"#2b1613","inverse-on-surface":"#ffedea","primary-container":"#2e7d32","on-tertiary-container":"#ffeeea","on-secondary":"#ffffff","error-container":"#ffdad6"},borderRadius:{"DEFAULT":"1rem","lg":"2rem","xl":"3rem","full":"9999px"},spacing:{"space-xl":"2.5rem","space-xs":"0.375rem","space-lg":"1.75rem","margin-desktop":"3rem","margin":"1.25rem","space-md":"1.25rem","space-sm":"0.75rem","gutter":"1rem","margin-tablet":"2rem","gutter-desktop":"1.5rem","gutter-tablet":"1.25rem"},fontFamily:{"headline-sm":["Plus Jakarta Sans"],"display-hero":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"display-hero-mobile":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"body-xl":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"]},fontSize:{"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"700"}],"display-hero":["44px",{"lineHeight":"56px","fontWeight":"800"}],"headline-lg-mobile":["26px",{"lineHeight":"34px","fontWeight":"700"}],"body-lg":["18px",{"lineHeight":"28px","fontWeight":"600"}],"display-hero-mobile":["34px",{"lineHeight":"44px","fontWeight":"800"}],"headline-lg":["32px",{"lineHeight":"42px","fontWeight":"700"}],"body-md":["16px",{"lineHeight":"24px","fontWeight":"500"}],"label-lg":["18px",{"lineHeight":"24px","fontWeight":"700"}],"body-xl":["22px",{"lineHeight":"34px","fontWeight":"600"}],"label-md":["15px",{"lineHeight":"20px","fontWeight":"700"}],"label-sm":["13px",{"lineHeight":"18px","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","fontWeight":"700"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen selection:bg-secondary-fixed"><header class="fixed top-0 inset-x-0 z-50 bg-surface/90 backdrop-blur-xl shadow-[0_4px_16px_rgba(43,22,19,0.04)] pt-safe"><div class="h-20 px-margin flex items-center justify-between gap-space-xs"><div class="flex items-center gap-2"><div class="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full shadow-[0_2px_0_0_#ffdad4]"><span class="text-primary text-2xl">🌲</span><span class="font-headline-sm text-headline-sm text-primary tracking-tight">단어숲</span></div><button aria-label="음성 듣기 상태" class="w-11 h-11 rounded-full bg-surface-container-low flex items-center justify-center text-primary active:scale-95 transition-transform" type="button"><span class="material-symbols-outlined text-[24px]">volume_up</span></button></div><div class="flex items-center"><div class="flex items-center gap-1.5 bg-secondary-fixed px-3.5 py-1.5 rounded-full shadow-[0_3px_0_0_#f8bd2a]"><span class="text-base leading-none">🍃</span><span class="font-label-md text-label-md text-on-secondary-fixed leading-none">나뭇잎 45개</span></div></div><div class="flex items-center gap-2"><button aria-label="친구 캐릭터 보기" class="w-11 h-11 p-0.5 rounded-full bg-secondary-container flex items-center justify-center active:scale-95 transition-transform overflow-hidden shadow-[0_2px_0_0_#6f5100]" type="button"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuRB_wBlpwQA47AeDKsq2-BDTCpvUhBZEGJ9yHJTdwBYA-0dE3ZyuEfGzrDiYWU80R8tMH350jVKc5JEUAMbJBQT3_vyZhZ-Odf34Z8PtG_jkN-MB0hd-U4p18WRI_2snfqJ0oJX0Yjufo_jsFGRpohPwi9E16U-zj9VZGSDu8zALNQSAF52AVLBRortzgcJNyDlzbYGg3177yqK8x0RNt1sfmhzGxwR3dQksw0yUr4TLcjDwt39NAng"/></button><a aria-label="부모님 숲 (자녀 안심 잠금)" class="h-11 px-2.5 rounded-full bg-surface-container-high flex items-center justify-center gap-1 text-on-surface-variant active:scale-95 transition-transform" data-path="parents-zone" href="#"><span class="material-symbols-outlined text-[18px]">lock</span><span class="font-label-sm text-label-sm hidden sm:inline">부모님</span></a></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<div class="px-margin pt-2 pb-6 max-w-lg mx-auto w-full flex flex-col gap-5">
+<!-- Top Mode Tab Switcher -->
+<div class="p-1.5 bg-surface-container rounded-full flex items-center justify-between shadow-sm">
+<button class="flex-1 py-3 px-3 rounded-full bg-primary-container text-on-primary font-label-md text-label-md flex items-center justify-center gap-1.5 shadow-[0_4px_0_0_#1b5e20] active:translate-y-0.5 transition-all" id="tab-customizer" type="button">
+<span class="text-lg">🐰</span>
+<span>내 친구 꾸미기</span>
+</button>
+<button class="flex-1 py-3 px-3 rounded-full text-on-surface-variant font-label-md text-label-md flex items-center justify-center gap-1.5 active:translate-y-0.5 transition-all" id="tab-parents" type="button">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span>부모님 숲 (안심존)</span>
+</button>
+</div>
+<!-- VIEW 1: CHARACTER CUSTOMIZER -->
+<div class="flex flex-col gap-5" id="view-customizer">
+<!-- Character Showcase Card -->
+<div class="relative bg-surface-container-low rounded-3xl p-5 flex flex-col items-center justify-center shadow-[0_8px_20px_-4px_rgba(43,22,19,0.06)] overflow-hidden">
+<!-- Floating Leaf Wallet Counter Badge -->
+<div class="absolute top-4 left-4 z-10 flex items-center gap-1.5 bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md px-3.5 py-1.5 rounded-full shadow-[0_3px_0_0_#f8bd2a]">
+<span>🍃</span>
+<span id="leaf-counter">55개 보유 중</span>
+</div>
+<!-- Sound React Sparkle Button -->
+<button aria-label="캐릭터 인사 소리 듣기" class="absolute top-4 right-4 z-10 w-11 h-11 bg-surface-container-highest text-primary rounded-full flex items-center justify-center shadow-[0_2px_0_0_#ffdad4] active:scale-95 transition-transform" id="btn-sound-react" type="button">
+<span class="material-symbols-outlined text-[22px]">volume_up</span>
+</button>
+<!-- Big 3D Avatar Stage -->
+<div class="relative w-56 h-56 mt-4 flex items-center justify-center">
+<div class="absolute inset-0 bg-surface-container-high/60 rounded-full blur-xl scale-95"></div>
+<img alt="단어숲 대표 캐릭터 아기 토끼" class="relative z-10 w-52 h-52 object-contain drop-shadow-md select-none transition-transform duration-300" id="avatar-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4L7Tzxkqu3ZSG3gn3jThUo2xxOgJKcXXlG_HP4obnslU9AFlpWntVis2A3vIXyfzZ87yNOX6moTPkMHeMhQE70-BCn5tFmWXO3yyyLrb3KZDrLy1A4xu0VTz4fLQWOUsoCyG-R3BQP3Vptsuqo9Aj3IGPaV8vTBXjufF-gYsgP2zH7KgQvxGJ8BL2K9XpH5UiiVLdJ4IkZv-bgAJShpHwRR1U1juWSpjYxs2RmlAiAU4N12ljcCl_fA"/>
+<!-- Tactile Equipped Visual Overlay Sticker Badges -->
+<div class="absolute top-2 right-2 z-20 bg-primary text-on-primary font-label-sm text-label-sm px-2.5 py-1 rounded-full shadow-[0_2px_0_0_#005312] flex items-center gap-1" id="equipped-hat-badge">
+<span>🌱</span>
+<span>새싹 모자</span>
+</div>
+<div class="absolute bottom-3 left-2 z-20 bg-secondary text-on-secondary font-label-sm text-label-sm px-2.5 py-1 rounded-full shadow-[0_2px_0_0_#5c4300] flex items-center gap-1" id="equipped-bag-badge">
+<span>🌰</span>
+<span>도토리 배낭</span>
+</div>
+</div>
+<!-- Equiped Summary Tags Strip -->
+<div class="mt-3 flex items-center gap-2 flex-wrap justify-center">
+<span class="px-2.5 py-1 rounded-full bg-surface text-on-surface-variant font-label-sm text-label-sm shadow-sm flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+            초록 새싹 모자
+          </span>
+<span class="px-2.5 py-1 rounded-full bg-surface text-on-surface-variant font-label-sm text-label-sm shadow-sm flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+            도토리 배낭
+          </span>
+<span class="px-2.5 py-1 rounded-full bg-surface text-on-surface-variant font-label-sm text-label-sm shadow-sm flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+            따뜻한 스카프
+          </span>
+</div>
+</div>
+<!-- Animal Selection (Base Buddy) -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between px-1">
+<span class="font-label-md text-label-md text-on-surface">숲속 동물 친구</span>
+<span class="font-label-sm text-label-sm text-primary">토끼와 탐험 중</span>
+</div>
+<div class="grid grid-cols-3 gap-2.5">
+<button class="buddy-btn flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-surface-container-high text-on-surface shadow-[0_4px_0_0_#ffdad4] active:translate-y-0.5 transition-all ring-2 ring-primary" type="button">
+<span class="text-3xl">🐰</span>
+<span class="font-label-md text-label-md">토끼 민우</span>
+<span class="font-label-sm text-label-sm text-primary">선택됨</span>
+</button>
+<button class="buddy-btn flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-surface-container-low text-on-surface-variant shadow-[0_3px_0_0_#ffe2dd] active:translate-y-0.5 transition-all" type="button">
+<span class="text-3xl">🐻</span>
+<span class="font-label-md text-label-md">아기 곰 웅이</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">친구되기</span>
+</button>
+<button class="buddy-btn flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-surface-container-low text-on-surface-variant shadow-[0_3px_0_0_#ffe2dd] active:translate-y-0.5 transition-all" type="button">
+<span class="text-3xl">🐱</span>
+<span class="font-label-md text-label-md">아기 고양이</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">친구되기</span>
+</button>
+</div>
+</div>
+<!-- Wardrobe Category Pills -->
+<div class="flex flex-col gap-2.5">
+<div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+<button class="category-chip px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-[0_3px_0_0_#005312] whitespace-nowrap active:translate-y-0.5" type="button">
+            👒 모자
+          </button>
+<button class="category-chip px-4 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md whitespace-nowrap active:translate-y-0.5" type="button">
+            👕 옷
+          </button>
+<button class="category-chip px-4 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md whitespace-nowrap active:translate-y-0.5" type="button">
+            🎒 가방 · 악세서리
+          </button>
+<button class="category-chip px-4 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md whitespace-nowrap active:translate-y-0.5" type="button">
+            🎨 털 색상
+          </button>
+</div>
+<!-- Items Grid -->
+<div class="grid grid-cols-2 gap-3">
+<!-- Item 1: Equipped -->
+<div class="item-card relative bg-surface-container-lowest p-3.5 rounded-2xl shadow-[0_4px_12px_rgba(43,22,19,0.06)] flex flex-col items-center justify-between gap-2.5 ring-2 ring-primary cursor-pointer active:scale-95 transition-transform">
+<span class="absolute top-2.5 right-2.5 bg-primary text-on-primary font-label-sm text-label-sm px-2 py-0.5 rounded-full">착용 중</span>
+<div class="w-14 h-14 bg-surface-container-low rounded-2xl flex items-center justify-center text-3xl">
+              🌱
+            </div>
+<div class="flex flex-col items-center text-center">
+<span class="font-label-md text-label-md text-on-surface">초록 새싹 모자</span>
+<span class="font-label-sm text-label-sm text-primary">기본 제공</span>
+</div>
+<button class="w-full py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm" type="button">
+              벗기
+            </button>
+</div>
+<!-- Item 2: Acorn Hat (Cost 10 leaves) -->
+<div class="item-card relative bg-surface-container-lowest p-3.5 rounded-2xl shadow-[0_4px_12px_rgba(43,22,19,0.06)] flex flex-col items-center justify-between gap-2.5 cursor-pointer active:scale-95 transition-transform">
+<div class="w-14 h-14 bg-surface-container-low rounded-2xl flex items-center justify-center text-3xl">
+              🌰
+            </div>
+<div class="flex flex-col items-center text-center">
+<span class="font-label-md text-label-md text-on-surface">노란 도토리 모자</span>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-secondary">
+<span>🍃 10개 필요</span>
+</div>
+</div>
+<button class="w-full py-1.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm shadow-[0_2px_0_0_#f8bd2a]" type="button">
+              입혀주기
+            </button>
+</div>
+<!-- Item 3: Apple Flower Pin (Free/Achieved) -->
+<div class="item-card relative bg-surface-container-lowest p-3.5 rounded-2xl shadow-[0_4px_12px_rgba(43,22,19,0.06)] flex flex-col items-center justify-between gap-2.5 cursor-pointer active:scale-95 transition-transform">
+<span class="absolute top-2.5 left-2.5 bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-2 py-0.5 rounded-full">사과 달성!</span>
+<div class="w-14 h-14 bg-surface-container-low rounded-2xl flex items-center justify-center text-3xl">
+              🌸
+            </div>
+<div class="flex flex-col items-center text-center">
+<span class="font-label-md text-label-md text-on-surface">사과 꽃 머리핀</span>
+<span class="font-label-sm text-label-sm text-tertiary">무료 선물</span>
+</div>
+<button class="w-full py-1.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm shadow-[0_2px_0_0_#9f2c00]" type="button">
+              입혀주기
+            </button>
+</div>
+<!-- Item 4: Straw Hat (Cost 15 leaves) -->
+<div class="item-card relative bg-surface-container-lowest p-3.5 rounded-2xl shadow-[0_4px_12px_rgba(43,22,19,0.06)] flex flex-col items-center justify-between gap-2.5 cursor-pointer active:scale-95 transition-transform">
+<div class="w-14 h-14 bg-surface-container-low rounded-2xl flex items-center justify-center text-3xl">
+              👒
+            </div>
+<div class="flex flex-col items-center text-center">
+<span class="font-label-md text-label-md text-on-surface">여름 밀짚모자</span>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-secondary">
+<span>🍃 15개 필요</span>
+</div>
+</div>
+<button class="w-full py-1.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm shadow-[0_2px_0_0_#f8bd2a]" type="button">
+              입혀주기
+            </button>
+</div>
+</div>
+</div>
+<!-- Kid-Safe Reassurance Banner -->
+<div class="p-3.5 rounded-2xl bg-surface-container-high/70 flex items-start gap-2.5">
+<span class="text-xl">✨</span>
+<p class="font-body-md text-body-md text-on-surface leading-snug">
+          광고나 유료 결제 없이, 오직 단어를 배울 때 씩씩하게 모은 <strong class="text-primary">나뭇잎</strong>으로만 옷을 선물할 수 있어요!
+        </p>
+</div>
+<!-- Action Footer Buttons -->
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="py-3.5 px-4 rounded-full bg-surface-container-high text-on-surface-variant font-label-lg text-label-lg shadow-[0_4px_0_0_#ffdad4] active:translate-y-1 transition-all flex items-center justify-center gap-1.5" id="btn-reset-avatar" type="button">
+<span class="material-symbols-outlined text-[20px]">undo</span>
+<span>원래대로</span>
+</button>
+<button class="py-3.5 px-4 rounded-full bg-primary-container text-on-primary font-label-lg text-label-lg shadow-[0_4px_0_0_#1b5e20] active:translate-y-1 transition-all flex items-center justify-center gap-1.5" id="btn-save-avatar" type="button">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+<span>이 모습 저장!</span>
+</button>
+</div>
+</div>
+<!-- VIEW 2: PARENTS & PRIVACY ZONE -->
+<div class="hidden flex flex-col gap-5" id="view-parents">
+<!-- Math Gatekeeper Card (Kids lock) -->
+<div class="bg-surface-container-low rounded-3xl p-5 shadow-[0_6px_18px_rgba(43,22,19,0.05)] flex flex-col gap-3" id="math-gate-banner">
+<div class="flex items-center gap-2">
+<span class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center text-lg font-bold">🔒</span>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">부모님 확인 잠금</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">어린이의 실수 조작을 방지하기 위한 산수 퀴즈예요.</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-3.5 rounded-2xl flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-tertiary">7 + 5 = ?</span>
+<div class="flex items-center gap-2">
+<input class="w-20 px-3 py-1.5 bg-surface-container text-center font-headline-sm text-headline-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-primary" id="gate-answer" placeholder="정답" type="number"/>
+<button class="px-4 py-2 bg-primary text-on-primary rounded-xl font-label-md text-label-md shadow-[0_3px_0_0_#005312] active:translate-y-0.5" id="btn-gate-submit" type="button">확인</button>
+</div>
+</div>
+<p class="text-center font-label-sm text-label-sm text-error hidden" id="gate-message">정답을 다시 확인해주세요.</p>
+</div>
+<!-- Today's Learning Statistics -->
+<div class="bg-surface-container-lowest rounded-3xl p-5 shadow-[0_8px_20px_rgba(43,22,19,0.05)] flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[24px]">insights</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">오늘의 학습 리포트</h3>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container px-2.5 py-1 rounded-full text-on-surface-variant">오늘 기준</span>
+</div>
+<div class="grid grid-cols-3 gap-2.5">
+<div class="bg-surface-container-low p-3 rounded-2xl flex flex-col items-center text-center gap-1">
+<span class="text-xl">🍎</span>
+<span class="font-headline-sm text-headline-sm text-primary">1 개</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">익힌 단어 (사과)</span>
+</div>
+<div class="bg-surface-container-low p-3 rounded-2xl flex flex-col items-center text-center gap-1">
+<span class="text-xl">🎯</span>
+<span class="font-headline-sm text-headline-sm text-secondary">100%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">퀴즈 정답률</span>
+</div>
+<div class="bg-surface-container-low p-3 rounded-2xl flex flex-col items-center text-center gap-1">
+<span class="text-xl">⏱️</span>
+<span class="font-headline-sm text-headline-sm text-tertiary">15 분</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">단어숲 머문 시간</span>
+</div>
+</div>
+<!-- Progress Visual Bar -->
+<div class="flex flex-col gap-1.5 bg-surface-container-low p-3.5 rounded-2xl">
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface">
+<span>오늘의 목표 달성률</span>
+<span class="text-primary font-bold">100% 완료!</span>
+</div>
+<div class="w-full bg-surface-container-high h-3 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 100%;"></div>
+</div>
+</div>
+</div>
+<!-- Local Device Storage Reassurance Card -->
+<div class="bg-surface-container-lowest rounded-3xl p-5 shadow-[0_8px_20px_rgba(43,22,19,0.05)] flex flex-col gap-3.5">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-[26px]">verified_user</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">100% 안심 로컬 저장소</h3>
+</div>
+<div class="p-3.5 rounded-2xl bg-surface-container-low flex items-start gap-3">
+<span class="text-2xl mt-0.5">🛡️</span>
+<div class="flex flex-col gap-1">
+<strong class="font-label-md text-label-md text-on-surface">외부 AI 서버로 개인정보를 전송하지 않습니다</strong>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              자녀의 음성 녹음, 학습 진도, 커스텀 캐릭터 설정은 클라우드가 아닌 현재 사용 중인 <strong class="text-on-surface">이 기기의 브라우저(LocalStorage)</strong>에만 철저히 보관됩니다.
+            </p>
+</div>
+</div>
+<!-- Device Reset & Storage Caution -->
+<div class="flex flex-col gap-2 pt-2">
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary">info</span>
+<span>브라우저 캐시 삭제 또는 기기 변경 시 데이터가 초기화될 수 있습니다.</span>
+</div>
+<div class="flex gap-2.5 mt-2">
+<button class="flex-1 py-3 px-3 rounded-2xl bg-surface-container text-on-surface font-label-sm text-label-sm active:scale-95 transition-transform flex items-center justify-center gap-1" id="btn-export-backup" type="button">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>학습 기록 내보내기</span>
+</button>
+<button class="flex-1 py-3 px-3 rounded-2xl bg-error-container text-on-error-container font-label-sm text-label-sm active:scale-95 transition-transform flex items-center justify-center gap-1" id="btn-reset-data" type="button">
+<span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+<span>데이터 초기화</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Toast Notification Popup -->
+<div class="fixed bottom-28 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-inverse-surface text-inverse-on-surface font-label-md text-label-md shadow-lg pointer-events-none opacity-0 transition-opacity duration-300 flex items-center gap-2 whitespace-nowrap" id="toast-message">
+<span>🎉</span>
+<span id="toast-text">멋진 친구 모습이 저장되었어요!</span>
+</div>
+</div>
+</div>
+<script>
+  (() => {
+    // Tab Switching
+    const tabCustomizer = document.getElementById('tab-customizer');
+    const tabParents = document.getElementById('tab-parents');
+    const viewCustomizer = document.getElementById('view-customizer');
+    const viewParents = document.getElementById('view-parents');
+    const toast = document.getElementById('toast-message');
+    const toastText = document.getElementById('toast-text');
+
+    function showToast(msg) {
+      if (!toast) return;
+      toastText.textContent = msg;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2200);
+    }
+
+    tabCustomizer.addEventListener('click', () => {
+      tabCustomizer.className = 'flex-1 py-3 px-3 rounded-full bg-primary-container text-on-primary font-label-md text-label-md flex items-center justify-center gap-1.5 shadow-[0_4px_0_0_#1b5e20] active:translate-y-0.5 transition-all';
+      tabParents.className = 'flex-1 py-3 px-3 rounded-full text-on-surface-variant font-label-md text-label-md flex items-center justify-center gap-1.5 active:translate-y-0.5 transition-all';
+      viewCustomizer.classList.remove('hidden');
+      viewParents.classList.add('hidden');
+    });
+
+    tabParents.addEventListener('click', () => {
+      tabParents.className = 'flex-1 py-3 px-3 rounded-full bg-primary-container text-on-primary font-label-md text-label-md flex items-center justify-center gap-1.5 shadow-[0_4px_0_0_#1b5e20] active:translate-y-0.5 transition-all';
+      tabCustomizer.className = 'flex-1 py-3 px-3 rounded-full text-on-surface-variant font-label-md text-label-md flex items-center justify-center gap-1.5 active:translate-y-0.5 transition-all';
+      viewParents.classList.remove('hidden');
+      viewCustomizer.classList.add('hidden');
+    });
+
+    // Character sound audio micro-interaction
+    const soundBtn = document.getElementById('btn-sound-react');
+    const avatarImg = document.getElementById('avatar-image');
+    if (soundBtn && avatarImg) {
+      soundBtn.addEventListener('click', () => {
+        avatarImg.classList.add('scale-110', '-rotate-3');
+        setTimeout(() => {
+          avatarImg.classList.remove('scale-110', '-rotate-3');
+        }, 350);
+        showToast("토끼 민우: '안녕! 오늘도 같이 놀자!' 🐰");
+      });
+    }
+
+    // Wardrobe Category Filtering Micro-interaction
+    const categoryChips = document.querySelectorAll('.category-chip');
+    categoryChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        categoryChips.forEach(c => {
+          c.className = 'category-chip px-4 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md whitespace-nowrap active:translate-y-0.5';
+        });
+        chip.className = 'category-chip px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-[0_3px_0_0_#005312] whitespace-nowrap active:translate-y-0.5';
+      });
+    });
+
+    // Buddy selector interaction
+    const buddyBtns = document.querySelectorAll('.buddy-btn');
+    buddyBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buddyBtns.forEach(b => {
+          b.classList.remove('ring-2', 'ring-primary', 'bg-surface-container-high');
+          b.classList.add('bg-surface-container-low');
+        });
+        btn.classList.remove('bg-surface-container-low');
+        btn.classList.add('ring-2', 'ring-primary', 'bg-surface-container-high');
+        showToast("새로운 단어 탐험 친구를 선택했어요!");
+      });
+    });
+
+    // Save & Reset Buttons
+    const btnSaveAvatar = document.getElementById('btn-save-avatar');
+    const btnResetAvatar = document.getElementById('btn-reset-avatar');
+    if (btnSaveAvatar) {
+      btnSaveAvatar.addEventListener('click', () => {
+        showToast("저장 완료! 내 캐릭터가 단어숲에 나들이 나가요 🌲");
+      });
+    }
+    if (btnResetAvatar) {
+      btnResetAvatar.addEventListener('click', () => {
+        showToast("기본 복장으로 되돌아왔어요 🌱");
+      });
+    }
+
+    // Parents Gate Math Check
+    const gateBtn = document.getElementById('btn-gate-submit');
+    const gateAnswer = document.getElementById('gate-answer');
+    const gateMsg = document.getElementById('gate-message');
+    if (gateBtn && gateAnswer) {
+      gateBtn.addEventListener('click', () => {
+        if (gateAnswer.value.trim() === '12') {
+          gateMsg.classList.add('hidden');
+          showToast('부모님 인증 확인 완료! 안전하게 관리하세요.');
+        } else {
+          gateMsg.classList.remove('hidden');
+        }
+      });
+    }
+
+    // Local Storage Actions
+    const exportBtn = document.getElementById('btn-export-backup');
+    const resetDataBtn = document.getElementById('btn-reset-data');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        showToast('로컬 학습 기록 파일 백업이 완료되었습니다. 📁');
+      });
+    }
+    if (resetDataBtn) {
+      resetDataBtn.addEventListener('click', () => {
+        if (confirm('학습 데이터와 획득한 나뭇잎을 모두 초기화할까요?')) {
+          showToast('기기 내 데이터가 안전하게 초기화되었습니다.');
+        }
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/95 backdrop-blur-xl shadow-[0_-6px_24px_rgba(43,22,19,0.06)]" data-active-classes="bg-primary-container text-on-primary shadow-[0_4px_0_0_#1b5e20] scale-105"><div class="flex justify-around items-center h-24 px-2 max-w-lg mx-auto"><a class="flex flex-col items-center justify-center min-w-[56px] h-[68px] px-2 rounded-2xl text-on-surface-variant active:translate-y-0.5 transition-all" data-path="home" href="#"><span class="material-symbols-outlined text-[28px] mb-0.5">cottage</span><span class="font-label-sm text-label-sm tracking-tight">홈</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-[68px] px-2 rounded-2xl text-on-surface-variant active:translate-y-0.5 transition-all" data-path="words" href="#"><span class="material-symbols-outlined text-[28px] mb-0.5">menu_book</span><span class="font-label-sm text-label-sm tracking-tight">단어배우기</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-[68px] px-2 rounded-2xl text-on-surface-variant active:translate-y-0.5 transition-all" data-path="stories" href="#"><span class="material-symbols-outlined text-[28px] mb-0.5">auto_stories</span><span class="font-label-sm text-label-sm tracking-tight">동화마을</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-[68px] px-2 rounded-2xl text-on-surface-variant active:translate-y-0.5 transition-all" data-path="quiz" href="#"><span class="material-symbols-outlined text-[28px] mb-0.5">extension</span><span class="font-label-sm text-label-sm tracking-tight">놀이퀴즈</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] h-[68px] px-2 rounded-2xl active:translate-y-0.5 transition-all bg-primary-container text-on-primary shadow-[0_4px_0_0_#1b5e20] scale-105" data-path="character" href="#"><span class="material-symbols-outlined text-[28px] mb-0.5">face</span><span class="font-label-sm text-label-sm tracking-tight">친구꾸미기</span></a></div></nav></body></html>

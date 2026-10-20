@@ -7,16 +7,16 @@ import '@fontsource/noto-sans-kr/400.css';
 import '@fontsource/noto-sans-kr/500.css';
 import '@fontsource/noto-sans-kr/700.css';
 import './globals.css';
-import { WorkspaceProvider } from '@/components/workspace-provider';
+import { RouteProvider } from '@/components/route-provider';
 export const metadata: Metadata = {
-  title: 'DocuMind — 문서 기반 AI 워크스페이스',
-  description: '내 문서에서 근거를 검색하는 DocuMind AI 워크스페이스',
+  title: '단어숲 — 하루 한 단어, 즐거운 배움',
+  description: '단어와 문장, 동화와 퀴즈를 학습 친구와 함께 만나요.',
 };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko">
       <body>
-        <WorkspaceProvider>{children}</WorkspaceProvider>
+        <RouteProvider>{children}</RouteProvider>
       </body>
     </html>
   );
