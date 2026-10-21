@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, BookOpen, Check, Eye, RotateCcw, Volume2 } from 'lucide-react';
 import { tales, type ActivityId, type AdventureProgress } from '@/lib/forest/adventures';
 import { words } from '@/lib/forest/content';
+import { Bookshop, DifficultyBadge, type BookFilter } from './bookshop';
 import { StoryScene, AdventureHeading, AdventureComplete, SpeakButton } from './shared';
 export function StoryLibrary({
   progress,
@@ -23,6 +24,7 @@ export function StoryLibrary({
     [page, setPage] = useState(0),
     [translated, setTranslated] = useState(true),
     [earned, setEarned] = useState<number | null>(null);
+  const [filter, setFilter] = useState<BookFilter>({ difficulty: 'all', query: '' });
   const finished = useRef(false);
   const tale = tales.find((t) => t.id === selected);
   const goPage = (n: number) => {
@@ -47,54 +49,21 @@ export function StoryLibrary({
           title="두근두근 동화책장"
           description="이솝우화부터 세계 명작까지. 읽고, 들으며 이야기 속 지혜를 배워요."
         />
-        <div className="tale-library">
-          {tales.map((book, i) => {
-            const completed = progress.activityRecords.some(
-              (r) => r.activityId === `story:${book.id}`,
-            );
-            const bookmark = progress.storyPages[book.id];
-            return (
-              <button
-                key={book.id}
-                className="tale-cover"
-                onClick={() => {
-                  stop();
-                  finished.current = false;
-                  setEarned(null);
-                  window.scrollTo({ top: 0 });
-                  setSelected(book.id);
-                  setPage(bookmark ?? 0);
-                  onBookmark(book.id, bookmark ?? 0);
-                }}
-                aria-label={`동화 읽기: ${book.title}`}
-              >
-                <div className="tale-cover-art" style={{ background: book.color }}>
-                  <StoryScene scene={book.pages[book.pages.length - 1]} compact />
-                  <span className="tale-volume">STORY {String(i + 1).padStart(2, '0')}</span>
-                  {completed && (
-                    <span className="tale-read">
-                      <Check size={15} />
-                      완독
-                    </span>
-                  )}
-                </div>
-                <div className="tale-cover-copy">
-                  <span className="tale-badge">{book.genre}</span>
-                  <h2>{book.title}</h2>
-                  <p>{book.description}</p>
-                  <small>{book.pages.length}장면 · 한국어 뜻 · 영어 듣기</small>
-                  <strong>
-                    <BookOpen size={17} />
-                    {bookmark === undefined
-                      ? '책 펼치기'
-                      : `이어 읽기 · ${bookmark + 1} / ${book.pages.length}`}
-                    <ArrowRight size={17} />
-                  </strong>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        <Bookshop
+          progress={progress}
+          filter={filter}
+          onFilter={setFilter}
+          onSelect={(book) => {
+            stop();
+            finished.current = false;
+            setEarned(null);
+            window.scrollTo({ top: 0 });
+            setSelected(book.id);
+            const bookmark = progress.storyPages[book.id] ?? 0;
+            setPage(bookmark);
+            onBookmark(book.id, bookmark);
+          }}
+        />
         <div className="adventure-note">
           오래전부터 전해 내려오는 이솝우화와 명작을 쉬운 영어·한국어로 다시 썼어요. 한 장면씩
           천천히 읽어 보세요. 영어 소리가 없어도 글과 뜻으로 함께 읽을 수 있어요.
@@ -131,6 +100,7 @@ export function StoryLibrary({
             <span>
               <BookOpen size={17} /> {page + 1} / {tale.pages.length}장면
             </span>
+            <DifficultyBadge level={tale.difficulty} />
             <button onClick={() => goPage(0)}>
               <RotateCcw size={16} />
               처음부터

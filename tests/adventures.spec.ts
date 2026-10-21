@@ -42,7 +42,7 @@ test('stories keep old profiles, resume bookmarks and grant only one daily rewar
   await expect(page.locator('.forest-leaves')).toContainText('20 P');
   await expect(page.locator('.run-companion-face')).toHaveText('🐱');
   await page.getByRole('button', { name: '동화', exact: true }).click();
-  await expect(page.locator('.tale-cover')).toHaveCount(6);
+  await expect(page.locator('.tale-cover')).toHaveCount(30);
   await page.getByRole('button', { name: `동화 읽기: ${tales[0].title}`, exact: true }).click();
   for (let i = 0; i < 3; i++)
     await page.getByRole('button', { name: '다음 장면', exact: true }).click();
@@ -82,11 +82,12 @@ test('stories keep old profiles, resume bookmarks and grant only one daily rewar
   expect(external).toEqual([]);
 });
 
-test('all six classic books can be read, completed and restored', async ({ page }) => {
+test('all thirty classic books can be read, completed and restored', async ({ page }) => {
+  test.setTimeout(120_000);
   await page.goto('/');
   await page.getByRole('button', { name: '동화', exact: true }).click();
   const classicTales = tales;
-  expect(classicTales).toHaveLength(6);
+  expect(classicTales).toHaveLength(30);
   for (const [index, tale] of classicTales.entries()) {
     const cover = page.getByRole('button', { name: `동화 읽기: ${tale.title}`, exact: true });
     await expect(cover).toContainText(tale.genre);
@@ -121,7 +122,7 @@ test('all six classic books can be read, completed and restored', async ({ page 
   const saved = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('wordforest-english-v1')!),
   );
-  expect(saved.activityRecords).toHaveLength(6);
+  expect(saved.activityRecords).toHaveLength(30);
   for (const tale of classicTales) {
     expect(saved.storyPages[tale.id]).toBe(7);
     expect(
@@ -130,6 +131,68 @@ test('all six classic books can be read, completed and restored', async ({ page 
       ),
     ).toBe(true);
   }
+});
+
+test('bookshop gallery filters levels, searches titles, preserves filters and handles empty results', async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '동화', exact: true }).click();
+  const covers = page.locator('.tale-cover');
+  await expect(covers).toHaveCount(30);
+  const first = await covers.nth(0).boundingBox();
+  const second = await covers.nth(1).boundingBox();
+  expect(first).toBeTruthy();
+  expect(second).toBeTruthy();
+  expect(Math.abs(first!.y - second!.y)).toBeLessThan(1);
+  const columns = await page
+    .locator('.bookshop-grid')
+    .evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(' ').length);
+  expect(columns).toBe(isMobile ? 2 : 5);
+  for (const level of ['쉬움', '보통', '도전']) {
+    await page.getByRole('button', { name: `난이도 ${level}`, exact: true }).click();
+    await expect(covers).toHaveCount(10);
+    await expect(
+      page.getByRole('button', { name: `난이도 ${level}`, exact: true }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    for (const badge of await page.locator('.book-cover-details .book-difficulty').all())
+      await expect(badge).toContainText(level);
+  }
+  await page.getByRole('searchbox', { name: '동화 검색' }).fill('Cinderella');
+  await expect(covers).toHaveCount(1);
+  await page.getByRole('button', { name: '동화 읽기: 신데렐라', exact: true }).click();
+  await expect(page.locator('.tale-reader-top .book-difficulty')).toContainText('도전');
+  await page.getByRole('button', { name: '동화책장', exact: true }).click();
+  await expect(page.getByRole('searchbox', { name: '동화 검색' })).toHaveValue('Cinderella');
+  await expect(covers).toHaveCount(1);
+  await page.getByRole('searchbox', { name: '동화 검색' }).fill('없는 책 제목');
+  await expect(covers).toHaveCount(0);
+  await expect(page.getByText('아직 이 책은 진열되지 않았어요', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '모든 책 보기', exact: true }).click();
+  await expect(covers).toHaveCount(30);
+  await page.getByRole('searchbox', { name: '동화 검색' }).fill('포도');
+  await expect(covers).toHaveCount(1);
+  await expect(covers.first()).toHaveAccessibleName('동화 읽기: 여우와 포도');
+  await page.getByRole('searchbox', { name: '동화 검색' }).fill('');
+  if (isMobile) await page.setViewportSize({ width: 320, height: 700 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  const clipped = await covers.evaluateAll((buttons) =>
+    buttons
+      .filter((button) => {
+        const art = button.querySelector('.tale-cover-art')!.getBoundingClientRect();
+        const heading = button.querySelector('.book-cover-heading')!.getBoundingClientRect();
+        const scene = button.querySelector('.tale-scene')!.getBoundingClientRect();
+        return (
+          art.width > button.getBoundingClientRect().width + 1 || heading.bottom > scene.top + 1
+        );
+      })
+      .map((button) => button.getAttribute('aria-label')),
+  );
+  expect(clipped).toEqual([]);
+  await page.screenshot({ path: test.info().outputPath('bookshop-gallery.png'), fullPage: false });
 });
 
 test('memory supports a mistake, matched pairs, replay, highest score and daily reward cap', async ({

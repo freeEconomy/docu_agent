@@ -64,11 +64,13 @@ import {
   emptyAdventure,
 } from '../lib/forest/adventures';
 
-test('six classic adaptations have provenance, bilingual scenes and relevant vocabulary', () => {
-  assert.equal(tales.length, 6);
-  assert.equal(tales.filter((t) => t.genre === '이솝우화').length, 2);
-  assert.equal(tales.filter((t) => t.genre === '세계 명작').length, 3);
-  assert.equal(new Set(tales.map((t) => t.id)).size, 6);
+test('thirty classic adaptations have provenance, bilingual scenes and relevant vocabulary', () => {
+  assert.equal(tales.length, 30);
+  assert.equal(tales.filter((t) => t.genre === '이솝우화').length, 13);
+  assert.equal(tales.filter((t) => t.genre === '세계 명작').length, 16);
+  for (const level of [1, 2, 3])
+    assert.equal(tales.filter((t) => t.difficulty === level).length, 10);
+  assert.equal(new Set(tales.map((t) => t.id)).size, 30);
   for (const tale of tales) {
     assert.equal(tale.pages.length, 8);
     assert.ok(tale.source && tale.badge);

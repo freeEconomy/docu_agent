@@ -1,3 +1,4 @@
+import { expandedTales } from './classic-expansion';
 export type SceneTheme = 'meadow' | 'pond' | 'bakery' | 'clouds' | 'night';
 export type TalePage = {
   english: string;
@@ -9,10 +10,17 @@ export type TalePage = {
   wordId?: string;
   caption: string;
 };
+export type TaleDifficulty = 1 | 2 | 3;
+export const taleDifficulties = [
+  { level: 1, label: '쉬움', description: '짧은 문장과 익숙한 낱말' },
+  { level: 2, label: '보통', description: '이야기 흐름을 따라 읽기' },
+  { level: 3, label: '도전', description: '긴 문장과 새로운 낱말' },
+] as const;
 export type Tale = {
   id: string;
   title: string;
   englishTitle: string;
+  difficulty: TaleDifficulty;
   genre: '이솝우화' | '전래동화' | '세계 명작';
   source: string;
   description: string;
@@ -24,6 +32,7 @@ export type Tale = {
 export const tales: Tale[] = [
   {
     id: 'hare-and-tortoise',
+    difficulty: 1,
     title: '토끼와 거북이',
     englishTitle: 'The Hare and the Tortoise',
     genre: '이솝우화',
@@ -134,6 +143,7 @@ export const tales: Tale[] = [
   },
   {
     id: 'lion-and-mouse',
+    difficulty: 1,
     title: '사자와 생쥐',
     englishTitle: 'The Lion and the Mouse',
     genre: '이솝우화',
@@ -242,6 +252,7 @@ export const tales: Tale[] = [
   },
   {
     id: 'honest-woodcutter',
+    difficulty: 2,
     title: '금도끼 은도끼',
     englishTitle: 'The Honest Woodcutter',
     genre: '전래동화',
@@ -351,6 +362,7 @@ export const tales: Tale[] = [
   },
   {
     id: 'three-little-pigs',
+    difficulty: 2,
     title: '아기 돼지 삼 형제',
     englishTitle: 'The Three Little Pigs',
     genre: '세계 명작',
@@ -461,6 +473,7 @@ export const tales: Tale[] = [
   },
   {
     id: 'ugly-duckling',
+    difficulty: 3,
     title: '미운 아기 오리',
     englishTitle: 'The Ugly Duckling',
     genre: '세계 명작',
@@ -575,6 +588,7 @@ export const tales: Tale[] = [
   },
   {
     id: 'emperors-new-clothes',
+    difficulty: 3,
     title: '벌거벗은 임금님',
     englishTitle: 'The Emperor’s New Clothes',
     genre: '세계 명작',
@@ -685,6 +699,7 @@ export const tales: Tale[] = [
       },
     ],
   },
+  ...expandedTales,
 ];
 export const gameModes = [
   {

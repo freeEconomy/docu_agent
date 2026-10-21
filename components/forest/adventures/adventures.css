@@ -1342,3 +1342,435 @@
     height: 220px;
   }
 }
+
+/* Face-out books, grouped visually by continuous wooden shelves. */
+.bookshop {
+  margin: 0 0 28px;
+}
+.bookshop-welcome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 26px 30px;
+  margin-bottom: 26px;
+  border-radius: 22px;
+  background: #eaf0df;
+  border: 1px solid #dce5cd;
+}
+.bookshop-welcome h2 {
+  font-size: 25px;
+  margin: 9px 0;
+  letter-spacing: -1px;
+}
+.bookshop-welcome p {
+  margin: 0;
+  color: #68745e;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.bookshop-stamp {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  color: #345f42;
+  padding: 10px 20px;
+  border-left: 1px solid #ccd7bd;
+}
+.bookshop-stamp strong {
+  font-size: 27px;
+}
+.bookshop-stamp span {
+  font-size: 11px;
+}
+.bookshop-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.bookshop-levels {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bookshop-levels button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid #dce0d1;
+  border-radius: 24px;
+  background: #fffdf7;
+  color: #647159;
+  font-size: 14px;
+  font-weight: 700;
+}
+.bookshop-levels button[aria-pressed='true'] {
+  background: #315f47;
+  color: #fff;
+  border-color: #315f47;
+}
+.bookshop-levels button span {
+  font-size: 11px;
+  opacity: 0.8;
+}
+.bookshop-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  width: 260px;
+  padding: 11px 14px;
+  border: 1px solid #dce0d1;
+  border-radius: 13px;
+  background: #fffdf7;
+  color: #6c7764;
+}
+.bookshop-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  color: #2c4935;
+}
+.bookshop-search:focus-within {
+  outline: 3px solid #6b9575;
+  outline-offset: 3px;
+}
+.bookshop-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.bookshop-guide {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin: 18px 0 24px;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #77816c;
+}
+.bookshop-guide p {
+  margin: 0;
+}
+.bookshop-guide > span {
+  flex-shrink: 0;
+  color: #42684d;
+  font-weight: 700;
+}
+.bookshop .bookshop-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 32px 24px;
+  padding: 0 12px;
+  margin: 0;
+  list-style: none;
+}
+.bookshop-slot {
+  position: relative;
+  min-width: 0;
+  padding-bottom: 16px;
+  display: flex;
+}
+.bookshop-slot::after {
+  content: '';
+  position: absolute;
+  left: -12px;
+  right: -12px;
+  height: 12px;
+  bottom: 0;
+  border-radius: 2px;
+  background: linear-gradient(#ddbb92 0 25%, #c69d72 25% 80%, #af835b 80%);
+  box-shadow: 0 6px 8px #71533116;
+}
+.bookshop .tale-cover {
+  display: block;
+  width: 100%;
+  align-self: stretch;
+  border: 0;
+  border-radius: 4px 10px 6px 4px;
+  background: #fffdf7;
+  box-shadow:
+    4px 2px 0 #e8dfcd,
+    5px 4px 0 #d8cfba,
+    0 8px 12px #3b402516;
+  overflow: hidden;
+}
+.bookshop .tale-cover:hover {
+  box-shadow:
+    4px 2px 0 #e8dfcd,
+    5px 4px 0 #d8cfba,
+    0 8px 18px #315f4733;
+}
+.bookshop .tale-cover-art {
+  width: 100%;
+  position: relative;
+  aspect-ratio: 3 / 4;
+  min-height: 260px;
+  overflow: hidden;
+}
+.bookshop .tale-cover-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    #20382b24,
+    transparent 5%,
+    #ffffff66 6%,
+    transparent 9%,
+    transparent 96%,
+    #213d2712
+  );
+  border: 1px solid #345f4210;
+}
+.book-cover-heading {
+  position: relative;
+  z-index: 1;
+  padding: 17px 15px 0 20px;
+  text-align: center;
+  color: #2f503b;
+}
+.book-cover-genre {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.book-cover-heading h3 {
+  margin: 9px 0 6px;
+  font-size: 20px;
+  line-height: 1.35;
+  letter-spacing: -0.7px;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.book-cover-heading > span[lang='en'] {
+  display: block;
+  font-size: 10px;
+  line-height: 1.45;
+  color: #566c53;
+}
+.bookshop .tale-cover-art .tale-scene.compact {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 44%;
+  min-height: 0;
+  border-radius: 0;
+}
+.bookshop .tale-cover .tale-scene.compact .tale-cast {
+  left: 3%;
+  right: 15%;
+  bottom: 16%;
+  gap: 0;
+}
+.bookshop .tale-cover .tale-scene.compact .tale-cast > span {
+  font-size: clamp(30px, 3.5vw, 42px);
+}
+.bookshop .tale-cover .tale-scene.compact .tale-prop {
+  font-size: 28px;
+  right: 3%;
+  bottom: 4%;
+}
+.bookshop .tale-cover .tale-scene.compact .tale-tree {
+  font-size: 38px;
+}
+.bookshop .tale-cover .tale-scene.compact .tale-orb {
+  font-size: 22px;
+}
+.bookshop .tale-cover .tale-scene.compact .tale-flowers {
+  font-size: 12px;
+}
+.bookshop .tale-read {
+  top: auto;
+  bottom: 7px;
+  right: 7px;
+  z-index: 2;
+  padding: 4px 6px;
+  font-size: 10px;
+}
+.book-cover-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 13px 12px 15px 17px;
+}
+.book-cover-details small {
+  color: #7b816e;
+  font-size: 10px;
+}
+.book-cover-details strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #345f42;
+}
+.book-difficulty {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 8px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+.book-difficulty > span {
+  font-size: 9px;
+  letter-spacing: 2px;
+}
+.book-difficulty.level-1 {
+  background: #edf3e4;
+  color: #426b3b;
+}
+.book-difficulty.level-2 {
+  background: #fff0d9;
+  color: #865b20;
+}
+.book-difficulty.level-3 {
+  background: #eee7f8;
+  color: #71539a;
+}
+.bookshop-empty {
+  display: grid;
+  justify-items: center;
+  padding: 56px 18px;
+  text-align: center;
+  background: #f2f3e9;
+  border-radius: 20px;
+  color: #647159;
+}
+.bookshop-empty h3 {
+  color: #345f42;
+  margin-bottom: 0;
+}
+.bookshop-empty p {
+  font-size: 14px;
+  line-height: 1.8;
+}
+.bookshop-footnote {
+  margin: 25px 0 0;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #7b816e;
+}
+.bookshop button:focus-visible {
+  outline: 3px solid #648b6d;
+  outline-offset: 5px;
+}
+@media (max-width: 1050px) {
+  .bookshop .bookshop-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .bookshop .bookshop-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px 18px;
+    padding: 0 9px;
+  }
+  .bookshop-slot::after {
+    left: -9px;
+    right: -9px;
+  }
+  .bookshop-welcome {
+    padding: 20px;
+    gap: 12px;
+  }
+  .bookshop-welcome h2 {
+    font-size: 21px;
+    line-height: 1.5;
+  }
+  .bookshop-stamp {
+    padding: 8px 0 8px 16px;
+  }
+  .bookshop-stamp span {
+    display: none;
+  }
+  .bookshop-welcome p {
+    font-size: 12px;
+  }
+  .bookshop-search {
+    width: 100%;
+  }
+  .bookshop-tools {
+    gap: 14px;
+  }
+  .bookshop-levels {
+    gap: 6px;
+    width: 100%;
+  }
+  .bookshop-levels button {
+    flex: 1;
+    justify-content: center;
+    padding: 10px;
+    gap: 6px;
+    font-size: 13px;
+  }
+}
+@media (max-width: 540px) {
+  .bookshop .bookshop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bookshop .tale-cover-art {
+    min-height: 240px;
+  }
+  .book-cover-heading {
+    padding: 15px 10px 0 15px;
+  }
+  .bookshop .book-cover-heading h3 {
+    font-size: 17px;
+    margin: 8px 0 5px;
+  }
+  .book-cover-heading > span[lang='en'] {
+    display: none;
+  }
+  .bookshop .tale-cover .tale-scene.compact .tale-cast > span {
+    font-size: 31px;
+  }
+  .bookshop-welcome {
+    padding: 18px 16px;
+  }
+  .bookshop-welcome h2 {
+    font-size: 18px;
+  }
+  .bookshop-stamp {
+    display: none;
+  }
+  .book-cover-details {
+    padding: 12px 8px 13px 13px;
+    gap: 9px;
+  }
+  .book-cover-details strong {
+    font-size: 10px;
+    gap: 4px;
+  }
+  .bookshop-guide {
+    font-size: 11px;
+  }
+  .bookshop .book-difficulty {
+    font-size: 10px;
+    padding: 5px 6px;
+    gap: 5px;
+  }
+  .book-difficulty > span {
+    letter-spacing: 1px;
+  }
+}
