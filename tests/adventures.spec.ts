@@ -184,14 +184,23 @@ test('bookshop gallery filters levels, searches titles, preserves filters and ha
       .filter((button) => {
         const art = button.querySelector('.tale-cover-art')!.getBoundingClientRect();
         const heading = button.querySelector('.book-cover-heading')!.getBoundingClientRect();
-        const scene = button.querySelector('.tale-scene')!.getBoundingClientRect();
+        const illustration = button
+          .querySelector('.book-cover-illustration')!
+          .getBoundingClientRect();
         return (
-          art.width > button.getBoundingClientRect().width + 1 || heading.bottom > scene.top + 1
+          art.width > button.getBoundingClientRect().width + 1 ||
+          art.height > art.width * 1.3 + 1 ||
+          heading.top < illustration.bottom - 1
         );
       })
       .map((button) => button.getAttribute('aria-label')),
   );
   expect(clipped).toEqual([]);
+  const firstCoverImage = covers.first().locator('img');
+  await expect(firstCoverImage).toBeVisible();
+  await expect
+    .poll(() => firstCoverImage.evaluate((img: HTMLImageElement) => img.naturalWidth))
+    .toBeGreaterThan(0);
   await page.screenshot({ path: test.info().outputPath('bookshop-gallery.png'), fullPage: false });
 });
 

@@ -71,7 +71,12 @@ test('thirty classic adaptations have provenance, bilingual scenes and relevant 
   for (const level of [1, 2, 3])
     assert.equal(tales.filter((t) => t.difficulty === level).length, 10);
   assert.equal(new Set(tales.map((t) => t.id)).size, 30);
+  const coverHashes = new Set<string>();
   for (const tale of tales) {
+    const cover = readFileSync(`public/book-covers/${tale.id}.webp`);
+    assert.equal(cover.subarray(0, 4).toString(), 'RIFF', tale.id);
+    assert.equal(cover.subarray(8, 12).toString(), 'WEBP', tale.id);
+    coverHashes.add(createHash('sha256').update(cover).digest('hex'));
     assert.equal(tale.pages.length, 8);
     assert.ok(tale.source && tale.badge);
     assert.ok(
@@ -98,6 +103,7 @@ test('thirty classic adaptations have provenance, bilingual scenes and relevant 
       assert.ok(page.korean && page.caption && page.cast.length && page.prop);
     }
   }
+  assert.equal(coverHashes.size, tales.length);
   assert.equal(gameModes.length, 3);
   assert.ok(gameWordIds.every((id) => words.some((w) => w.id === id)));
   assert.equal(trainRounds.length, 5);

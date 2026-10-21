@@ -7,7 +7,6 @@ import {
   type TaleDifficulty,
   type AdventureProgress,
 } from '@/lib/forest/adventures';
-import { StoryScene } from './shared';
 
 export type BookFilter = { difficulty: 'all' | TaleDifficulty; query: string };
 export function DifficultyBadge({ level }: { level: TaleDifficulty }) {
@@ -107,12 +106,20 @@ export function Bookshop({
                   onClick={() => onSelect(book)}
                 >
                   <div className="tale-cover-art" style={{ background: book.color }}>
-                    <div className="book-cover-heading">
+                    <div className="book-cover-illustration">
+                      <img
+                        src={`/book-covers/${book.id}.webp`}
+                        alt=""
+                        width={480}
+                        height={360}
+                        loading="lazy"
+                        decoding="async"
+                      />
                       <span className="book-cover-genre">{book.genre}</span>
-                      <h3>{book.title}</h3>
-                      <span lang="en">{book.englishTitle}</span>
                     </div>
-                    <StoryScene scene={book.pages[book.pages.length - 1]} compact />
+                    <div className="book-cover-heading">
+                      <h3>{book.title}</h3>
+                    </div>
                     {read && (
                       <span className="tale-read">
                         <Check size={13} />
@@ -122,7 +129,7 @@ export function Bookshop({
                   </div>
                   <div className="book-cover-details">
                     <DifficultyBadge level={book.difficulty} />
-                    <small>{book.pages.length}장면 · 영어·한국어</small>
+                    <small>{book.pages.length}장면</small>
                     <strong>
                       <BookOpen size={14} />
                       {bookmark === undefined
