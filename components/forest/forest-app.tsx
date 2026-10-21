@@ -34,6 +34,7 @@ import {
   gameModes,
   emptyAdventure,
   readAdventure,
+  retiredTaleTitles,
   recordActivity,
   type AdventureProgress,
   type ActivityId,
@@ -1162,13 +1163,16 @@ export function ForestApp() {
                     .reverse()
                     .map((record) => {
                       const story = tales.find((tale) => `story:${tale.id}` === record.activityId);
+                      const retiredTitle = record.activityId.startsWith('story:')
+                        ? retiredTaleTitles[record.activityId.slice(6)]
+                        : undefined;
                       const game = gameModes.find(
                         (mode) => `game:${mode.id}` === record.activityId,
                       );
                       return (
                         <li key={`${record.activityId}-${record.date}`}>
-                          <strong>{story?.title || game?.title}</strong>
-                          <span>{story ? '읽기 완료' : `${record.score}점`}</span>
+                          <strong>{story?.title || retiredTitle || game?.title}</strong>
+                          <span>{story || retiredTitle ? '읽기 완료' : `${record.score}점`}</span>
                           <time>
                             {new Date(record.date).toLocaleDateString('ko-KR', {
                               timeZone: 'Asia/Seoul',
@@ -1229,7 +1233,7 @@ export function ForestApp() {
           </small>
           <br />
           <small>
-            창작 동화 {tales.length}편 · 미니게임 {gameModes.length}종
+            명작 동화 {tales.length}편 · 미니게임 {gameModes.length}종
           </small>
         </footer>
       </main>

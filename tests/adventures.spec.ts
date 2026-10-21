@@ -30,7 +30,10 @@ test('stories keep old profiles, resume bookmarks and grant only one daily rewar
   await page.evaluate(() => {
     const profile = JSON.parse(localStorage.getItem('wordforest-english-v1')!);
     delete profile.storyPages;
-    delete profile.activityRecords;
+    profile.storyPages = { 'rainbow-ball': 6 };
+    profile.activityRecords = [
+      { activityId: 'story:rainbow-ball', date: '2026-10-20T00:00:00Z', score: 100 },
+    ];
     profile.leaves = 20;
     profile.symbol = '🐱';
     localStorage.setItem('wordforest-english-v1', JSON.stringify(profile));
@@ -67,21 +70,32 @@ test('stories keep old profiles, resume bookmarks and grant only one daily rewar
   await expect(page.locator('.forest-leaves')).toContainText('30 P');
   await page.getByRole('button', { name: '다른 동화 보기', exact: true }).click();
   await expect(page.locator('.tale-cover').first()).toContainText('완독');
+  const restored = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('wordforest-english-v1')!),
+  );
+  expect(
+    restored.activityRecords.some(
+      (record: { activityId: string }) => record.activityId === 'story:rainbow-ball',
+    ),
+  ).toBe(true);
+  expect(restored.storyPages['rainbow-ball']).toBeUndefined();
   expect(external).toEqual([]);
 });
 
-test('all three gentle spooky stories can be read, completed and restored', async ({ page }) => {
+test('all six classic books can be read, completed and restored', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: '동화', exact: true }).click();
-  const spookyTales = tales.filter((tale) => tale.spooky);
-  expect(spookyTales).toHaveLength(3);
-  for (const [index, tale] of spookyTales.entries()) {
+  const classicTales = tales;
+  expect(classicTales).toHaveLength(6);
+  for (const [index, tale] of classicTales.entries()) {
     const cover = page.getByRole('button', { name: `동화 읽기: ${tale.title}`, exact: true });
-    await expect(cover).toContainText('살짝 오싹');
+    await expect(cover).toContainText(tale.genre);
     await cover.click();
     for (const [sceneIndex, scene] of tale.pages.entries()) {
       await expect(page.getByText(scene.english, { exact: true })).toBeVisible();
       await expect(page.locator('.tale-translation')).toHaveText(scene.korean);
+      await expect(page.locator('.tale-word button')).toContainText(scene.vocabulary.english);
+      await expect(page.locator('.tale-word button')).toContainText(scene.vocabulary.korean);
       await expect(page.locator('.tale-reader .tale-scene')).toHaveAccessibleName(scene.caption);
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
@@ -96,19 +110,19 @@ test('all three gentle spooky stories can be read, completed and restored', asyn
   }
   await page.reload();
   await page.getByRole('button', { name: '동화', exact: true }).click();
-  for (const tale of spookyTales)
+  for (const tale of classicTales)
     await expect(
       page.getByRole('button', { name: `동화 읽기: ${tale.title}`, exact: true }),
     ).toContainText('완독');
   await page.screenshot({
-    path: test.info().outputPath('spooky-story-library.png'),
+    path: test.info().outputPath('classic-story-library.png'),
     fullPage: true,
   });
   const saved = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('wordforest-english-v1')!),
   );
-  expect(saved.activityRecords).toHaveLength(3);
-  for (const tale of spookyTales) {
+  expect(saved.activityRecords).toHaveLength(6);
+  for (const tale of classicTales) {
     expect(saved.storyPages[tale.id]).toBe(7);
     expect(
       saved.activityRecords.some(
@@ -254,6 +268,11 @@ test('story narration and listening games use English voices and stop across sce
   await page.getByRole('button', { name: '이 장면 듣기', exact: true }).click();
   expect(await page.evaluate(() => (window as any).__spoken.at(-1))).toEqual({
     text: tales[0].pages[0].english,
+    lang: 'en-US',
+  });
+  await page.locator('.tale-word button').click();
+  expect(await page.evaluate(() => (window as any).__spoken.at(-1))).toEqual({
+    text: tales[0].pages[0].vocabulary.english,
     lang: 'en-US',
   });
   const stops = await page.evaluate(() => (window as any).__stops);

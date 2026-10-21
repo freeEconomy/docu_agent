@@ -64,16 +64,35 @@ import {
   emptyAdventure,
 } from '../lib/forest/adventures';
 
-test('six original bilingual tales connect every scene to real vocabulary', () => {
+test('six classic adaptations have provenance, bilingual scenes and relevant vocabulary', () => {
   assert.equal(tales.length, 6);
-  assert.equal(tales.filter((t) => t.spooky).length, 3);
+  assert.equal(tales.filter((t) => t.genre === '이솝우화').length, 2);
+  assert.equal(tales.filter((t) => t.genre === '세계 명작').length, 3);
   assert.equal(new Set(tales.map((t) => t.id)).size, 6);
   for (const tale of tales) {
     assert.equal(tale.pages.length, 8);
+    assert.ok(tale.source && tale.badge);
+    assert.ok(
+      ![
+        'rainbow-ball',
+        'little-bakery',
+        'cloud-train',
+        'window-visitor',
+        'playground-shadow',
+        'midnight-train',
+      ].includes(tale.id),
+    );
     for (const page of tale.pages) {
-      const word = words.find((w) => w.id === page.wordId);
-      assert.ok(word);
-      assert.ok(page.english.toLowerCase().includes(word.name), `${tale.id}: ${page.english}`);
+      assert.ok(page.vocabulary.english && page.vocabulary.korean);
+      assert.ok(
+        page.english.toLowerCase().includes(page.vocabulary.english),
+        `${tale.id}: ${page.english}`,
+      );
+      if (page.wordId) {
+        const word = words.find((w) => w.id === page.wordId);
+        assert.ok(word);
+        assert.ok(page.english.toLowerCase().includes(word.name));
+      }
       assert.ok(page.korean && page.caption && page.cast.length && page.prop);
     }
   }
@@ -91,10 +110,10 @@ test('adventure migration preserves valid bookmarks and daily rewards cannot be 
   assert.deepEqual(readAdventure({ name: '기존 프로필' }), emptyAdventure);
   assert.deepEqual(
     readAdventure({
-      storyPages: { 'rainbow-ball': 3, 'cloud-train': 99 },
+      storyPages: { 'hare-and-tortoise': 3, 'lion-and-mouse': 99, 'rainbow-ball': 5 },
       activityRecords: [{ activityId: 'unknown', date: 'bad', score: 500 }],
     }),
-    { storyPages: { 'rainbow-ball': 3 }, activityRecords: [] },
+    { storyPages: { 'hare-and-tortoise': 3 }, activityRecords: [] },
   );
   const first = recordActivity(emptyAdventure, 'game:memory', 80, '2026-10-21T14:59:00Z');
   assert.equal(first.pointsEarned, 10);
@@ -111,9 +130,12 @@ test('adventure migration preserves valid bookmarks and daily rewards cannot be 
     10,
   );
   assert.equal(
-    recordActivity(progress, 'story:rainbow-ball', 100, '2026-10-21T14:59:30Z').pointsEarned,
+    recordActivity(progress, 'story:hare-and-tortoise', 100, '2026-10-21T14:59:30Z').pointsEarned,
     10,
   );
+  const archived = { activityId: 'story:rainbow-ball', date: '2026-10-20T00:00:00Z', score: 100 };
+  assert.deepEqual(readAdventure({ activityRecords: [archived] }).activityRecords, [archived]);
+  assert.throws(() => recordActivity(progress, 'story:rainbow-ball', 100));
   assert.throws(() => recordActivity(progress, 'story:missing', 100));
   assert.throws(() => recordActivity(progress, 'game:train', 101));
 });

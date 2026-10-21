@@ -1,6 +1,6 @@
 'use client';
 import { useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, Check, Eye, RotateCcw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Check, Eye, RotateCcw, Volume2 } from 'lucide-react';
 import { tales, type ActivityId, type AdventureProgress } from '@/lib/forest/adventures';
 import { words } from '@/lib/forest/content';
 import { StoryScene, AdventureHeading, AdventureComplete, SpeakButton } from './shared';
@@ -45,7 +45,7 @@ export function StoryLibrary({
         <AdventureHeading
           eyebrow="LITTLE STORIES · BIG HEARTS"
           title="두근두근 동화책장"
-          description="친구들과 떠나는 작은 모험. 읽고, 듣고, 따뜻한 말을 배워요."
+          description="이솝우화부터 세계 명작까지. 읽고, 들으며 이야기 속 지혜를 배워요."
         />
         <div className="tale-library">
           {tales.map((book, i) => {
@@ -79,13 +79,10 @@ export function StoryLibrary({
                   )}
                 </div>
                 <div className="tale-cover-copy">
-                  <span className="tale-badge">{book.badge}</span>
+                  <span className="tale-badge">{book.genre}</span>
                   <h2>{book.title}</h2>
                   <p>{book.description}</p>
-                  <small>
-                    {book.spooky && '살짝 오싹 · '}
-                    {book.pages.length}장면 · 한국어 뜻 · 영어 듣기
-                  </small>
+                  <small>{book.pages.length}장면 · 한국어 뜻 · 영어 듣기</small>
                   <strong>
                     <BookOpen size={17} />
                     {bookmark === undefined
@@ -99,19 +96,19 @@ export function StoryLibrary({
           })}
         </div>
         <div className="adventure-note">
-          모두 Fun To Run의 창작 동화예요. 한 장면씩 천천히 읽어도 괜찮아요. 영어 소리가 없어도 글과
-          뜻으로 함께 읽을 수 있어요.
+          오래전부터 전해 내려오는 이솝우화와 명작을 쉬운 영어·한국어로 다시 썼어요. 한 장면씩
+          천천히 읽어 보세요. 영어 소리가 없어도 글과 뜻으로 함께 읽을 수 있어요.
         </div>
       </>
     );
   const scene = tale.pages[page],
-    word = words.find((w) => w.id === scene.wordId)!;
+    word = words.find((w) => w.id === scene.wordId);
   return (
     <>
       <AdventureHeading
         eyebrow={tale.englishTitle.toUpperCase()}
         title={tale.title}
-        description=""
+        description={tale.source}
         onBack={library}
         backLabel="동화책장"
       />
@@ -156,12 +153,13 @@ export function StoryLibrary({
             <button
               onClick={() => {
                 stop();
-                onWord(word.id);
+                if (word) onWord(word.id);
+                else speak(scene.vocabulary.english);
               }}
             >
-              <strong lang="en">{word.name}</strong>
-              <span>{word.korean}</span>
-              <ArrowRight size={16} />
+              <strong lang="en">{scene.vocabulary.english}</strong>
+              <span>{scene.vocabulary.korean}</span>
+              {word ? <ArrowRight size={16} /> : <Volume2 size={16} />}
             </button>
           </div>
           <div className="tale-pagination">
