@@ -39,7 +39,7 @@ test('stories keep old profiles, resume bookmarks and grant only one daily rewar
   await expect(page.locator('.forest-leaves')).toContainText('20 P');
   await expect(page.locator('.run-companion-face')).toHaveText('🐱');
   await page.getByRole('button', { name: '동화', exact: true }).click();
-  await expect(page.locator('.tale-cover')).toHaveCount(3);
+  await expect(page.locator('.tale-cover')).toHaveCount(6);
   await page.getByRole('button', { name: `동화 읽기: ${tales[0].title}`, exact: true }).click();
   for (let i = 0; i < 3; i++)
     await page.getByRole('button', { name: '다음 장면', exact: true }).click();
@@ -68,6 +68,54 @@ test('stories keep old profiles, resume bookmarks and grant only one daily rewar
   await page.getByRole('button', { name: '다른 동화 보기', exact: true }).click();
   await expect(page.locator('.tale-cover').first()).toContainText('완독');
   expect(external).toEqual([]);
+});
+
+test('all three gentle spooky stories can be read, completed and restored', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '동화', exact: true }).click();
+  const spookyTales = tales.filter((tale) => tale.spooky);
+  expect(spookyTales).toHaveLength(3);
+  for (const [index, tale] of spookyTales.entries()) {
+    const cover = page.getByRole('button', { name: `동화 읽기: ${tale.title}`, exact: true });
+    await expect(cover).toContainText('살짝 오싹');
+    await cover.click();
+    for (const [sceneIndex, scene] of tale.pages.entries()) {
+      await expect(page.getByText(scene.english, { exact: true })).toBeVisible();
+      await expect(page.locator('.tale-translation')).toHaveText(scene.korean);
+      await expect(page.locator('.tale-reader .tale-scene')).toHaveAccessibleName(scene.caption);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      ).toBe(true);
+      if (sceneIndex < tale.pages.length - 1)
+        await page.getByRole('button', { name: '다음 장면', exact: true }).click();
+    }
+    await page.getByRole('button', { name: '이야기 완료', exact: true }).click();
+    await expect(page.getByLabel('모험 완료')).toContainText('+10 P');
+    await expect(page.locator('.forest-leaves')).toContainText(`${(index + 1) * 10} P`);
+    await page.getByRole('button', { name: '다른 동화 보기', exact: true }).click();
+  }
+  await page.reload();
+  await page.getByRole('button', { name: '동화', exact: true }).click();
+  for (const tale of spookyTales)
+    await expect(
+      page.getByRole('button', { name: `동화 읽기: ${tale.title}`, exact: true }),
+    ).toContainText('완독');
+  await page.screenshot({
+    path: test.info().outputPath('spooky-story-library.png'),
+    fullPage: true,
+  });
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('wordforest-english-v1')!),
+  );
+  expect(saved.activityRecords).toHaveLength(3);
+  for (const tale of spookyTales) {
+    expect(saved.storyPages[tale.id]).toBe(7);
+    expect(
+      saved.activityRecords.some(
+        (record: { activityId: string }) => record.activityId === `story:${tale.id}`,
+      ),
+    ).toBe(true);
+  }
 });
 
 test('memory supports a mistake, matched pairs, replay, highest score and daily reward cap', async ({

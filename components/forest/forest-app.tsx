@@ -453,7 +453,7 @@ export function ForestApp() {
                   <h2>두근두근 동화</h2>
                   <p>친구들과 책 속으로 떠나요</p>
                   <strong>
-                    동화 3편 펼치기
+                    동화 {tales.length}편 펼치기
                     <ArrowRight size={18} />
                   </strong>
                 </div>

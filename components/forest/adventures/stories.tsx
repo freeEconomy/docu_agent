@@ -82,7 +82,10 @@ export function StoryLibrary({
                   <span className="tale-badge">{book.badge}</span>
                   <h2>{book.title}</h2>
                   <p>{book.description}</p>
-                  <small>{book.pages.length}장면 · 한국어 뜻 · 영어 듣기</small>
+                  <small>
+                    {book.spooky && '살짝 오싹 · '}
+                    {book.pages.length}장면 · 한국어 뜻 · 영어 듣기
+                  </small>
                   <strong>
                     <BookOpen size={17} />
                     {bookmark === undefined

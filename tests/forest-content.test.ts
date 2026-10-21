@@ -64,9 +64,10 @@ import {
   emptyAdventure,
 } from '../lib/forest/adventures';
 
-test('three original bilingual tales connect every scene to real vocabulary', () => {
-  assert.equal(tales.length, 3);
-  assert.equal(new Set(tales.map((t) => t.id)).size, 3);
+test('six original bilingual tales connect every scene to real vocabulary', () => {
+  assert.equal(tales.length, 6);
+  assert.equal(tales.filter((t) => t.spooky).length, 3);
+  assert.equal(new Set(tales.map((t) => t.id)).size, 6);
   for (const tale of tales) {
     assert.equal(tale.pages.length, 8);
     for (const page of tale.pages) {
