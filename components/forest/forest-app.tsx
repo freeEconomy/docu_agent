@@ -16,6 +16,8 @@ import {
   Star,
   RotateCcw,
   ClipboardList,
+  Gamepad2,
+  LibraryBig,
 } from 'lucide-react';
 import {
   words,
@@ -27,8 +29,30 @@ import {
 } from '@/lib/forest/content';
 import photoCredits from '@/lib/forest/photo-credits.json';
 import { Photo } from './photo';
+import {
+  tales,
+  gameModes,
+  emptyAdventure,
+  readAdventure,
+  recordActivity,
+  type AdventureProgress,
+  type ActivityId,
+} from '@/lib/forest/adventures';
+import { StoryScene } from './adventures/shared';
+import { StoryLibrary } from './adventures/stories';
+import { GameArcade } from './adventures/games';
 import './forest.css';
-type View = 'home' | 'word' | 'practice' | 'quiz' | 'result' | 'card' | 'parent';
+import './adventures/adventures.css';
+type View =
+  | 'home'
+  | 'word'
+  | 'practice'
+  | 'quiz'
+  | 'result'
+  | 'card'
+  | 'parent'
+  | 'stories'
+  | 'games';
 type LearningRecord = {
   word: string;
   date: string;
@@ -36,7 +60,7 @@ type LearningRecord = {
   total: number;
   review: boolean;
 };
-type Profile = {
+type Profile = AdventureProgress & {
   name: string;
   color: string;
   symbol: string;
@@ -60,6 +84,7 @@ const symbolLabels = [
   '토끼 캐릭터',
 ];
 const initial: Profile = {
+  ...emptyAdventure,
   name: '새싹',
   color: colors[0],
   symbol: '🐰',
@@ -90,6 +115,7 @@ function readProfile(raw: unknown): Profile {
   const word = words.find((w) => w.id === p.selected) || words[0];
   return {
     ...p,
+    ...readAdventure(p),
     selected: word.id,
     page: Number.isInteger(p.page) && p.page >= 0 && p.page < word.story.pages.length ? p.page : 0,
     records: p.records
@@ -298,6 +324,15 @@ export function ForestApp() {
     setGateError(false);
     setGate(true);
   }
+  function completeAdventure(activityId: ActivityId, score: number) {
+    const date = new Date().toISOString();
+    const earned = recordActivity(profile, activityId, score, date).pointsEarned;
+    setProfile((p) => {
+      const result = recordActivity(p, activityId, score, date);
+      return { ...p, ...result.progress, leaves: p.leaves + result.pointsEarned };
+    });
+    return earned;
+  }
   const lastRecords = [...new Map(profile.records.map((r) => [r.word, r])).values()],
     reviews = lastRecords.filter((r) => r.review);
   const firstTryCount = answers.filter((answer) => answer.first).length;
@@ -305,8 +340,8 @@ export function ForestApp() {
   const nav = [
     { id: 'home', name: '홈', Icon: Home },
     { id: 'word', name: '사진 단어', Icon: BookOpen },
-    { id: 'practice', name: '상황 영어', Icon: MessageCircle },
-    { id: 'quiz', name: '퀴즈', Icon: ClipboardList },
+    { id: 'stories', name: '동화', Icon: LibraryBig },
+    { id: 'games', name: '게임', Icon: Gamepad2 },
     { id: 'card', name: '학습카드', Icon: Palette },
   ] as const;
   const listen = (text: string, label = '영어 듣기') => (
@@ -354,6 +389,19 @@ export function ForestApp() {
         </div>
       )}
       <main className="forest-main" aria-busy={!ready}>
+        {['home', 'word', 'practice', 'quiz', 'result'].includes(view) && (
+          <nav className="lesson-shortcuts" aria-label="생활 영어 빠른 연습">
+            <span>내 말로 연습해요</span>
+            <button onClick={() => go('practice')}>
+              <MessageCircle size={16} />
+              상황 영어
+            </button>
+            <button onClick={() => go('quiz')}>
+              <ClipboardList size={16} />
+              퀴즈
+            </button>
+          </nav>
+        )}
         {view === 'home' && (
           <>
             <section className="english-hero">
@@ -397,6 +445,37 @@ export function ForestApp() {
                 <span>배운 단어</span>
               </div>
             </section>
+            <div className="adventure-portals" aria-label="동화와 게임 모험">
+              <button className="adventure-portal portal-stories" onClick={() => go('stories')}>
+                <StoryScene scene={tales[0].pages[7]} compact />
+                <div>
+                  <span className="forest-eyebrow">STORY TIME</span>
+                  <h2>두근두근 동화</h2>
+                  <p>친구들과 책 속으로 떠나요</p>
+                  <strong>
+                    동화 3편 펼치기
+                    <ArrowRight size={18} />
+                  </strong>
+                </div>
+              </button>
+              <button className="adventure-portal portal-games" onClick={() => go('games')}>
+                <div className="portal-game-art" aria-hidden="true">
+                  <span>🃏</span>
+                  <span>🚂</span>
+                  <span>⭐</span>
+                  <span>🔎</span>
+                </div>
+                <div>
+                  <span className="forest-eyebrow">LET’S PLAY</span>
+                  <h2>와글와글 게임</h2>
+                  <p>듣고, 찾고, 연결하며 놀아요</p>
+                  <strong>
+                    게임 3종 만나기
+                    <ArrowRight size={18} />
+                  </strong>
+                </div>
+              </button>
+            </div>
             <form className="forest-search" onSubmit={searchWord}>
               <Search />
               <input
@@ -609,6 +688,21 @@ export function ForestApp() {
               </button>
             </div>
           </>
+        )}
+        {view === 'stories' && (
+          <StoryLibrary
+            progress={profile}
+            speak={speak}
+            stop={stop}
+            onBookmark={(id, page) =>
+              setProfile((p) => ({ ...p, storyPages: { ...p.storyPages, [id]: page } }))
+            }
+            onComplete={completeAdventure}
+            onWord={(id) => select(words.find((word) => word.id === id)!)}
+          />
+        )}
+        {view === 'games' && (
+          <GameArcade progress={profile} speak={speak} stop={stop} onComplete={completeAdventure} />
         )}
         {view === 'practice' && (
           <>
@@ -1060,6 +1154,35 @@ export function ForestApp() {
               )}
             </section>
             <section className="forest-panel">
+              <h2>동화와 게임 기록</h2>
+              {profile.activityRecords.length ? (
+                <ul className="adventure-history">
+                  {profile.activityRecords
+                    .slice(-6)
+                    .reverse()
+                    .map((record) => {
+                      const story = tales.find((tale) => `story:${tale.id}` === record.activityId);
+                      const game = gameModes.find(
+                        (mode) => `game:${mode.id}` === record.activityId,
+                      );
+                      return (
+                        <li key={`${record.activityId}-${record.date}`}>
+                          <strong>{story?.title || game?.title}</strong>
+                          <span>{story ? '읽기 완료' : `${record.score}점`}</span>
+                          <time>
+                            {new Date(record.date).toLocaleDateString('ko-KR', {
+                              timeZone: 'Asia/Seoul',
+                            })}
+                          </time>
+                        </li>
+                      );
+                    })}
+                </ul>
+              ) : (
+                <p className="forest-muted">아직 동화·게임 기록이 없어요.</p>
+              )}
+            </section>
+            <section className="forest-panel">
               <h2>사진 출처와 이용 조건</h2>
               <p>
                 촬영자가 CC0로 공개한 사진만 사용합니다. 사진별 원문과 이용 조건을 확인할 수 있어요.
@@ -1104,14 +1227,26 @@ export function ForestApp() {
           <small>
             사진 단어 {words.length}개 · 영어 예문 {sentenceCount}개 · CC0 실사 사진
           </small>
+          <br />
+          <small>
+            창작 동화 {tales.length}편 · 미니게임 {gameModes.length}종
+          </small>
         </footer>
       </main>
       <nav className="forest-nav" aria-label="학습 메뉴">
         {nav.map(({ id, name, Icon }) => (
           <button
             key={id}
-            aria-current={view === id ? 'page' : undefined}
-            className={view === id ? 'active' : ''}
+            aria-current={
+              view === id || (id === 'word' && ['practice', 'quiz', 'result'].includes(view))
+                ? 'page'
+                : undefined
+            }
+            className={
+              view === id || (id === 'word' && ['practice', 'quiz', 'result'].includes(view))
+                ? 'active'
+                : ''
+            }
             onClick={() => go(id)}
           >
             <Icon size={22} />

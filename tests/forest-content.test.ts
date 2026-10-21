@@ -53,3 +53,66 @@ test('all lesson photographs have attribution and unchanged local JPEG bytes', (
     assert.equal(createHash('sha256').update(bytes).digest('hex'), credit.localSha256, word.id);
   }
 });
+
+import {
+  tales,
+  gameModes,
+  trainRounds,
+  gameWordIds,
+  readAdventure,
+  recordActivity,
+  emptyAdventure,
+} from '../lib/forest/adventures';
+
+test('three original bilingual tales connect every scene to real vocabulary', () => {
+  assert.equal(tales.length, 3);
+  assert.equal(new Set(tales.map((t) => t.id)).size, 3);
+  for (const tale of tales) {
+    assert.equal(tale.pages.length, 8);
+    for (const page of tale.pages) {
+      const word = words.find((w) => w.id === page.wordId);
+      assert.ok(word);
+      assert.ok(page.english.toLowerCase().includes(word.name), `${tale.id}: ${page.english}`);
+      assert.ok(page.korean && page.caption && page.cast.length && page.prop);
+    }
+  }
+  assert.equal(gameModes.length, 3);
+  assert.ok(gameWordIds.every((id) => words.some((w) => w.id === id)));
+  assert.equal(trainRounds.length, 5);
+  for (const round of trainRounds) {
+    assert.ok(words.some((w) => w.id === round.wordId));
+    assert.ok(round.korean);
+    assert.ok(round.english.split(' ').length <= 5);
+  }
+});
+
+test('adventure migration preserves valid bookmarks and daily rewards cannot be farmed', () => {
+  assert.deepEqual(readAdventure({ name: '기존 프로필' }), emptyAdventure);
+  assert.deepEqual(
+    readAdventure({
+      storyPages: { 'rainbow-ball': 3, 'cloud-train': 99 },
+      activityRecords: [{ activityId: 'unknown', date: 'bad', score: 500 }],
+    }),
+    { storyPages: { 'rainbow-ball': 3 }, activityRecords: [] },
+  );
+  const first = recordActivity(emptyAdventure, 'game:memory', 80, '2026-10-21T14:59:00Z');
+  assert.equal(first.pointsEarned, 10);
+  let progress = first.progress;
+  for (let i = 0; i < 400; i++) {
+    const repeat = recordActivity(progress, 'game:memory', 100, '2026-10-21T14:59:30Z');
+    assert.equal(repeat.pointsEarned, 0);
+    progress = repeat.progress;
+  }
+  assert.equal(progress.activityRecords.length, 1);
+  assert.equal(progress.activityRecords[0].score, 100);
+  assert.equal(
+    recordActivity(progress, 'game:memory', 50, '2026-10-21T15:00:00Z').pointsEarned,
+    10,
+  );
+  assert.equal(
+    recordActivity(progress, 'story:rainbow-ball', 100, '2026-10-21T14:59:30Z').pointsEarned,
+    10,
+  );
+  assert.throws(() => recordActivity(progress, 'story:missing', 100));
+  assert.throws(() => recordActivity(progress, 'game:train', 101));
+});

@@ -1,0 +1,1344 @@
+/* Storybook and arcade surfaces: big targets, quiet motion, local artwork. */
+.lesson-shortcuts {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 18px;
+  color: #63715e;
+  font-size: 13px;
+}
+.lesson-shortcuts button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid #dde5d6;
+  background: #fff;
+  min-height: 44px;
+  color: #365940;
+}
+.adventure-portals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin: 24px 0 32px;
+}
+.adventure-portal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  align-items: center;
+  text-align: left;
+  border-radius: 26px;
+  overflow: hidden;
+  border: 1px solid #d7e1d0;
+  background: #edf4e4;
+  box-shadow: 0 5px 0 #d6e2cb;
+  min-height: 190px;
+}
+.adventure-portal > div:last-child {
+  padding: 20px;
+  min-width: 0;
+}
+.adventure-portal h2 {
+  font-size: 23px;
+  margin: 7px 0;
+  color: #264832;
+}
+.adventure-portal p {
+  font-size: 13px;
+  color: #627159;
+  line-height: 1.6;
+}
+.adventure-portal strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: #355d40;
+}
+.portal-games {
+  background: #fff0d8;
+  border-color: #edd9b9;
+  box-shadow: 0 5px 0 #ebd6b4;
+}
+.portal-game-art {
+  position: relative;
+  align-self: stretch;
+  min-height: 180px;
+  background:
+    radial-gradient(circle at 30% 25%, #fff9e9 0 17%, transparent 18%),
+    linear-gradient(145deg, #ffdf9d, #f3c78e);
+  overflow: hidden;
+}
+.portal-game-art span {
+  position: absolute;
+  filter: drop-shadow(0 8px 5px #a16e2e25);
+  font-size: 44px;
+}
+.portal-game-art span:nth-child(1) {
+  left: 10%;
+  top: 12%;
+  transform: rotate(-14deg);
+}
+.portal-game-art span:nth-child(2) {
+  left: 38%;
+  top: 44%;
+  font-size: 58px;
+}
+.portal-game-art span:nth-child(3) {
+  right: 10%;
+  top: 7%;
+  font-size: 32px;
+}
+.portal-game-art span:nth-child(4) {
+  left: 10%;
+  bottom: 6%;
+  font-size: 32px;
+}
+.adventure-heading {
+  margin: 10px 0 28px;
+}
+.adventure-heading h1 {
+  font-size: clamp(26px, 4vw, 38px);
+  line-height: 1.4;
+  margin: 9px 0;
+  color: #2b4937;
+  letter-spacing: -1px;
+}
+.adventure-heading > p {
+  color: #6c7863;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.adventure-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 13px;
+  color: #536b4b;
+  font-weight: 600;
+  padding: 8px 0;
+}
+.adventure-heading > .adventure-back {
+  display: flex;
+  width: fit-content;
+  margin-bottom: 14px;
+}
+.tale-library,
+.game-menu {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+.tale-cover {
+  text-align: left;
+  border: 1px solid #dfdfd1;
+  background: #fffdf7;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 5px 6px 0 #e9e4d5;
+  min-width: 0;
+}
+.tale-cover-art {
+  position: relative;
+}
+.tale-cover-copy {
+  padding: 22px;
+}
+.tale-cover-copy h2 {
+  font-size: 23px;
+  line-height: 1.5;
+  letter-spacing: -0.7px;
+  min-height: 70px;
+  margin: 10px 0;
+}
+.tale-cover-copy p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #6c7665;
+  min-height: 52px;
+}
+.tale-cover-copy small {
+  font-size: 12px;
+  color: #7b816e;
+  display: block;
+  margin: 18px 0 14px;
+}
+.tale-cover-copy strong {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #345f42;
+  font-size: 14px;
+}
+.tale-cover-copy strong > svg:last-child {
+  margin-left: auto;
+}
+.tale-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #f0f3e6;
+  color: #536644;
+  font-size: 11px;
+  font-weight: 700;
+}
+.tale-volume {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: #fffdf3de;
+  color: #52624a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.tale-read {
+  position: absolute;
+  right: 12px;
+  top: 14px;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  font-size: 11px;
+  background: #306345;
+  color: white;
+  padding: 5px 8px;
+  border-radius: 9px;
+}
+.adventure-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px dashed #d7deca;
+  border-radius: 18px;
+  background: #f6f7ed;
+  color: #69745d;
+  padding: 18px 22px;
+  margin: 30px 0;
+  font-size: 13px;
+  line-height: 1.9;
+}
+.adventure-note > svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+/* Original scene compositions use CSS scenery and decorative emoji characters. */
+.tale-scene {
+  position: relative;
+  height: 340px;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(#cde7e5 0%, #f0f3cf 73%);
+}
+.tale-scene.compact {
+  height: 235px;
+}
+.adventure-portal .tale-scene.compact {
+  height: 100%;
+  min-height: 190px;
+}
+.tale-orb {
+  position: absolute;
+  top: 7%;
+  right: 10%;
+  font-size: 45px;
+  z-index: 1;
+  filter: drop-shadow(0 0 16px #fffbd4);
+}
+.tale-cloud {
+  position: absolute;
+  top: 19%;
+  left: 8%;
+  height: 18px;
+  width: 85px;
+  border-radius: 40px;
+  background: #ffffffbc;
+}
+.tale-cloud:before,
+.tale-cloud:after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  left: 12px;
+  bottom: 0;
+}
+.tale-cloud:after {
+  width: 46px;
+  height: 46px;
+  left: 33px;
+}
+.cloud-two {
+  left: 65%;
+  top: 35%;
+  transform: scale(0.7);
+}
+.tale-hill {
+  position: absolute;
+  bottom: -40%;
+  left: -15%;
+  width: 85%;
+  height: 85%;
+  background: #a7c69b;
+  border-radius: 50% 50% 0 0;
+  z-index: 1;
+}
+.hill-two {
+  left: 40%;
+  bottom: -45%;
+  background: #c4d7a5;
+}
+.tale-tree {
+  position: absolute;
+  font-size: clamp(70px, 12vw, 125px);
+  left: 5%;
+  bottom: 9%;
+  z-index: 2;
+  filter: drop-shadow(0 5px 2px #456e3d18);
+}
+.tale-prop {
+  position: absolute;
+  right: 16%;
+  bottom: 12%;
+  font-size: 75px;
+  z-index: 5;
+  filter: drop-shadow(0 7px 4px #365f4425);
+}
+.tale-cast {
+  position: absolute;
+  left: 20%;
+  right: 17%;
+  bottom: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 10px;
+  z-index: 4;
+}
+.tale-cast > span {
+  font-size: clamp(65px, 11vw, 108px);
+  filter: drop-shadow(0 9px 3px #385f3e22);
+}
+.tale-cast > .cast-1 {
+  transform: translateY(-13px) rotate(7deg);
+}
+.tale-cast > .cast-2 {
+  transform: rotate(-7deg);
+}
+.tale-flowers {
+  position: absolute;
+  left: 7%;
+  bottom: 2%;
+  z-index: 5;
+  letter-spacing: 22px;
+  color: #fff5c3;
+  font-size: 24px;
+}
+.tale-scene.compact .tale-cast > span {
+  font-size: 62px;
+}
+.tale-scene.compact .tale-prop {
+  font-size: 43px;
+  right: 10%;
+  bottom: 9%;
+}
+.tale-scene.compact .tale-tree {
+  font-size: 76px;
+  left: 0;
+}
+.tale-scene.compact .tale-orb {
+  font-size: 32px;
+}
+.tale-scene.compact .tale-cast {
+  left: 12%;
+  right: 12%;
+  gap: 0;
+}
+.tale-scene.compact .tale-cloud {
+  transform: scale(0.65);
+  left: 0;
+}
+.theme-pond {
+  background: linear-gradient(#cbe5ec, #e2f1da);
+}
+.theme-pond .hill-two {
+  background: #7ec6d2;
+  bottom: -58%;
+  left: 25%;
+  width: 100%;
+  z-index: 3;
+}
+.theme-bakery {
+  background: repeating-linear-gradient(90deg, #f5dfc2 0 45px, #f0d6b5 46px 48px);
+}
+.theme-bakery .tale-hill {
+  background: #cfae88;
+  height: 25%;
+  width: 120%;
+  left: -10%;
+  border-radius: 0;
+  bottom: -5%;
+}
+.tale-bakery {
+  position: absolute;
+  top: 18%;
+  left: 17%;
+  right: 17%;
+  padding: 10px;
+  border-radius: 20px 20px 3px 3px;
+  background: #fff4d9;
+  border: 7px solid #b68d66;
+  text-align: center;
+  color: #9c6b46;
+  font-weight: 700;
+  letter-spacing: 5px;
+  font-size: 14px;
+}
+.tale-bakery span {
+  display: block;
+  font-size: 28px;
+  letter-spacing: 10px;
+  margin-top: 8px;
+}
+.theme-bakery .tale-cloud,
+.theme-bakery .tale-orb {
+  display: none;
+}
+.theme-clouds {
+  background: linear-gradient(#cfd9f4, #f7e3ef);
+}
+.theme-clouds .tale-hill {
+  background: #f7f7ff;
+}
+.theme-clouds .hill-two {
+  background: #e8e9ff;
+}
+.theme-night {
+  background: linear-gradient(#3d467e, #7976b0);
+}
+.theme-night .tale-hill {
+  background: #4f548b;
+}
+.theme-night .hill-two {
+  background: #777aaa;
+}
+.theme-night .tale-cloud {
+  opacity: 0.25;
+}
+.tale-stars {
+  position: absolute;
+  left: 20%;
+  top: 12%;
+  font-size: 28px;
+  letter-spacing: 12px;
+  color: #ffeaaa;
+}
+.tale-reader {
+  border: 1px solid #e6dfce;
+  border-radius: 26px;
+  background: #fffdf6;
+  box-shadow: 6px 7px 0 #ece6d6;
+  overflow: hidden;
+}
+.tale-reader-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  color: #6f755e;
+  font-size: 13px;
+}
+.tale-reader-top > span,
+.tale-reader-top button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+}
+.tale-reader-text {
+  padding: 28px 36px 20px;
+  text-align: center;
+}
+.tale-reader-text > p[lang='en'] {
+  font-family: Georgia, 'Noto Sans KR', serif;
+  font-size: clamp(24px, 4vw, 33px);
+  line-height: 1.7;
+  color: #2a4a39;
+  min-height: 90px;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+.tale-translation {
+  font-size: 16px;
+  line-height: 1.9;
+  color: #7b806c;
+  margin: 10px 0 22px;
+}
+.tale-reader-text .forest-actions {
+  justify-content: center;
+  margin-top: 20px;
+}
+.tale-word {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 16px 20px;
+  border-top: 1px dashed #e2ddc9;
+  font-size: 12px;
+  color: #6b765e;
+  flex-wrap: wrap;
+}
+.tale-word button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 6px 14px;
+  background: #edf2e2;
+  border-radius: 12px;
+  color: #375e40;
+}
+.tale-word strong {
+  font-size: 17px;
+}
+.tale-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px;
+  background: #f6f2e6;
+}
+.tale-pagination > span {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+.tale-pagination i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d2d8c7;
+}
+.tale-pagination .filled {
+  background: #4e7953;
+}
+.arcade-banner {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  padding: 28px 32px;
+  background: linear-gradient(120deg, #edf2e1, #f9ebd2);
+  border-radius: 26px;
+  border: 1px solid #e0e5d1;
+  margin-bottom: 26px;
+}
+.arcade-banner > span {
+  font-size: 80px;
+}
+.arcade-banner h2 {
+  font-size: 25px;
+  letter-spacing: -0.7px;
+  margin-bottom: 9px;
+}
+.arcade-banner p {
+  font-size: 14px;
+  color: #69745e;
+  line-height: 1.7;
+}
+.arcade-banner small {
+  display: block;
+  font-size: 11px;
+  color: #75806a;
+  margin-top: 14px;
+}
+.game-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  min-width: 0;
+  border-radius: 26px;
+  border: 1px solid #0000000b;
+  padding: 28px;
+  box-shadow: 0 6px 0 #dfe2d0;
+}
+.game-tile-emoji {
+  font-size: 65px;
+  display: block;
+  margin: 0 0 20px;
+  filter: drop-shadow(0 6px 2px #00000012);
+}
+.game-tile h2 {
+  font-size: 26px;
+  letter-spacing: -1px;
+  margin: 12px 0 8px;
+}
+.game-tile p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #5f705e;
+  min-height: 48px;
+}
+.game-tile small {
+  margin-top: 18px;
+  color: #6c7563;
+  font-size: 12px;
+}
+.game-tile strong {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 18px;
+  font-size: 14px;
+  background: #ffffff9e;
+  padding: 12px 18px;
+  border-radius: 14px;
+}
+.game-board {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 28px;
+  border: 1px solid #e0e4d4;
+  border-radius: 26px;
+  background: #fffef9;
+  box-shadow: 0 6px 0 #e6e7d8;
+  text-align: center;
+}
+.game-progress {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 9px;
+  text-align: left;
+  font-size: 13px;
+  color: #6d785f;
+}
+.game-progress strong {
+  color: #446a49;
+}
+.game-progress > div {
+  grid-column: 1/-1;
+  background: #e9eedf;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.game-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #83ad6f, #4c845c);
+}
+.game-instruction {
+  font-size: 16px;
+  line-height: 1.8;
+  margin: 20px 0;
+  color: #526747;
+}
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.memory-card {
+  position: relative;
+  min-width: 0;
+  min-height: 160px;
+  aspect-ratio: 1/1.12;
+  border-radius: 18px;
+  border: 3px solid #d4b674;
+  background: #fff8e8;
+  overflow: hidden;
+  box-shadow: 0 4px 0 #c9b47f;
+}
+.memory-card:not(.open) {
+  background: repeating-linear-gradient(45deg, #d4b977 0 3px, #e5d198 4px 18px);
+  border-color: #eadbaa;
+}
+.memory-back {
+  display: grid;
+  place-content: center;
+  gap: 13px;
+  color: #fffaf0;
+  font-size: 45px;
+  text-shadow: 0 2px #a18b59;
+}
+.memory-back small {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #665933;
+  text-shadow: none;
+  font-weight: 700;
+}
+.memory-word {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 100%;
+  padding: 8px;
+  font-size: clamp(17px, 2.5vw, 27px);
+  font-weight: 700;
+  color: #416445;
+}
+.memory-card .english-photo {
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+}
+.memory-card .english-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.memory-card.matched {
+  border-color: #6b9f73;
+  box-shadow: 0 4px 0 #578364;
+}
+.memory-check {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  display: grid;
+  place-items: center;
+  background: #3f7853;
+  color: white;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+}
+.game-feedback {
+  min-height: 52px;
+  padding: 14px 5px;
+  color: #486a4c;
+  font-size: 15px;
+  line-height: 1.8;
+  font-weight: 600;
+}
+.sound-treasure {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin: 25px 0;
+  gap: 12px;
+  padding: 22px;
+  background: #edf4f9;
+  border-radius: 22px;
+}
+.sound-treasure > span {
+  font-size: 38px;
+}
+.sound-play {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 80px;
+  padding: 15px 25px;
+  background: #456d92;
+  color: white;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 21px;
+  box-shadow: 0 5px 0 #305676;
+}
+.sound-treasure > small {
+  font-size: 12px;
+  color: #6c7d8b;
+  line-height: 1.7;
+}
+.sound-hint {
+  font-size: 30px;
+  color: #3c6384;
+}
+.listening-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.listening-options button {
+  position: relative;
+  overflow: hidden;
+  border-radius: 19px;
+  border: 3px solid #e5e9de;
+  background: #fff;
+  min-width: 0;
+}
+.listening-options .english-photo {
+  height: 170px;
+  border-radius: 0;
+}
+.listening-options strong {
+  display: block;
+  font-size: 17px;
+  color: #52634b;
+  padding: 14px 5px;
+}
+.listening-options .correct {
+  border-color: #6b9f73;
+  background: #f0f6e8;
+}
+.listening-options button > svg {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  background: #477b53;
+  color: #fff;
+  border-radius: 50%;
+  padding: 3px;
+  width: 26px;
+  height: 26px;
+}
+.sentence-clue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 24px 0;
+}
+.sentence-clue .english-photo {
+  width: 130px;
+  height: 120px;
+  flex-shrink: 0;
+  border-radius: 20px;
+}
+.sentence-clue h2 {
+  font-size: 23px;
+  line-height: 1.6;
+  margin: 10px 0 14px;
+  letter-spacing: -0.5px;
+}
+.sentence-clue small {
+  font-size: 12px;
+  color: #7d806a;
+}
+.sentence-track {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  align-items: center;
+  min-height: 115px;
+  padding: 22px 14px;
+  background: linear-gradient(
+    #fff7e8 80%,
+    #d1b688 81% 83%,
+    #fff7e8 84% 89%,
+    #d1b688 90% 92%,
+    #fff7e8 93%
+  );
+  border-radius: 20px;
+}
+.train-engine {
+  font-size: 45px;
+}
+.train-car,
+.train-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 55px;
+  min-height: 55px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  background: #f1cf91;
+  color: #6c4f22;
+  font-size: 23px;
+  font-weight: 700;
+  border: 2px solid #d2ab6b;
+  box-shadow: 0 4px 0 #c4a16c;
+}
+.train-empty {
+  border-style: dashed;
+  background: #fff9ed;
+  color: #b79a6e;
+  box-shadow: none;
+}
+.sentence-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  padding: 25px 0;
+  min-height: 100px;
+}
+.sentence-tokens button {
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: 2px solid #a4bfa0;
+  box-shadow: 0 4px 0 #94b38f;
+  background: #eef5e7;
+  color: #3d6041;
+  font-size: 22px;
+  font-weight: 700;
+  min-height: 52px;
+}
+.sentence-tokens button:disabled {
+  opacity: 0.3;
+  box-shadow: none;
+}
+.adventure-complete {
+  border: 1px solid #e6dcc0;
+  background: radial-gradient(circle at 50% 5%, #fff2c2, transparent 50%), #fffcf0;
+  border-radius: 28px;
+  padding: 45px 30px;
+  text-align: center;
+}
+.adventure-trophy {
+  display: grid;
+  place-items: center;
+  width: 105px;
+  height: 105px;
+  margin: 0 auto 20px;
+  background: #ffedaa;
+  border-radius: 50%;
+  color: #9d7523;
+  box-shadow: 0 6px 0 #e3cc85;
+}
+.adventure-complete h2 {
+  font-size: 30px;
+  line-height: 1.5;
+  letter-spacing: -1px;
+  margin: 12px 0;
+}
+.adventure-complete > p {
+  color: #777d62;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.adventure-score {
+  display: block;
+  font-size: 58px;
+  color: #3f6d47;
+  line-height: 1.3;
+  margin-top: 22px;
+}
+.adventure-score small {
+  font-size: 22px;
+  margin-left: 5px;
+}
+.adventure-prize {
+  display: block;
+  padding: 20px;
+  margin: 24px auto;
+  max-width: 520px;
+  background: #edf2dd;
+  border-radius: 18px;
+  color: #49683b;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+.adventure-prize small {
+  display: block;
+  font-weight: 400;
+  font-size: 12px;
+  margin-top: 8px;
+}
+.adventure-complete .forest-actions,
+.sentence-board .forest-actions {
+  justify-content: center;
+}
+.adventure-portal:active,
+.tale-cover:active,
+.game-tile:active,
+.memory-card:active {
+  box-shadow: none;
+}
+.adventure-portals button:focus-visible,
+.tale-library button:focus-visible,
+.game-menu button:focus-visible,
+.game-board button:focus-visible,
+.tale-reader button:focus-visible {
+  outline: 3px solid #d29f36;
+  outline-offset: 4px;
+}
+@media (max-width: 760px) {
+  .adventure-portals {
+    gap: 14px;
+  }
+  .adventure-portal {
+    grid-template-columns: 1fr;
+  }
+  .adventure-portal .tale-scene.compact,
+  .portal-game-art {
+    height: 150px;
+    min-height: 150px;
+  }
+  .adventure-portal > div:last-child {
+    padding: 17px;
+  }
+  .adventure-portal h2 {
+    font-size: 20px;
+  }
+  .adventure-portal p {
+    font-size: 12px;
+  }
+  .adventure-portal strong {
+    font-size: 12px;
+    gap: 5px;
+  }
+  .tale-library,
+  .game-menu {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .tale-cover {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr);
+  }
+  .tale-cover-art .tale-scene.compact {
+    height: 100%;
+    min-height: 235px;
+  }
+  .tale-cover-copy {
+    padding: 20px 17px;
+  }
+  .tale-cover-copy h2 {
+    font-size: 22px;
+    min-height: 0;
+  }
+  .tale-cover-copy p {
+    font-size: 13px;
+    min-height: 0;
+  }
+  .tale-cover-copy small {
+    font-size: 10px;
+    line-height: 1.8;
+  }
+  .tale-cover-copy strong {
+    font-size: 12px;
+    gap: 5px;
+  }
+  .tale-volume {
+    top: 10px;
+    left: 8px;
+    font-size: 8px;
+  }
+  .tale-read {
+    top: auto;
+    bottom: 12px;
+    right: 9px;
+  }
+  .tale-scene {
+    height: 270px;
+  }
+  .tale-reader-text {
+    padding: 24px 20px 20px;
+  }
+  .tale-reader-text > p[lang='en'] {
+    font-size: 25px;
+    min-height: 0;
+  }
+  .tale-translation {
+    font-size: 14px;
+  }
+  .tale-reader-top {
+    padding: 12px 18px;
+  }
+  .tale-pagination {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 18px;
+  }
+  .tale-pagination > .forest-button:last-child {
+    order: 2;
+  }
+  .tale-pagination > span {
+    order: 3;
+    grid-column: 1/-1;
+    padding: 8px;
+  }
+  .tale-pagination .forest-button {
+    padding: 12px 8px;
+    font-size: 13px !important;
+    gap: 6px;
+  }
+  .arcade-banner {
+    padding: 22px 18px;
+    gap: 15px;
+  }
+  .arcade-banner > span {
+    font-size: 54px;
+  }
+  .arcade-banner h2 {
+    font-size: 21px;
+  }
+  .arcade-banner p {
+    font-size: 13px;
+  }
+  .game-tile {
+    display: grid;
+    grid-template-columns: 70px minmax(0, 1fr);
+    column-gap: 20px;
+    padding: 23px;
+  }
+  .game-tile-emoji {
+    grid-column: 1;
+    grid-row: 1/6;
+    align-self: center;
+    font-size: 62px;
+  }
+  .game-tile > .tale-badge,
+  .game-tile > h2,
+  .game-tile > p,
+  .game-tile > small,
+  .game-tile > strong {
+    grid-column: 2;
+  }
+  .game-tile p {
+    min-height: 0;
+  }
+  .game-tile h2 {
+    font-size: 25px;
+    margin: 10px 0 6px;
+  }
+  .game-tile strong {
+    width: fit-content;
+    margin-top: 14px;
+  }
+  .game-tile small {
+    margin-top: 12px;
+  }
+  .game-board {
+    padding: 20px 14px;
+  }
+  .memory-grid {
+    gap: 8px;
+  }
+  .memory-card {
+    min-height: 95px;
+    border-width: 2px;
+    border-radius: 13px;
+  }
+  .memory-back {
+    font-size: 30px;
+    gap: 7px;
+  }
+  .memory-back small {
+    font-size: 7px;
+    letter-spacing: 0;
+  }
+  .memory-word {
+    font-size: 16px;
+    gap: 10px;
+    padding: 3px;
+  }
+  .memory-check {
+    width: 20px;
+    height: 20px;
+    bottom: 3px;
+    right: 3px;
+  }
+  .listening-options {
+    gap: 8px;
+  }
+  .listening-options .english-photo {
+    height: 100px;
+  }
+  .listening-options strong {
+    font-size: 14px;
+    padding: 12px 4px;
+  }
+  .sound-play {
+    font-size: 19px;
+    padding: 14px 18px;
+  }
+  .sentence-clue {
+    gap: 15px;
+  }
+  .sentence-clue .english-photo {
+    width: 90px;
+    height: 95px;
+  }
+  .sentence-clue h2 {
+    font-size: 18px;
+  }
+  .sentence-clue .forest-button {
+    font-size: 12px !important;
+    padding: 10px;
+    gap: 5px;
+  }
+  .train-car,
+  .train-empty {
+    min-width: 43px;
+    min-height: 48px;
+    padding: 8px 10px;
+    font-size: 20px;
+  }
+  .train-engine {
+    font-size: 35px;
+  }
+  .sentence-track {
+    gap: 6px;
+    padding: 15px 8px;
+  }
+  .sentence-tokens {
+    gap: 10px;
+  }
+  .sentence-tokens button {
+    font-size: 20px;
+    padding: 10px 14px;
+  }
+  .adventure-complete {
+    padding: 32px 20px;
+  }
+  .adventure-complete h2 {
+    font-size: 25px;
+  }
+  .adventure-note {
+    padding: 16px;
+    font-size: 12px;
+  }
+  .lesson-shortcuts {
+    justify-content: center;
+    gap: 8px;
+  }
+  .lesson-shortcuts > span {
+    font-size: 12px;
+  }
+}
+@media (max-width: 360px) {
+  .tale-cover {
+    grid-template-columns: 1fr;
+  }
+  .tale-cover-art .tale-scene.compact {
+    height: 200px;
+    min-height: 200px;
+  }
+  .adventure-portals {
+    gap: 10px;
+  }
+  .adventure-portal > div:last-child {
+    padding: 14px 11px;
+  }
+  .adventure-portal h2 {
+    font-size: 17px;
+  }
+  .adventure-portal p {
+    font-size: 11px;
+  }
+  .adventure-portal strong {
+    font-size: 11px;
+  }
+  .adventure-portal strong svg {
+    width: 14px;
+  }
+  .memory-word {
+    font-size: 14px;
+  }
+  .game-tile {
+    padding: 20px 16px;
+    column-gap: 15px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adventure-portals *,
+  .tale-library *,
+  .tale-reader *,
+  .game-board * {
+    scroll-behavior: auto;
+    transition: none;
+    animation: none;
+  }
+}
+.train-car {
+  position: relative;
+  margin-bottom: 8px;
+}
+.train-car:before,
+.train-car:after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #876b43;
+  border: 2px solid #fff4d9;
+  pointer-events: none;
+}
+.train-car:before {
+  left: 15%;
+}
+.train-car:after {
+  right: 15%;
+}
+.adventure-history {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0;
+}
+.adventure-history li {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  padding: 14px 0;
+  border-bottom: 1px solid #e6e9db;
+  font-size: 14px;
+}
+.adventure-history strong {
+  flex: 1;
+  min-width: 130px;
+}
+.adventure-history span {
+  color: #547648;
+  font-weight: 600;
+}
+.adventure-history time {
+  color: #818674;
+  font-size: 12px;
+}
+@media (max-width: 760px) {
+  .tale-cover .tale-scene.compact .tale-cast {
+    left: 0;
+    right: 0;
+  }
+  .tale-cover .tale-scene.compact .tale-cast > span {
+    font-size: 42px;
+  }
+}
+.adventure-heading > p:empty {
+  display: none;
+}
+.tale-cast {
+  left: 8%;
+  right: 25%;
+  bottom: 16%;
+  gap: 5px;
+}
+.tale-prop {
+  right: 5%;
+  bottom: 5%;
+}
+.tale-scene.compact .tale-prop {
+  font-size: 36px;
+  right: 4%;
+  bottom: 2%;
+}
+.adventure-portal .tale-scene.compact .tale-cast {
+  left: 0;
+  right: 0;
+}
+.adventure-portal .tale-scene.compact .tale-cast > span {
+  font-size: 43px;
+}
+@media (max-width: 760px) {
+  .tale-reader .tale-scene {
+    height: 220px;
+  }
+}

@@ -170,7 +170,7 @@ test('English: voices use en-US, narration follows the current scene and survive
   });
   await page.goto('/');
   await page
-    .getByRole('navigation', { name: '학습 메뉴' })
+    .getByRole('navigation', { name: '생활 영어 빠른 연습' })
     .getByRole('button', { name: '상황 영어', exact: true })
     .click();
   await page.getByRole('button', { name: '이 장면 듣기' }).click();
