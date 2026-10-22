@@ -106,7 +106,7 @@ export function StoryLibrary({
               처음부터
             </button>
           </div>
-          <StoryScene scene={scene} />
+          <StoryScene scene={scene} taleId={tale.id} pageIndex={page} />
           <div className="tale-reader-text" aria-live="polite">
             <p lang="en">{scene.english}</p>
             {translated && <p className="tale-translation">{scene.korean}</p>}

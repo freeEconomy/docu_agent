@@ -83,10 +83,11 @@ test('stories keep old profiles, resume bookmarks and grant only one daily rewar
 });
 
 test('all thirty classic books can be read, completed and restored', async ({ page }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   await page.goto('/');
   await page.getByRole('button', { name: '동화', exact: true }).click();
   const classicTales = tales;
+  const sceneSources = new Set<string>();
   expect(classicTales).toHaveLength(30);
   for (const [index, tale] of classicTales.entries()) {
     const cover = page.getByRole('button', { name: `동화 읽기: ${tale.title}`, exact: true });
@@ -98,6 +99,13 @@ test('all thirty classic books can be read, completed and restored', async ({ pa
       await expect(page.locator('.tale-word button')).toContainText(scene.vocabulary.english);
       await expect(page.locator('.tale-word button')).toContainText(scene.vocabulary.korean);
       await expect(page.locator('.tale-reader .tale-scene')).toHaveAccessibleName(scene.caption);
+      const illustration = page.locator('.tale-reader .tale-scene img');
+      await expect(illustration).toBeVisible();
+      await expect
+        .poll(() => illustration.evaluate((img: HTMLImageElement) => img.naturalWidth))
+        .toBeGreaterThan(0);
+      sceneSources.add((await illustration.getAttribute('src'))!);
+      await expect(page.locator('.tale-reader .tale-cast, .tale-reader .tale-prop')).toHaveCount(0);
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       ).toBe(true);
@@ -123,6 +131,7 @@ test('all thirty classic books can be read, completed and restored', async ({ pa
     JSON.parse(localStorage.getItem('wordforest-english-v1')!),
   );
   expect(saved.activityRecords).toHaveLength(30);
+  expect(sceneSources.size).toBe(240);
   for (const tale of classicTales) {
     expect(saved.storyPages[tale.id]).toBe(7);
     expect(

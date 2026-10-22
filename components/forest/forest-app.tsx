@@ -448,7 +448,7 @@ export function ForestApp() {
             </section>
             <div className="adventure-portals" aria-label="동화와 게임 모험">
               <button className="adventure-portal portal-stories" onClick={() => go('stories')}>
-                <StoryScene scene={tales[0].pages[7]} compact />
+                <StoryScene scene={tales[0].pages[7]} taleId={tales[0].id} pageIndex={7} compact />
                 <div>
                   <span className="forest-eyebrow">STORY TIME</span>
                   <h2>두근두근 동화</h2>

@@ -230,13 +230,21 @@
   flex-shrink: 0;
   margin-top: 3px;
 }
-/* Original scene compositions use CSS scenery and decorative emoji characters. */
+/* Each reading page displays its own locally stored storybook illustration. */
 .tale-scene {
   position: relative;
-  height: 340px;
+  width: 100%;
+  height: 360px;
+  margin: 0;
   overflow: hidden;
-  isolation: isolate;
-  background: linear-gradient(#cde7e5 0%, #f0f3cf 73%);
+  background: #efe8db;
+  border-bottom: 1px solid #ded3c0;
+}
+.tale-scene > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .tale-scene.compact {
   height: 235px;
@@ -245,203 +253,8 @@
   height: 100%;
   min-height: 190px;
 }
-.tale-orb {
-  position: absolute;
-  top: 7%;
-  right: 10%;
-  font-size: 45px;
-  z-index: 1;
-  filter: drop-shadow(0 0 16px #fffbd4);
-}
-.tale-cloud {
-  position: absolute;
-  top: 19%;
-  left: 8%;
-  height: 18px;
-  width: 85px;
-  border-radius: 40px;
-  background: #ffffffbc;
-}
-.tale-cloud:before,
-.tale-cloud:after {
-  content: '';
-  position: absolute;
-  background: inherit;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  left: 12px;
-  bottom: 0;
-}
-.tale-cloud:after {
-  width: 46px;
-  height: 46px;
-  left: 33px;
-}
-.cloud-two {
-  left: 65%;
-  top: 35%;
-  transform: scale(0.7);
-}
-.tale-hill {
-  position: absolute;
-  bottom: -40%;
-  left: -15%;
-  width: 85%;
-  height: 85%;
-  background: #a7c69b;
-  border-radius: 50% 50% 0 0;
-  z-index: 1;
-}
-.hill-two {
-  left: 40%;
-  bottom: -45%;
-  background: #c4d7a5;
-}
-.tale-tree {
-  position: absolute;
-  font-size: clamp(70px, 12vw, 125px);
-  left: 5%;
-  bottom: 9%;
-  z-index: 2;
-  filter: drop-shadow(0 5px 2px #456e3d18);
-}
-.tale-prop {
-  position: absolute;
-  right: 16%;
-  bottom: 12%;
-  font-size: 75px;
-  z-index: 5;
-  filter: drop-shadow(0 7px 4px #365f4425);
-}
-.tale-cast {
-  position: absolute;
-  left: 20%;
-  right: 17%;
-  bottom: 10%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 10px;
-  z-index: 4;
-}
-.tale-cast > span {
-  font-size: clamp(65px, 11vw, 108px);
-  filter: drop-shadow(0 9px 3px #385f3e22);
-}
-.tale-cast > .cast-1 {
-  transform: translateY(-13px) rotate(7deg);
-}
-.tale-cast > .cast-2 {
-  transform: rotate(-7deg);
-}
-.tale-flowers {
-  position: absolute;
-  left: 7%;
-  bottom: 2%;
-  z-index: 5;
-  letter-spacing: 22px;
-  color: #fff5c3;
-  font-size: 24px;
-}
-.tale-scene.compact .tale-cast > span {
-  font-size: 62px;
-}
-.tale-scene.compact .tale-prop {
-  font-size: 43px;
-  right: 10%;
-  bottom: 9%;
-}
-.tale-scene.compact .tale-tree {
-  font-size: 76px;
-  left: 0;
-}
-.tale-scene.compact .tale-orb {
-  font-size: 32px;
-}
-.tale-scene.compact .tale-cast {
-  left: 12%;
-  right: 12%;
-  gap: 0;
-}
-.tale-scene.compact .tale-cloud {
-  transform: scale(0.65);
-  left: 0;
-}
-.theme-pond {
-  background: linear-gradient(#cbe5ec, #e2f1da);
-}
-.theme-pond .hill-two {
-  background: #7ec6d2;
-  bottom: -58%;
-  left: 25%;
-  width: 100%;
-  z-index: 3;
-}
-.theme-bakery {
-  background: repeating-linear-gradient(90deg, #f5dfc2 0 45px, #f0d6b5 46px 48px);
-}
-.theme-bakery .tale-hill {
-  background: #cfae88;
-  height: 25%;
-  width: 120%;
-  left: -10%;
-  border-radius: 0;
-  bottom: -5%;
-}
-.tale-bakery {
-  position: absolute;
-  top: 18%;
-  left: 17%;
-  right: 17%;
-  padding: 10px;
-  border-radius: 20px 20px 3px 3px;
-  background: #fff4d9;
-  border: 7px solid #b68d66;
-  text-align: center;
-  color: #9c6b46;
-  font-weight: 700;
-  letter-spacing: 5px;
-  font-size: 14px;
-}
-.tale-bakery span {
-  display: block;
-  font-size: 28px;
-  letter-spacing: 10px;
-  margin-top: 8px;
-}
-.theme-bakery .tale-cloud,
-.theme-bakery .tale-orb {
-  display: none;
-}
-.theme-clouds {
-  background: linear-gradient(#cfd9f4, #f7e3ef);
-}
-.theme-clouds .tale-hill {
-  background: #f7f7ff;
-}
-.theme-clouds .hill-two {
-  background: #e8e9ff;
-}
-.theme-night {
-  background: linear-gradient(#3d467e, #7976b0);
-}
-.theme-night .tale-hill {
-  background: #4f548b;
-}
-.theme-night .hill-two {
-  background: #777aaa;
-}
-.theme-night .tale-cloud {
-  opacity: 0.25;
-}
-.tale-stars {
-  position: absolute;
-  left: 20%;
-  top: 12%;
-  font-size: 28px;
-  letter-spacing: 12px;
-  color: #ffeaaa;
+.adventure-portal .tale-scene.compact > img {
+  object-fit: cover;
 }
 .tale-reader {
   border: 1px solid #e6dfce;
@@ -1303,44 +1116,11 @@
   color: #818674;
   font-size: 12px;
 }
-@media (max-width: 760px) {
-  .tale-cover .tale-scene.compact .tale-cast {
-    left: 0;
-    right: 0;
-  }
-  .tale-cover .tale-scene.compact .tale-cast > span {
-    font-size: 42px;
-  }
-}
 .adventure-heading > p:empty {
   display: none;
 }
-.tale-cast {
-  left: 8%;
-  right: 25%;
-  bottom: 16%;
-  gap: 5px;
-}
-.tale-prop {
-  right: 5%;
-  bottom: 5%;
-}
-.tale-scene.compact .tale-prop {
-  font-size: 36px;
-  right: 4%;
-  bottom: 2%;
-}
-.adventure-portal .tale-scene.compact .tale-cast {
-  left: 0;
-  right: 0;
-}
-.adventure-portal .tale-scene.compact .tale-cast > span {
-  font-size: 43px;
-}
-@media (max-width: 760px) {
-  .tale-reader .tale-scene {
-    height: 220px;
-  }
+.tale-reader .tale-scene {
+  height: clamp(240px, 65vw, 400px);
 }
 
 /* Face-out books, grouped visually by continuous wooden shelves. */

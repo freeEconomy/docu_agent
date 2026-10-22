@@ -2,47 +2,34 @@
 import { ArrowLeft, ArrowRight, Star, Trophy, Volume2 } from 'lucide-react';
 import type { TalePage } from '@/lib/forest/adventures';
 
-export function StoryScene({ scene, compact = false }: { scene: TalePage; compact?: boolean }) {
+export function StoryScene({
+  scene,
+  taleId,
+  pageIndex,
+  compact = false,
+}: {
+  scene: TalePage;
+  taleId: string;
+  pageIndex: number;
+  compact?: boolean;
+}) {
+  const source = `/story-scenes/${taleId}/${String(pageIndex + 1).padStart(2, '0')}.webp`;
   return (
-    <div
-      className={`tale-scene theme-${scene.theme}${compact ? ' compact' : ''}`}
+    <figure
+      className={`tale-scene${compact ? ' compact' : ''}`}
       role="img"
       aria-label={scene.caption}
     >
-      <span className="tale-orb" aria-hidden="true">
-        {scene.theme === 'night' ? '🌙' : '☀️'}
-      </span>
-      <span className="tale-cloud cloud-one" aria-hidden="true" />
-      <span className="tale-cloud cloud-two" aria-hidden="true" />
-      <span className="tale-hill hill-one" aria-hidden="true" />
-      <span className="tale-hill hill-two" aria-hidden="true" />
-      {scene.theme === 'bakery' && (
-        <span className="tale-bakery" aria-hidden="true">
-          BAKERY<span>🥖 🍞 🥐</span>
-        </span>
-      )}
-      {scene.theme === 'night' && (
-        <span className="tale-stars" aria-hidden="true">
-          ✦ · ✧ · ✦
-        </span>
-      )}
-      <span className="tale-tree" aria-hidden="true">
-        {scene.theme === 'bakery' ? '🪴' : scene.theme === 'clouds' ? '☁️' : '🌳'}
-      </span>
-      <span className="tale-prop" aria-hidden="true">
-        {scene.prop}
-      </span>
-      <div className="tale-cast" aria-hidden="true">
-        {scene.cast.map((character, i) => (
-          <span key={`${character}-${i}`} className={`cast-${i}`}>
-            {character}
-          </span>
-        ))}
-      </div>
-      <span className="tale-flowers" aria-hidden="true">
-        ✿ · ✿ · ✿
-      </span>
-    </div>
+      <img
+        key={source}
+        src={source}
+        alt=""
+        width={640}
+        height={480}
+        loading={compact ? 'lazy' : 'eager'}
+        decoding="async"
+      />
+    </figure>
   );
 }
 export function AdventureHeading({
