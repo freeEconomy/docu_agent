@@ -41,16 +41,25 @@ test('expanded lessons have unique searchable words, bilingual scenes and answer
   assert.equal(findWord('football')?.id, 'soccer');
 });
 
-test('all lesson photographs have attribution and unchanged local JPEG bytes', () => {
+test('all lesson photographs are distinct, attributed and match local JPEG bytes', () => {
+  assert.equal(new Set(words.map((word) => word.photoId)).size, words.length);
+  assert.equal(new Set(words.map((word) => word.photo)).size, words.length);
+  const hashes = new Set<string>();
+  const sources = new Set<string>();
   for (const word of words) {
     const credit = credits.find((item) => item.id === word.photoId);
     assert.ok(credit, word.id);
     assert.equal(credit.local, word.photo);
     assert.equal(credit.license, 'CC0-1.0');
     assert.ok(credit.author && credit.source && credit.licenseUrl);
+    assert.ok(!sources.has(credit.source), `${word.id} must use a distinct source photograph`);
+    sources.add(credit.source);
     const bytes = readFileSync(`public${credit.local}`);
     assert.equal(bytes.subarray(0, 3).toString('hex'), 'ffd8ff', word.id);
-    assert.equal(createHash('sha256').update(bytes).digest('hex'), credit.localSha256, word.id);
+    const hash = createHash('sha256').update(bytes).digest('hex');
+    assert.equal(hash, credit.localSha256, word.id);
+    assert.ok(!hashes.has(hash), `${word.id} must have its own photograph`);
+    hashes.add(hash);
   }
 });
 
@@ -112,7 +121,7 @@ test('thirty classic adaptations have provenance, bilingual scenes and relevant 
   }
   assert.equal(coverHashes.size, tales.length);
   assert.equal(sceneHashes.size, 240);
-  assert.equal(gameModes.length, 3);
+  assert.equal(gameModes.length, 4);
   assert.ok(gameWordIds.every((id) => words.some((w) => w.id === id)));
   assert.equal(trainRounds.length, 5);
   for (const round of trainRounds) {

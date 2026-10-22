@@ -703,6 +703,14 @@ export const tales: Tale[] = [
 ];
 export const gameModes = [
   {
+    id: 'soccer',
+    title: '영어 골! 축구 챌린지',
+    subtitle: '영어로 패스하고 슛! 다섯 골에 도전해요',
+    emoji: '⚽',
+    tag: '축구 + 생활 영어',
+    color: '#d8eddf',
+  },
+  {
     id: 'memory',
     title: '짝꿍 카드',
     subtitle: '사진과 영어의 짝을 찾아요',

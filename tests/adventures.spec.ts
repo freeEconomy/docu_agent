@@ -371,4 +371,16 @@ test('story narration and listening games use English voices and stop across sce
     text: word,
     lang: 'en-US',
   });
+  await page.getByRole('button', { name: '게임 놀이터', exact: true }).click();
+  await page.getByRole('button', { name: '영어 골! 축구 챌린지 시작', exact: true }).click();
+  await page.getByRole('button', { name: '힌트 보기', exact: true }).click();
+  const phrase = await page.locator('.soccer-hint strong').innerText();
+  await page.getByRole('button', { name: '영어 듣기', exact: true }).click();
+  expect(await page.evaluate(() => (window as any).__spoken.at(-1))).toEqual({
+    text: phrase,
+    lang: 'en-US',
+  });
+  const soccerStops = await page.evaluate(() => (window as any).__stops);
+  await page.getByRole('button', { name: '게임 놀이터', exact: true }).click();
+  expect(await page.evaluate(() => (window as any).__stops)).toBeGreaterThan(soccerStops);
 });

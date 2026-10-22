@@ -1,4 +1,5 @@
 'use client';
+import { SoccerGame } from './soccer';
 import { useRef, useState } from 'react';
 import { ArrowRight, Check, Gamepad2, Lightbulb, RotateCcw, Volume2 } from 'lucide-react';
 import {
@@ -417,7 +418,7 @@ export function GameArcade({
           <span aria-hidden="true">🏕️</span>
           <div>
             <h2>오늘은 어떤 모험을 할까?</h2>
-            <p>소리도 듣고, 카드도 뒤집고, 문장 기차도 출발!</p>
+            <p>영어 골에 도전하고, 카드도 뒤집고, 문장 기차도 출발!</p>
             <small>제한시간 없이 · 포인트 차감 없이 · 키보드로도 플레이</small>
           </div>
         </div>
@@ -488,6 +489,8 @@ export function GameArcade({
           }}
           onBack={back}
         />
+      ) : selected === 'soccer' ? (
+        <SoccerGame key={run} speak={speak} stop={stop} onFinish={finish} />
       ) : selected === 'memory' ? (
         <MemoryGame key={run} speak={speak} stop={stop} onFinish={finish} />
       ) : selected === 'listen' ? (

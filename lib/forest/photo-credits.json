@@ -569,5 +569,35 @@
     "changes": "Downloaded Commons photographic preview; resized to at most 1000 px, JPEG recompression, EXIF stripped.",
     "licenseVerification": "Commons imageinfo extmetadata LicenseShortName=CC0 and file description URL. SHA-256 records the downloaded preview bytes.",
     "checkedAt": "2026-10-20"
+  },
+  {
+    "id": "window",
+    "file": "Window Roskilde Denmark.jpg",
+    "author": "Jebulon",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Window_Roskilde_Denmark.jpg",
+    "mirror": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Window_Roskilde_Denmark.jpg/1280px-Window_Roskilde_Denmark.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "originalSha256": "2e6087cead4612c69fea1082b786d91e4182aa7a2bbfc3f24d5ae56b78be02b0",
+    "local": "/english-photos/window.jpg",
+    "localSha256": "959609937dc4f3dadb4aff18574abb692d0fdb0797a4126f5c7f0db81d681d68",
+    "changes": "Commons photographic preview resized to at most 1000 px; JPEG recompression and EXIF removal.",
+    "licenseVerification": "Commons imageinfo extmetadata LicenseShortName=CC0; author and source recorded from the file description metadata. SHA-256 records downloaded preview bytes.",
+    "checkedAt": "2026-10-22"
+  },
+  {
+    "id": "ball",
+    "file": "Foot ball image.jpg",
+    "author": "Darakshanehaluddin",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Foot_ball_image.jpg",
+    "mirror": "https://upload.wikimedia.org/wikipedia/commons/9/94/Foot_ball_image.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "originalSha256": "185cdd3a6164af3230be2da384d16e5083e8f12422e5843f7fb7dbd7177e6eeb",
+    "local": "/english-photos/ball.jpg",
+    "localSha256": "019d0ffcf94b3e6b3511f4fc530bc8b13e0679a9e448a2996726b1233d88faba",
+    "changes": "Commons photographic preview resized to at most 1000 px; JPEG recompression and EXIF removal.",
+    "licenseVerification": "Commons imageinfo extmetadata LicenseShortName=CC0; author and source recorded from the file description metadata. SHA-256 records downloaded preview bytes.",
+    "checkedAt": "2026-10-22"
   }
 ]

@@ -499,8 +499,8 @@ const data = [
     name: 'window',
     korean: '창문',
     category: '집에서',
-    photoId: 'building',
-    meaning: '빛이 들어오고 밖을 볼 수 있는 창문이에요. 사진 속 건물의 유리창을 찾아보세요.',
+    photoId: 'window',
+    meaning: '빛이 들어오고 밖을 볼 수 있는 창문이에요. 사진 속 창틀과 유리창을 살펴보세요.',
     sentences: [
       'I can see a window.',
       'The room is bright because the window is big.',

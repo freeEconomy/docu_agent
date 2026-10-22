@@ -23,7 +23,7 @@ const lessons: Lesson[] = [
     name: 'ball',
     korean: '공',
     category: '스포츠',
-    photoId: 'soccer',
+    photoId: 'ball',
     meaning: '차거나 던지며 놀 수 있는 공이에요. 친구에게 공을 건네 달라고 말해 봐요.',
     examples: [
       ['This is a ball.', '이것은 공이에요.'],

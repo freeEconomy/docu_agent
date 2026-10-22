@@ -471,7 +471,7 @@ export function ForestApp() {
                   <h2>와글와글 게임</h2>
                   <p>듣고, 찾고, 연결하며 놀아요</p>
                   <strong>
-                    게임 3종 만나기
+                    게임 {gameModes.length}종 만나기
                     <ArrowRight size={18} />
                   </strong>
                 </div>
